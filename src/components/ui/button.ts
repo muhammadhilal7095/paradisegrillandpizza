@@ -1,5 +1,5 @@
 type Variant = "primary" | "outlineLight" | "outlineDark";
-type Size = "sm" | "md";
+type Size = "xs" | "sm" | "md";
 
 const VARIANTS: Record<Variant, string> = {
   primary: "bg-brand text-white hover:bg-brand-dark",
@@ -8,6 +8,7 @@ const VARIANTS: Record<Variant, string> = {
 };
 
 const SIZES: Record<Size, string> = {
+  xs: "h-8 gap-1 px-3 text-[12px]",
   sm: "h-9 gap-1.5 px-4 text-[13px]",
   md: "h-11 gap-2 px-6 text-[14px]",
 };

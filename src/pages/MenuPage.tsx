@@ -1,51 +1,79 @@
-import { Link, useSearchParams } from "react-router-dom";
-import { ProductCard } from "../components/menu/ProductCard";
-import { CATEGORIES, isCategoryId, PRODUCTS } from "../data/menu";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { CategoryStrip } from "../components/menu/CategoryStrip";
+import { MenuHero } from "../components/menu/MenuHero";
+import { MenuSection } from "../components/menu/MenuSection";
+import { FreshIngredientsCard } from "../components/menu/sidebar/FreshIngredientsCard";
+import { QuickOrderCart } from "../components/menu/sidebar/QuickOrderCart";
+import { SpecialOfferCard } from "../components/menu/sidebar/SpecialOfferCard";
+import { featuredProducts, isCategoryId, MENU_CATEGORIES, productsInCategory, type CategoryId } from "../data/menu";
 
-const FILTERS = [{ id: null, name: "All" }, ...CATEGORIES.map(({ id, name }) => ({ id, name }))];
+/** Keeps the strip's highlight on the section currently near the top of the screen. */
+function useSectionSpy(enabled: boolean, initial: CategoryId) {
+  const [active, setActive] = useState<CategoryId>(initial);
+  const pausedUntil = useRef(0);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const sections = MENU_CATEGORIES.map((c) => document.getElementById(c.id)).filter((el): el is HTMLElement => !!el);
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
+        }
+        if (Date.now() < pausedUntil.current) return;
+        const first = MENU_CATEGORIES.find((c) => visible.has(c.id));
+        if (first) setActive(first.id);
+      },
+      // A band just below the sticky header + strip.
+      { rootMargin: "-200px 0px -55% 0px" },
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, [enabled]);
+
+  /** Highlight a category straight away and ignore the sections passed during the smooth scroll. */
+  const select = useCallback((id: CategoryId) => {
+    pausedUntil.current = Date.now() + 900;
+    setActive(id);
+  }, []);
+
+  return [active, select] as const;
+}
 
 export function MenuPage() {
   const [params] = useSearchParams();
   const raw = params.get("category");
-  const active = isCategoryId(raw) ? raw : null;
-  const products = active ? PRODUCTS.filter((p) => p.category === active) : PRODUCTS;
-  const activeName = CATEGORIES.find((c) => c.id === active)?.name;
+  const filter = isCategoryId(raw) ? raw : null;
+  const [spyActive, select] = useSectionSpy(!filter, "burgers");
+  const active = filter ?? spyActive;
+
+  const filteredCategory = filter ? MENU_CATEGORIES.find((c) => c.id === filter) : undefined;
 
   return (
-    <main className="mx-auto max-w-[1400px] px-4 py-12 md:px-6 md:py-16 desk:px-8 wide:px-12">
-      <p className="text-[12px] font-semibold tracking-[0.14em] text-brand uppercase">Our Menu</p>
-      <h1 className="mt-2 font-display text-[32px] leading-tight font-extrabold tracking-[-0.8px] text-ink md:text-[40px]">
-        {activeName ?? "Full Menu"}
-      </h1>
+    <main>
+      <MenuHero />
+      <CategoryStrip active={active} onSelect={select} />
 
-      <nav aria-label="Menu categories" className="-mx-4 mt-6 overflow-x-auto px-4 md:mx-0 md:px-0">
-        <ul className="flex gap-2 pb-1">
-          {FILTERS.map((filter) => {
-            const selected = filter.id === active;
-            return (
-              <li key={filter.name}>
-                <Link
-                  to={filter.id ? `/menu?category=${filter.id}` : "/menu"}
-                  aria-current={selected ? "true" : undefined}
-                  className={`inline-flex min-h-10 items-center rounded-full border px-4 text-[14px] font-medium whitespace-nowrap transition-colors ${
-                    selected ? "border-ink bg-ink text-white" : "border-line text-ink hover:border-ink/30"
-                  }`}
-                >
-                  {filter.name}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <div className="mx-auto grid max-w-[1400px] gap-10 px-4 py-8 md:px-6 md:py-10 desk:grid-cols-[minmax(0,3fr)_minmax(0,1fr)] desk:gap-6 desk:px-8 wide:px-12">
+        <div className="flex min-w-0 flex-col gap-12">
+          {filteredCategory ? (
+            <MenuSection category={filteredCategory} products={productsInCategory(filteredCategory.id)} mode="all" />
+          ) : (
+            MENU_CATEGORIES.map((category) => (
+              <MenuSection key={category.id} category={category} products={featuredProducts(category)} mode="featured" />
+            ))
+          )}
+        </div>
 
-      <ul className="mt-8 grid grid-cols-1 gap-3 xs:grid-cols-2 md:gap-4 md:grid-cols-3 lg:grid-cols-4 desk:grid-cols-5">
-        {products.map((product) => (
-          <li key={product.id} className="flex [&>article]:flex-1">
-            <ProductCard product={product} headingLevel="h2" />
-          </li>
-        ))}
-      </ul>
+        <aside aria-label="Offers and quick order" className="grid content-start gap-4 md:grid-cols-2 lg:grid-cols-3 desk:grid-cols-1">
+          <SpecialOfferCard />
+          <QuickOrderCart />
+          <FreshIngredientsCard />
+        </aside>
+      </div>
     </main>
   );
 }

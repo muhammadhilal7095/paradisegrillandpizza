@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import type { Category } from "../../data/menu";
+import type { CategoryTile } from "../../data/menu";
 
-export function CategoryCard({ category }: { category: Category }) {
+export function CategoryCard({ category }: { category: CategoryTile }) {
   return (
     <Link
       to={`/menu?category=${category.id}`}

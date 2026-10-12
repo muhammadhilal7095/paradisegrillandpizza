@@ -31,7 +31,7 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
   const { products, pages } = useMemo(
     () => ({
       products: q
-        ? PRODUCTS.filter((p) => `${p.name} ${p.description} ${p.category}`.toLowerCase().includes(q)).map((p) => ({
+        ? PRODUCTS.filter((p) => `${p.name} ${p.description ?? ""} ${p.category}`.toLowerCase().includes(q)).map((p) => ({
             key: p.id,
             label: p.name,
             detail: formatPrice(p.price),

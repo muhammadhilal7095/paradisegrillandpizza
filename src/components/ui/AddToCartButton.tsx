@@ -7,13 +7,14 @@ import { buttonClasses } from "./button";
 interface AddToCartButtonProps {
   item: CartItemInput;
   label?: string;
+  size?: "xs" | "sm";
   className?: string;
 }
 
 /** Ignores a second click this soon after the first (accidental double-click). */
 const DOUBLE_CLICK_MS = 400;
 
-export function AddToCartButton({ item, label = "Add to Cart", className = "" }: AddToCartButtonProps) {
+export function AddToCartButton({ item, label = "Add to Cart", size = "sm", className = "" }: AddToCartButtonProps) {
   const { addItem } = useCart();
   const notify = useToast();
   const [added, setAdded] = useState(false);
@@ -35,7 +36,7 @@ export function AddToCartButton({ item, label = "Add to Cart", className = "" }:
   };
 
   return (
-    <button type="button" onClick={handleClick} className={buttonClasses("primary", "sm", className)}>
+    <button type="button" onClick={handleClick} className={buttonClasses("primary", size, className)}>
       {added && <Check size={15} strokeWidth={2.4} aria-hidden="true" />}
       {added ? "Added" : label}
       <span className="sr-only"> – {item.name}</span>

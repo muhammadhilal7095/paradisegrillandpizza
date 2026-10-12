@@ -7,6 +7,7 @@ import { ACCOUNT_PANEL_ID, AccountPanel } from "./AccountPanel";
 import { BrandLogo } from "./BrandLogo";
 import { CartButton } from "./CartButton";
 import { CartDrawer } from "./CartDrawer";
+import { onOpenCartRequest } from "./cartDrawerEvents";
 import { DesktopNavigation } from "./DesktopNavigation";
 import { IconButton } from "./IconButton";
 import { MOBILE_NAV_ID, MobileNavigation } from "./MobileNavigation";
@@ -44,6 +45,16 @@ export function BurgerBiteHeader() {
     returnFocusRef.current = menuButtonRef.current;
     setActive(id);
   };
+
+  // Other parts of the page (e.g. the menu's Quick Order panel) can open the cart drawer.
+  useEffect(
+    () =>
+      onOpenCartRequest(({ trigger }) => {
+        returnFocusRef.current = trigger ?? null;
+        setActive("cart");
+      }),
+    [],
+  );
 
   // Any navigation closes open panels.
   useEffect(() => setActive(null), [pathname]);

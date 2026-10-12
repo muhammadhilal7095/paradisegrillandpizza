@@ -1,4 +1,4 @@
-import { CATEGORIES } from "../../data/menu";
+import { CATEGORY_TILES } from "../../data/menu";
 import { CategoryCard } from "../menu/CategoryCard";
 import { SectionHeading } from "../ui/SectionHeading";
 
@@ -14,7 +14,7 @@ export function CategorySection() {
           description="Choose from a variety of fresh, tasty and high-quality meals, made just for you."
         />
         <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-3 md:gap-x-6 lg:grid-cols-6 lg:gap-x-4">
-          {CATEGORIES.map((category) => (
+          {CATEGORY_TILES.map((category) => (
             <li key={category.id}>
               <CategoryCard category={category} />
             </li>

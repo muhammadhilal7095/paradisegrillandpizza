@@ -39,10 +39,16 @@ interface CartProviderProps {
   children: ReactNode;
   /** Used when the visitor has no saved cart yet. */
   initialItems?: CartItem[];
+  /** Re-syncs a saved line with current menu data (name, price); return null to drop it. */
+  refreshItem?: (item: CartItem) => CartItem | null;
 }
 
-export function CartProvider({ children, initialItems = [] }: CartProviderProps) {
-  const [items, setItems] = useState<CartItem[]>(() => readStoredCart() ?? initialItems);
+export function CartProvider({ children, initialItems = [], refreshItem }: CartProviderProps) {
+  const [items, setItems] = useState<CartItem[]>(() => {
+    const stored = readStoredCart();
+    if (!stored) return initialItems;
+    return refreshItem ? stored.flatMap((item) => refreshItem(item) ?? []) : stored;
+  });
 
   useEffect(() => {
     try {
