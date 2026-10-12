@@ -79,6 +79,8 @@ Source: `https://unsplash.com/photos/<id>` — or `https://images.unsplash.com/p
 | about-collage-moments.webp | 1460306855393-0410f61241c7 |
 | contact-hero-960.webp, contact-hero-1920.webp | 1553979459-d2229ba7433b |
 | contact-banner.webp | 1572802419224-296b0aeee0d9 |
+| terms-hero-960.webp, terms-hero-1920.webp | 1550317138-10000687a72b |
+| terms-banner.webp | 1586190848861-99aa4a171e90 |
 
 The gallery's Behind the Scenes photos (on-the-grill, finishing-touches, fresh-prep) are stock kitchen scenes, not BurgerBite's own.
 

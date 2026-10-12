@@ -10,6 +10,7 @@ import { HomePage } from "./pages/HomePage";
 import { MenuPage } from "./pages/MenuPage";
 import { OffersPage } from "./pages/OffersPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { TermsPage } from "./pages/TermsPage";
 
 const BUILT_PAGES: Record<string, React.ReactNode> = {
   "/": <HomePage />,
@@ -18,6 +19,7 @@ const BUILT_PAGES: Record<string, React.ReactNode> = {
   "/gallery": <GalleryPage />,
   "/about": <AboutPage />,
   "/contact": <ContactPage />,
+  "/terms": <TermsPage />,
 };
 
 function Layout() {
