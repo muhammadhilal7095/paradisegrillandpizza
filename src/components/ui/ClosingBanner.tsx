@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { ORDER_PATH } from "../../config/site";
@@ -13,6 +14,8 @@ interface ClosingBannerProps {
   /** Red second heading line. */
   titleBottom: string;
   description?: string;
+  /** Small decorative icon after the heading (e.g. a heart outline). */
+  titleAccent?: ReactNode;
   image: { src: string; srcSet?: string; width: number; height: number; alt: string };
 }
 
@@ -20,7 +23,7 @@ interface ClosingBannerProps {
  * Dark end-of-page banner: handwritten slogan (left), food photo (centre), heading + Order Now (right).
  * Stacks on small screens. The photo's edges are faded into the black background.
  */
-export function ClosingBanner({ titleId, slogan, sloganAccentFrom = slogan.length, titleTop, titleBottom, description, image }: ClosingBannerProps) {
+export function ClosingBanner({ titleId, slogan, sloganAccentFrom = slogan.length, titleTop, titleBottom, description, titleAccent, image }: ClosingBannerProps) {
   return (
     <section aria-labelledby={titleId} className="relative isolate overflow-hidden bg-deep text-white">
       <div
@@ -58,7 +61,10 @@ export function ClosingBanner({ titleId, slogan, sloganAccentFrom = slogan.lengt
         <div className="flex flex-col items-center text-center md:col-span-2 lg:col-span-1 lg:items-start lg:text-left">
           <h2 id={titleId} className="font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.6px] md:text-[38px] desk:text-[42px]">
             <span className="block">{titleTop}</span>
-            <span className="block text-brand">{titleBottom}</span>
+            <span className="block text-brand">
+              {titleBottom}
+              {titleAccent}
+            </span>
           </h2>
           {description && <p className="mt-3 text-[14px] text-white/80">{description}</p>}
           <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-6")}>

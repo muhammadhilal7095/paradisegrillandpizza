@@ -25,3 +25,6 @@ export const BRAND_PROMISE = {
   highlight: "Better Taste",
   points: ["100% Fresh Produce", "Quality Meat", "Hygienic & Safe"],
 };
+
+/** False until SOCIAL_LINKS point at BurgerBite's real profiles (they are platform homepages for now). */
+export const SOCIAL_PROFILES_VERIFIED = false;
