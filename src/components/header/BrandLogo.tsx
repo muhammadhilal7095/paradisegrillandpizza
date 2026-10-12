@@ -24,7 +24,7 @@ export function BrandLogo({ onClick, tone = "light" }: BrandLogoProps) {
         </span>
         <span
           className={`mt-[3px] text-[8.5px] leading-[1.3] font-normal whitespace-nowrap md:text-[9.5px] desk:text-[10px] ${
-            dark ? "text-white/60" : "text-muted"
+            dark ? "text-silver" : "text-muted"
           }`}
         >
           Fresh Food · Happy Mood
