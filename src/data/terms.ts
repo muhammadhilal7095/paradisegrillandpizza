@@ -9,10 +9,11 @@
  *  - the effective date (lastUpdated).
  */
 
-export const TERMS_META = {
-  status: "draft" as "draft" | "published",
-  /** ISO date (YYYY-MM-DD) of the version on this page. Leave null until it is real. */
-  lastUpdated: null as string | null,
+import type { PolicyMeta, PolicySection } from "./policy";
+
+export const TERMS_META: PolicyMeta & { currency: string } = {
+  status: "draft",
+  lastUpdated: null,
   currency: "GBP (£)",
 };
 
@@ -29,17 +30,7 @@ export type TermsIcon =
   | "scale"
   | "mail";
 
-/** A paragraph, optionally ending with an internal link. */
-export type TermsParagraph = string | { text: string; link: { label: string; to: string } };
-
-export interface TermsSection {
-  id: string;
-  title: string;
-  icon: TermsIcon;
-  content: TermsParagraph[];
-  /** Renders the configured email/phone under the text. */
-  showContactDetails?: boolean;
-}
+export type TermsSection = PolicySection<TermsIcon>;
 
 /** Order here is the order on the page; numbers (01–11) are derived from it. */
 export const TERMS_SECTIONS: readonly TermsSection[] = [
@@ -142,4 +133,3 @@ export const TERMS_SECTIONS: readonly TermsSection[] = [
 /** Supporting brand message beside the last card — not part of the terms themselves. */
 export const BRAND_RULES = ["Fresh Food", "Fair Policies", "Safe & Secure Orders", "Better Experience", "Happy Customers"];
 
-export const sectionNumber = (index: number) => String(index + 1).padStart(2, "0");

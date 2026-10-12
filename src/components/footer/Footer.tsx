@@ -11,6 +11,7 @@ const FOOTER_NAV = NAV_ITEMS.filter((item) => FOOTER_PATHS.includes(item.to));
 const LEGAL_LINKS = [
   { label: "Privacy Policy", to: "/privacy" },
   { label: "Terms & Conditions", to: "/terms" },
+  { label: "Returns & Refunds", to: "/return" },
 ];
 
 const container = "mx-auto max-w-[1400px] px-4 md:px-6 desk:px-10 wide:px-14";
