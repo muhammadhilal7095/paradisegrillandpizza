@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 import type { CategoryId } from "../../data/menu";
 
 /** Fries in a carton, drawn on Lucide's 24px grid (Lucide has no fries icon). */
-function Fries({ size = 24, strokeWidth = 2, ...rest }: LucideProps) {
+export function Fries({ size = 24, strokeWidth = 2, ...rest }: LucideProps) {
   return (
     <svg
       width={size}

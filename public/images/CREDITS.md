@@ -49,5 +49,29 @@ Source: `https://unsplash.com/photos/<id>` — or `https://images.unsplash.com/p
 | product-chicken-lovers-box.webp | 1569058242253-92a9c755a0ec |
 | promo-weekend-treat.webp | 1607013251379-e6eecfffe234 |
 | promo-midweek-munch.webp | 1630384060421-cb20d0e0649d |
+| gallery-hero-960.webp, gallery-hero-1920.webp | 1565299507177-b0ac66763828 |
+| gallery/classic-burger-600.webp, -1200.webp | 1568901346375-23c9450c58cd |
+| gallery/chicken-bucket-600.webp, -1200.webp | 1626645738196-c2a7c87a8f58 |
+| gallery/loaded-fries-600.webp, -1200.webp | 1573080496219-bb080dd4f877 |
+| gallery/chicken-wraps-600.webp, -1200.webp | 1562059390-a761a084768e |
+| gallery/cheeseburger-600.webp, -1200.webp | 1572802419224-296b0aeee0d9 |
+| gallery/chicken-wings-600.webp, -1200.webp | 1567620832903-9fc6debc209f |
+| gallery/onion-rings-600.webp, -1200.webp | 1639024471283-03518883512d |
+| gallery/iced-cola-600.webp, -1200.webp | 1582106245687-cbb466a9f07f |
+| gallery/double-cheeseburger-600.webp, -1200.webp | 1607013251379-e6eecfffe234 |
+| gallery/orange-soda-600.webp, -1200.webp | 1613478223719-2ab802602423 |
+| gallery/chocolate-cake-600.webp, -1200.webp | 1578985545062-69928b1d9587 |
+| gallery/burger-fries-combo-600.webp, -1200.webp | 1460306855393-0410f61241c7 |
+| gallery/on-the-grill-600.webp, -1200.webp | 1600565193348-f74bd3c7ccdf |
+| gallery/grilled-chicken-wrap-600.webp, -1200.webp | 1626700051175-6818013e1d4f |
+| gallery/brownie-sundae-600.webp, -1200.webp | 1624353365286-3f8d62daad51 |
+| gallery/golden-fries-600.webp, -1200.webp | 1576107232684-1279f390859f |
+| gallery/finishing-touches-600.webp, -1200.webp | 1577219491135-ce391730fb2c |
+| gallery/fresh-prep-600.webp, -1200.webp | 1466637574441-749b8f19452f |
+| gallery/crispy-drumsticks-600.webp, -1200.webp | 1626082927389-6cd097cdc6ec |
+| gallery/lemon-lime-soda-600.webp, -1200.webp | 1621263764928-df1444c5e859 |
+| gallery/mozzarella-sticks-600.webp, -1200.webp | 1531749668029-2db88e4276c7 |
+
+The gallery's Behind the Scenes photos (on-the-grill, finishing-touches, fresh-prep) are stock kitchen scenes, not BurgerBite's own.
 
 Before launch, swap these for BurgerBite's own food photography so the images show the real menu.

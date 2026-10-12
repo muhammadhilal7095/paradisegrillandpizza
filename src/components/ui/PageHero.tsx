@@ -58,7 +58,7 @@ export function PageHero({ titleId, eyebrow, titleTop, titleBottom, description,
       </div>
 
       <div className={`relative order-1 mx-auto flex w-full max-w-[1400px] items-center px-4 pt-10 pb-7 md:px-6 desk:px-8 wide:px-12 ${s.box}`}>
-        <div className="max-w-[460px]">
+        <div className="max-w-[460px] desk:max-w-[540px]">
           <p className="text-[12px] font-semibold tracking-[0.14em] text-brand uppercase">{eyebrow}</p>
           <h1 id={titleId} className={`mt-3 font-display leading-[1.05] font-extrabold tracking-[-1px] ${s.h1}`}>
             <span className="block text-white">{titleTop}</span>
