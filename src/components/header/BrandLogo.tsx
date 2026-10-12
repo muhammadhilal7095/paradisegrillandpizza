@@ -3,9 +3,12 @@ import { BurgerIcon } from "./BurgerIcon";
 
 interface BrandLogoProps {
   onClick?: () => void;
+  /** "dark" is for dark backgrounds such as the footer. */
+  tone?: "light" | "dark";
 }
 
-export function BrandLogo({ onClick }: BrandLogoProps) {
+export function BrandLogo({ onClick, tone = "light" }: BrandLogoProps) {
+  const dark = tone === "dark";
   return (
     <Link
       to="/"
@@ -16,10 +19,14 @@ export function BrandLogo({ onClick }: BrandLogoProps) {
       <BurgerIcon className="h-[27px] w-[30px] shrink-0 text-brand md:h-[32px] md:w-[35px] desk:h-[36px] desk:w-[40px]" />
       <span className="flex flex-col">
         <span className="font-display text-[18px] leading-none font-extrabold tracking-[-0.6px] whitespace-nowrap md:text-[21px] desk:text-[23px]">
-          <span className="text-ink">Burger</span>
+          <span className={dark ? "text-white" : "text-ink"}>Burger</span>
           <span className="text-brand">Bite</span>
         </span>
-        <span className="mt-[3px] text-[8.5px] leading-[1.3] font-normal whitespace-nowrap text-muted md:text-[9.5px] desk:text-[10px]">
+        <span
+          className={`mt-[3px] text-[8.5px] leading-[1.3] font-normal whitespace-nowrap md:text-[9.5px] desk:text-[10px] ${
+            dark ? "text-white/60" : "text-muted"
+          }`}
+        >
           Fresh Food · Happy Mood
         </span>
       </span>

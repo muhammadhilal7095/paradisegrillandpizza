@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, Search, UserRound } from "lucide-react";
+import { ORDER_PATH } from "../../config/site";
+import { buttonClasses } from "../ui/button";
 import { ACCOUNT_PANEL_ID, AccountPanel } from "./AccountPanel";
 import { BrandLogo } from "./BrandLogo";
 import { CartButton } from "./CartButton";
@@ -80,16 +82,14 @@ export function BurgerBiteHeader() {
         <DesktopNavigation />
 
         <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
-          <div className="hidden xs:block">
-            <IconButton
-              label="Search"
-              aria-expanded={active === "search"}
-              aria-controls={SEARCH_PANEL_ID}
-              onClick={toggle("search")}
-            >
-              <Search {...ICON} />
-            </IconButton>
-          </div>
+          <IconButton
+            label="Search"
+            aria-expanded={active === "search"}
+            aria-controls={SEARCH_PANEL_ID}
+            onClick={toggle("search")}
+          >
+            <Search {...ICON} />
+          </IconButton>
           <div className="hidden md:block">
             <IconButton
               label="Account"
@@ -101,6 +101,12 @@ export function BurgerBiteHeader() {
               <UserRound {...ICON} />
             </IconButton>
           </div>
+          <CartButton expanded={active === "cart"} onClick={toggle("cart")} />
+          <div className="ml-2 hidden md:block">
+            <Link to={ORDER_PATH} className={buttonClasses("primary", "sm")}>
+              Order Now
+            </Link>
+          </div>
           <div className="desk:hidden">
             <IconButton
               ref={menuButtonRef}
@@ -109,22 +115,17 @@ export function BurgerBiteHeader() {
               aria-expanded={active === "menu"}
               aria-controls={MOBILE_NAV_ID}
               onClick={toggle("menu")}
+              className="md:ml-1"
             >
               <Menu size={22} strokeWidth={1.9} />
             </IconButton>
           </div>
-          <CartButton expanded={active === "cart"} onClick={toggle("cart")} />
         </div>
       </div>
 
       <SearchPanel open={active === "search"} onClose={dismiss} />
       <AccountPanel open={active === "account"} onClose={dismiss} />
-      <MobileNavigation
-        open={active === "menu"}
-        onClose={dismiss}
-        onOpenSearch={openFromMenu("search")}
-        onOpenAccount={openFromMenu("account")}
-      />
+      <MobileNavigation open={active === "menu"} onClose={dismiss} onOpenAccount={openFromMenu("account")} />
       <CartDrawer open={active === "cart"} onClose={dismiss} />
     </header>
   );
