@@ -83,6 +83,9 @@ export const PRODUCTS: readonly Product[] = [
   { id: "classic-burger-meal", name: "Classic Burger Meal", description: "Burger + Fries + Drink", price: 699, category: "combos", image: img("classic-burger-meal"), imageAlt: "Burger served with fries and a dip" },
   { id: "chicken-bucket", name: "Chicken Bucket", description: "6 pcs Chicken + Fries + Dip", price: 999, category: "combos", image: img("chicken-bucket"), imageAlt: "Bucket of crispy fried chicken pieces" },
   { id: "chicken-wrap-combo", name: "Chicken Wrap Combo", description: "Wrap + Fries + Drink", price: 599, category: "combos", image: img("chicken-wrap-combo"), imageAlt: "Chicken wrap filled with fries and onions" },
+  { id: "double-burger-combo", name: "Double Burger Combo", description: "2 Classic Burgers + 2 Fries + 2 Drinks", price: 1099, category: "combos", image: img("double-burger-combo"), imageAlt: "Two beef burgers on a wooden serving board" },
+  { id: "family-feast", name: "Family Feast", description: "2 Burgers + 6 pcs Chicken + 4 Fries + 4 Drinks", price: 1999, category: "combos", image: img("family-feast"), imageAlt: "Burger served with fries and salad on a platter" },
+  { id: "chicken-lovers-box", name: "Chicken Lover's Box", description: "Chicken Burger + 4 pcs Chicken + Fries + Drink", price: 1299, category: "combos", image: img("chicken-lovers-box"), imageAlt: "Crispy fried chicken pieces on a banana leaf" },
 ];
 
 const AVAILABLE = PRODUCTS.filter((p) => p.available !== false);
@@ -121,30 +124,71 @@ export const CATEGORY_TILES: readonly CategoryTile[] = [
 
 // ---- Deals: each one points at a real product, so cart lines merge with the menu ----
 
-export interface Offer {
+export type OfferType = "discount" | "combo";
+
+/** Anything that can be switched off or limited to a date window. */
+export interface Schedulable {
+  /** Set false to pause without deleting. */
+  active?: boolean;
+  /** Local ISO dates (YYYY-MM-DD, inclusive). Outside this window the item is hidden. */
+  validFrom?: string;
+  validUntil?: string;
+}
+
+/** True when the item is switched on and today (local time) falls inside its date window. */
+export function isLive(item: Schedulable, now = new Date()) {
+  if (item.active === false) return false;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  if (item.validFrom && today < item.validFrom) return false;
+  if (item.validUntil && today > item.validUntil) return false;
+  return true;
+}
+
+export interface Offer extends Schedulable {
   productId: string;
-  /** Pre-discount price in pence. */
+  /** "discount" shows a % OFF badge (Exclusive Deals); "combo" shows SAVE £x (Combo Deals). */
+  type: OfferType;
+  /** Pre-discount price in pence. The current price is the product's own price. */
   originalPrice: number;
-  /** Badge figure as advertised (kept explicit rather than derived from rounded prices). */
-  discountPercent: number;
+  /** % OFF badge figure as advertised (kept explicit rather than derived from rounded prices). */
+  discountPercent?: number;
+  /** Deal copy when it should differ from the product description. */
+  blurb?: string;
 }
 
 const OFFER_DEFS: readonly Offer[] = [
-  { productId: "classic-burger-meal", originalPrice: 899, discountPercent: 20 },
-  { productId: "chicken-bucket", originalPrice: 1499, discountPercent: 30 },
-  { productId: "chicken-wrap-combo", originalPrice: 699, discountPercent: 15 },
-  { productId: "loaded-fries", originalPrice: 699, discountPercent: 25 },
+  { productId: "classic-burger-meal", type: "discount", originalPrice: 899, discountPercent: 20 },
+  { productId: "chicken-bucket", type: "discount", originalPrice: 1499, discountPercent: 30 },
+  { productId: "chicken-wrap-combo", type: "discount", originalPrice: 699, discountPercent: 15 },
+  { productId: "loaded-fries", type: "discount", originalPrice: 699, discountPercent: 25, blurb: "Cheese + Bacon + Sauce" },
+  { productId: "double-burger-combo", type: "combo", originalPrice: 1399 },
+  { productId: "family-feast", type: "combo", originalPrice: 2499 },
+  { productId: "chicken-lovers-box", type: "combo", originalPrice: 1699 },
 ];
 
 export interface ResolvedOffer extends Offer {
   product: Product;
+  /** Saving in pence (original − current). */
+  savings: number;
 }
 
-export const OFFERS: readonly ResolvedOffer[] = OFFER_DEFS.flatMap((offer) => {
-  const product = getProduct(offer.productId);
-  if (!product) return [];
-  return [{ ...offer, product }];
-});
+/** Live offers of one type, resolved against current product data. */
+export function liveOffers(type: OfferType, now = new Date()): ResolvedOffer[] {
+  return OFFER_DEFS.filter((o) => o.type === type && isLive(o, now)).flatMap((offer) => {
+    const product = getProduct(offer.productId);
+    return product ? [{ ...offer, product, savings: offer.originalPrice - product.price }] : [];
+  });
+}
+
+/** Badge text, e.g. { lead: "20%", tail: "OFF" } or { lead: "SAVE", tail: "£3" }. */
+export function offerBadge(offer: ResolvedOffer) {
+  return offer.type === "combo"
+    ? { lead: "SAVE", tail: formatSavings(offer.savings), label: `Save ${formatSavings(offer.savings)}` }
+    : { lead: `${offer.discountPercent}%`, tail: "OFF", label: `${offer.discountPercent}% off` };
+}
 
 const gbp = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
 export const formatPrice = (pence: number) => gbp.format(pence / 100);
+/** Whole pounds drop the pence (£3 rather than £3.00). */
+const formatSavings = (pence: number) => (pence % 100 === 0 ? `£${pence / 100}` : formatPrice(pence));

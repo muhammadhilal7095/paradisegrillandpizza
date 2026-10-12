@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { OFFERS } from "../../data/menu";
+import { liveOffers } from "../../data/menu";
 import { OfferCard } from "../menu/OfferCard";
 import { buttonClasses } from "../ui/button";
 import { SectionHeading } from "../ui/SectionHeading";
@@ -31,7 +31,7 @@ export function SpecialOffersSection() {
         </div>
 
         <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {OFFERS.slice(0, 4).map((offer) => (
+          {liveOffers("discount").slice(0, 4).map((offer) => (
             <li key={offer.productId} className="flex">
               <OfferCard offer={offer} />
             </li>

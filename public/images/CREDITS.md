@@ -43,5 +43,11 @@ Source: `https://unsplash.com/photos/<id>` — or `https://images.unsplash.com/p
 | product-classic-burger-meal.webp | 1460306855393-0410f61241c7 |
 | product-chicken-bucket.webp | 1626645738196-c2a7c87a8f58 |
 | product-chicken-wrap-combo.webp | 1529006557810-274b9b2fc783 |
+| offers-hero-960.webp, offers-hero-1920.webp | 1594212699903-ec8a3eca50f5 |
+| product-double-burger-combo.webp | 1550547660-d9450f859349 (cropped to exclude branded bottles) |
+| product-family-feast.webp | 1512152272829-e3139592d56f |
+| product-chicken-lovers-box.webp | 1569058242253-92a9c755a0ec |
+| promo-weekend-treat.webp | 1607013251379-e6eecfffe234 |
+| promo-midweek-munch.webp | 1630384060421-cb20d0e0649d |
 
 Before launch, swap these for BurgerBite's own food photography so the images show the real menu.

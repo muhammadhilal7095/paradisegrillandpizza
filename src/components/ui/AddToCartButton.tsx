@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { useCart, type CartItemInput } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
 import { buttonClasses } from "./button";
@@ -8,13 +8,15 @@ interface AddToCartButtonProps {
   item: CartItemInput;
   label?: string;
   size?: "xs" | "sm";
+  /** Adds a trailing arrow (Order Now →). */
+  arrow?: boolean;
   className?: string;
 }
 
 /** Ignores a second click this soon after the first (accidental double-click). */
 const DOUBLE_CLICK_MS = 400;
 
-export function AddToCartButton({ item, label = "Add to Cart", size = "sm", className = "" }: AddToCartButtonProps) {
+export function AddToCartButton({ item, label = "Add to Cart", size = "sm", arrow = false, className = "" }: AddToCartButtonProps) {
   const { addItem } = useCart();
   const notify = useToast();
   const [added, setAdded] = useState(false);
@@ -39,6 +41,7 @@ export function AddToCartButton({ item, label = "Add to Cart", size = "sm", clas
     <button type="button" onClick={handleClick} className={buttonClasses("primary", size, className)}>
       {added && <Check size={15} strokeWidth={2.4} aria-hidden="true" />}
       {added ? "Added" : label}
+      {arrow && !added && <ArrowRight size={15} strokeWidth={2.2} aria-hidden="true" />}
       <span className="sr-only"> – {item.name}</span>
     </button>
   );
