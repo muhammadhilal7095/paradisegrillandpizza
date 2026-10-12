@@ -3,6 +3,7 @@ import { Footer } from "./components/footer/Footer";
 import { BurgerBiteHeader } from "./components/header/BurgerBiteHeader";
 import { ScrollManager } from "./components/ScrollManager";
 import { NAV_ITEMS } from "./config/navigation";
+import { AboutPage } from "./pages/AboutPage";
 import { GalleryPage } from "./pages/GalleryPage";
 import { HomePage } from "./pages/HomePage";
 import { MenuPage } from "./pages/MenuPage";
@@ -14,6 +15,7 @@ const BUILT_PAGES: Record<string, React.ReactNode> = {
   "/menu": <MenuPage />,
   "/offers": <OffersPage />,
   "/gallery": <GalleryPage />,
+  "/about": <AboutPage />,
 };
 
 function Layout() {

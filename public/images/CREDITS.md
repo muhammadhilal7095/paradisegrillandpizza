@@ -71,6 +71,12 @@ Source: `https://unsplash.com/photos/<id>` — or `https://images.unsplash.com/p
 | gallery/crispy-drumsticks-600.webp, -1200.webp | 1626082927389-6cd097cdc6ec |
 | gallery/lemon-lime-soda-600.webp, -1200.webp | 1621263764928-df1444c5e859 |
 | gallery/mozzarella-sticks-600.webp, -1200.webp | 1531749668029-2db88e4276c7 |
+| about-hero-960.webp, about-hero-1920.webp | 1571091718767-18b5b1457add |
+| about-restaurant.webp | 1514933651103-005eec06c04b (stock interior, not a BurgerBite restaurant) |
+| about-banner.webp | 1596662951482-0c4ba74a6df6 |
+| about-collage-ingredients.webp | 1540420773420-3366772f4999 |
+| about-collage-burger.webp | 1586190848861-99aa4a171e90 |
+| about-collage-moments.webp | 1460306855393-0410f61241c7 |
 
 The gallery's Behind the Scenes photos (on-the-grill, finishing-touches, fresh-prep) are stock kitchen scenes, not BurgerBite's own.
 

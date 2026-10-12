@@ -4,8 +4,8 @@ import { ArrowRight, ImageOff } from "lucide-react";
 import { GalleryCard } from "../components/gallery/GalleryCard";
 import { GalleryFilters } from "../components/gallery/GalleryFilters";
 import { GalleryLightbox } from "../components/gallery/GalleryLightbox";
-import { GalleryPromoBanner } from "../components/gallery/GalleryPromoBanner";
 import { buttonClasses } from "../components/ui/button";
+import { ClosingBanner } from "../components/ui/ClosingBanner";
 import { PageHero } from "../components/ui/PageHero";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { ORDER_PATH } from "../config/site";
@@ -133,7 +133,21 @@ export function GalleryPage() {
         </div>
       </section>
 
-      <GalleryPromoBanner />
+      <ClosingBanner
+        titleId="capture-title"
+        slogan={["Good", "Food", "Good", "Mood"]}
+        sloganAccentFrom={2}
+        titleTop="Capture the"
+        titleBottom="Flavour"
+        description="Fresh ingredients. Great taste. Better moments."
+        image={{
+          src: "/images/banner-1600.webp",
+          srcSet: "/images/banner-800.webp 800w, /images/banner-1600.webp 1600w",
+          width: 1600,
+          height: 1067,
+          alt: "Sesame chicken burger with a basket of fries",
+        }}
+      />
 
       {openIndex !== null && visible[openIndex] && (
         <GalleryLightbox items={visible} index={openIndex} onIndexChange={setOpenIndex} onClose={closeLightbox} />
