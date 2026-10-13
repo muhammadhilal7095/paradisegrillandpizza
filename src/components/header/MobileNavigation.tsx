@@ -2,6 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 import { ArrowRight, ChevronRight, UserRound } from "lucide-react";
 import { NAV_ITEMS } from "../../config/navigation";
 import { ORDER_PATH } from "../../config/site";
+import { useAuth } from "../../context/AuthContext";
 import { buttonClasses } from "../ui/button";
 import { BrandLogo } from "./BrandLogo";
 import { Drawer } from "./Drawer";
@@ -15,6 +16,9 @@ interface MobileNavigationProps {
 }
 
 export function MobileNavigation({ open, onClose, onOpenAccount }: MobileNavigationProps) {
+  const { status, user } = useAuth();
+  const accountLabel = status === "authenticated" && user ? user.name : "Log in / Register";
+
   return (
     <Drawer
       id={MOBILE_NAV_ID}
@@ -53,8 +57,8 @@ export function MobileNavigation({ open, onClose, onOpenAccount }: MobileNavigat
           onClick={onOpenAccount}
           className="flex min-h-11 items-center gap-3 rounded-lg px-1 text-[15px] font-medium text-ink transition-colors hover:bg-mist hover:text-brand"
         >
-          <UserRound size={19} strokeWidth={1.8} aria-hidden="true" />
-          Account
+          <UserRound size={19} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
+          <span className="truncate">{accountLabel}</span>
         </button>
         <Link to={ORDER_PATH} onClick={onClose} className={buttonClasses("primary", "md", "w-full")}>
           Order Now

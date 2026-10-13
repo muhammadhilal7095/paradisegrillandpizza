@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Search, UserRound } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { ORDER_PATH } from "../../config/site";
 import { buttonClasses } from "../ui/button";
-import { ACCOUNT_PANEL_ID, AccountPanel } from "./AccountPanel";
+import { AccountButton } from "./AccountButton";
+import { AccountPanel } from "./AccountPanel";
 import { BrandLogo } from "./BrandLogo";
 import { CartButton } from "./CartButton";
 import { CartDrawer } from "./CartDrawer";
@@ -102,15 +103,7 @@ export function BurgerBiteHeader() {
             <Search {...ICON} />
           </IconButton>
           <div className="hidden md:block">
-            <IconButton
-              label="Account"
-              aria-haspopup="dialog"
-              aria-expanded={active === "account"}
-              aria-controls={ACCOUNT_PANEL_ID}
-              onClick={toggle("account")}
-            >
-              <UserRound {...ICON} />
-            </IconButton>
+            <AccountButton expanded={active === "account"} onClick={toggle("account")} />
           </div>
           <CartButton expanded={active === "cart"} onClick={toggle("cart")} />
           <div className="ml-2 hidden md:block">

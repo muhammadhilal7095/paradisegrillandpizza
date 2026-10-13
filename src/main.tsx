@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
+import { AuthProvider } from "./context/AuthContext";
 import { CartProvider, type CartItem } from "./context/CartContext";
 import { ToastProvider } from "./context/ToastContext";
 import { getProduct } from "./data/menu";
@@ -22,11 +23,13 @@ function refreshItem(item: CartItem): CartItem | null {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <CartProvider initialItems={EXAMPLE_CART} refreshItem={refreshItem}>
-        <ToastProvider>
-          <App />
-        </ToastProvider>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider initialItems={EXAMPLE_CART} refreshItem={refreshItem}>
+          <ToastProvider>
+            <App />
+          </ToastProvider>
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );
