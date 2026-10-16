@@ -23,23 +23,18 @@ const ICONS: Record<ReturnsIcon, ComponentType<LucideProps>> = {
 
 const DOODLES: Partial<Record<number, ComponentType<LucideProps>>> = { 1: Fries, 5: Truck };
 
+import { heroImage, menuImage } from "../data/menu";
+
 export function ReturnsPage() {
   return (
     <main>
       <PageHero
         titleId="returns-title"
-        eyebrow="Returns & Refunds"
+        eyebrow="Refunds"
         titleTop="Your Satisfaction"
         titleBottom="Matters to Us!"
-        description="At BurgerBite, we always aim to serve fresh, tasty and high-quality food. If something isn't right, we're here to make it right."
-        image={{
-          small: "/images/returns-hero-960.webp",
-          large: "/images/returns-hero-1920.webp",
-          width: 1920,
-          height: 700,
-          alt: "Crispy chicken burger with tomato and lettuce on a wooden board, warm lights behind",
-        }}
-        annotation="Freshly Made Always"
+        description="We cook every order fresh. If something isn't right with your food, tell us and we'll put it right."
+        image={heroImage("sides", "Cheesy garlic bread topped with herbs")}
       >
         <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-7")}>
           Order Now
@@ -55,15 +50,8 @@ export function ReturnsPage() {
               <h2 id="return-policy-title" className="mt-2 font-display text-[28px] leading-[1.15] font-extrabold tracking-[-0.6px] text-ink md:text-[32px]">
                 Simple, Fair &amp; <span className="text-brand">Customer-Friendly</span>
               </h2>
-              <p className="mt-3 text-[14px] text-muted">We want every BurgerBite experience to be delicious and hassle-free.</p>
+              <p className="mt-3 text-[14px] text-muted">We want every Paradise order to be delicious and hassle-free.</p>
             </div>
-            {/* Decorative note in the empty space to the right of the centred heading (desktop only). */}
-            <p aria-hidden="true" className="absolute top-2 right-0 hidden rotate-[-5deg] font-hand text-[24px] leading-[1.05] text-ink desk:block">
-              Good Food
-              <br />
-              <span className="text-brand-dark">Happy Customers</span>
-              <Heart size={16} strokeWidth={2.2} className="ml-1 inline-block -translate-y-0.5 text-brand" />
-            </p>
           </div>
 
           <div className="mt-6 flex flex-col items-center gap-2 text-center">
@@ -95,10 +83,10 @@ export function ReturnsPage() {
         titleBottom="Happier Days"
         titleAccent={<Heart size={26} strokeWidth={2} aria-hidden="true" className="ml-2 inline-block -translate-y-1 align-middle" />}
         image={{
-          src: "/images/promo-weekend-treat.webp",
-          width: 900,
-          height: 600,
-          alt: "Double cheeseburger with pickles on a dark background",
+          src: menuImage("meat-feast", 1080),
+          width: 1080,
+          height: 1080,
+          alt: "Meat feast pizza on a dark tray",
         }}
       />
     </main>

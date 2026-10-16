@@ -1,22 +1,36 @@
+import { Bike, Clock, ShoppingBag } from "lucide-react";
+import { heroImage, type MenuCategory } from "../../data/menu";
 import { PageHero } from "../ui/PageHero";
 
-export function MenuHero() {
+const PERKS = [
+  { icon: Clock, text: "Made fresh to order" },
+  { icon: ShoppingBag, text: "Collection" },
+  { icon: Bike, text: "Delivery" },
+];
+
+/** Compact menu header: the full menu, or one category when `category` is given. */
+export function MenuHero({ category, dishCount, categoryCount }: { category?: MenuCategory; dishCount?: number; categoryCount?: number }) {
+  const summary =
+    dishCount && categoryCount
+      ? `${dishCount} ${dishCount === 1 ? "dish" : "dishes"} across ${categoryCount} ${categoryCount === 1 ? "category" : "categories"}, cooked fresh when you order.`
+      : "Freshly prepared food, cooked when you order, for collection or delivery.";
   return (
     <PageHero
       titleId="menu-title"
-      eyebrow="Our Menu"
-      titleTop="Good Food"
-      titleBottom="Great Choices"
-      description="From juicy burgers to crispy fries, we've got something for every craving. Fresh ingredients. Bold flavours."
-      image={{
-        small: "/images/menu-hero-960.webp",
-        large: "/images/menu-hero-1920.webp",
-        width: 1920,
-        height: 640,
-        alt: "Cheeseburger with lettuce, tomato and melted cheese against a dark background",
-      }}
+      eyebrow={category ? "Our Menu" : "Order Online"}
+      titleTop={category ? "Our" : "Our"}
+      titleBottom={category ? category.name : "Menu"}
+      description={category ? category.intro : summary}
+      image={category ? heroImage(category.hero, category.heroAlt) : heroImage("menu", "Platter of grilled food with dips")}
     >
-      <span aria-hidden="true" className="mt-6 block h-1 w-14 rounded-full bg-brand" />
+      <ul className="mt-6 flex flex-wrap gap-2">
+        {PERKS.map(({ icon: Icon, text }) => (
+          <li key={text} className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm">
+            <Icon size={14} strokeWidth={2} aria-hidden="true" className="text-brand" />
+            {text}
+          </li>
+        ))}
+      </ul>
     </PageHero>
   );
 }

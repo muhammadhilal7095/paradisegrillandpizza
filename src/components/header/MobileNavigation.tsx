@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { ArrowRight, ChevronRight, UserRound } from "lucide-react";
 import { NAV_ITEMS } from "../../config/navigation";
+import { useMenu } from "../../context/menuStore";
 import { ORDER_PATH } from "../../config/site";
 import { useAuth } from "../../context/AuthContext";
 import { buttonClasses } from "../ui/button";
@@ -17,6 +18,7 @@ interface MobileNavigationProps {
 
 export function MobileNavigation({ open, onClose, onOpenAccount }: MobileNavigationProps) {
   const { status, user } = useAuth();
+  const { categories } = useMenu();
   const accountLabel = status === "authenticated" && user ? user.name : "Log in / Register";
 
   return (
@@ -44,6 +46,25 @@ export function MobileNavigation({ open, onClose, onOpenAccount }: MobileNavigat
               >
                 {item.label}
                 <ChevronRight size={17} strokeWidth={1.8} aria-hidden="true" className="text-muted" />
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <nav aria-label="Menu categories" className="border-b border-line px-5 py-4">
+        <h2 className="text-[11px] font-semibold tracking-[0.12em] text-muted uppercase">Browse the menu</h2>
+        <ul className="mt-2 grid grid-cols-2 gap-x-3">
+          {categories.map((c) => (
+            <li key={c.id}>
+              <NavLink
+                to={`/menu/${c.id}`}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex min-h-11 items-center text-[14px] transition-colors hover:text-brand ${isActive ? "font-semibold text-brand" : "text-ink"}`
+                }
+              >
+                {c.name}
               </NavLink>
             </li>
           ))}

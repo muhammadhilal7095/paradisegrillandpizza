@@ -1,4 +1,4 @@
-import { CircleCheck, Hamburger, Heart } from "lucide-react";
+import { CircleCheck, Pizza, Heart } from "lucide-react";
 import { BRAND_RULES } from "../../data/terms";
 
 /** Supporting brand message that sits beside the last policy card. Not part of the terms. */
@@ -9,7 +9,7 @@ export function BrandRulesPanel() {
       className="flex flex-col items-center gap-6 rounded-xl border border-dashed border-line bg-white p-5 text-center sm:flex-row sm:items-center sm:text-left md:p-6"
     >
       <div className="flex shrink-0 items-center gap-3">
-        <Hamburger aria-hidden="true" size={56} strokeWidth={1.1} className="text-brand" />
+        <Pizza aria-hidden="true" size={56} strokeWidth={1.1} className="text-brand" />
         <p className="font-hand text-[26px] leading-[1.05] text-ink">
           Good Food
           <br />

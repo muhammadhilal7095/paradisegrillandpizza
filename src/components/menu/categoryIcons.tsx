@@ -1,6 +1,5 @@
-import { CakeSlice, CupSoda, Drumstick, Hamburger, Pizza, Sandwich, UtensilsCrossed, type LucideProps } from "lucide-react";
+import { CakeSlice, CookingPot, CupSoda, Drumstick, Flame, Hamburger, Pizza, Sandwich, Tag, UtensilsCrossed, type LucideProps } from "lucide-react";
 import type { ComponentType } from "react";
-import type { CategoryId } from "../../data/menu";
 
 /** Fries in a carton, drawn on Lucide's 24px grid (Lucide has no fries icon). */
 export function Fries({ size = 24, strokeWidth = 2, ...rest }: LucideProps) {
@@ -23,13 +22,20 @@ export function Fries({ size = 24, strokeWidth = 2, ...rest }: LucideProps) {
   );
 }
 
-export const CATEGORY_ICONS: Record<CategoryId, ComponentType<LucideProps>> = {
-  burgers: Hamburger,
-  chicken: Drumstick,
-  wraps: Sandwich,
-  pizza: Pizza,
-  sides: Fries,
-  drinks: CupSoda,
-  desserts: CakeSlice,
-  combos: UtensilsCrossed,
-};
+
+/** Icon for a section, chosen from words in the portal's category name. */
+const ICON_BY_NAME: [RegExp, ComponentType<LucideProps>][] = [
+  [/pizza/i, Pizza],
+  [/burger/i, Hamburger],
+  [/peri|piri|spicy|hot/i, Flame],
+  [/kebab|wrap|doner|shawarma|sandwich/i, Sandwich],
+  [/grill|chicken|wing|shish|tikka/i, Drumstick],
+  [/curr|karahi|masala|rice|biryani/i, CookingPot],
+  [/drink|beverage|soda|juice|shake|coffee|tea/i, CupSoda],
+  [/dessert|sweet|cake|ice cream/i, CakeSlice],
+  [/deal|offer|combo|bundle/i, Tag],
+  [/side|starter|fries|chips/i, Fries],
+];
+
+export const categoryIcon = (name: string): ComponentType<LucideProps> =>
+  ICON_BY_NAME.find(([re]) => re.test(name))?.[1] ?? UtensilsCrossed;

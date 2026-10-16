@@ -31,7 +31,7 @@ function SocialTile({ network, label, href }: { network: SocialNetwork; label: s
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`Follow BurgerBite on ${label} (opens in a new tab)`}
+      aria-label={`Follow Paradise Grill and Pizza on ${label} (opens in a new tab)`}
       className={`${base} transition-colors hover:border-brand/40 hover:bg-blush`}
     >
       {inner}
@@ -68,7 +68,7 @@ export function FollowUsSection() {
 
         <aside aria-labelledby="craving-title" className="relative isolate flex min-h-[220px] flex-col justify-center overflow-hidden rounded-2xl bg-deep p-6 text-white md:p-7">
           <img
-            src="/images/offers-hero-960.webp"
+            src="/images/hero/deals-960.webp"
             alt=""
             width={960}
             height={540}

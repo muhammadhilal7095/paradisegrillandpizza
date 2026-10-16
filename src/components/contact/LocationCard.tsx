@@ -11,7 +11,7 @@ function MapEmbed({ lat, lng }: { lat: number; lng: number }) {
   const bbox = [lng - 0.008, lat - 0.004, lng + 0.008, lat + 0.004].map((n) => n.toFixed(5)).join(",");
   return (
     <iframe
-      title={`Map showing BurgerBite at ${address}`}
+      title={`Map showing Paradise Grill and Pizza at ${address}`}
       src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`}
       loading="lazy"
       className="size-full border-0"

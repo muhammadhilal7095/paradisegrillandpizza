@@ -17,6 +17,8 @@ import {
   type GalleryCategoryId,
 } from "../data/gallery";
 
+import { heroImage, menuImage } from "../data/menu";
+
 export function GalleryPage() {
   const [params, setParams] = useSearchParams();
   const raw = params.get("category");
@@ -60,17 +62,10 @@ export function GalleryPage() {
       <PageHero
         titleId="gallery-title"
         eyebrow="Our Gallery"
-        titleTop="Moments"
-        titleBottom="That Taste Amazing"
-        description="A visual journey of our fresh ingredients, delicious meals and happy moments at BurgerBite."
-        image={{
-          small: "/images/gallery-hero-960.webp",
-          large: "/images/gallery-hero-1920.webp",
-          width: 1920,
-          height: 700,
-          alt: "Stacked burger with melted cheese, lettuce and tomato on a dark background",
-        }}
-        annotation="Freshly Made Visuals"
+        titleTop="Straight From"
+        titleBottom="Our Kitchen"
+        description="Pizza fresh from the oven, chicken off the grill and everything in between."
+        image={heroImage("about-grill", "Marinated chicken skewers grilling over charcoal")}
       >
         <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-7")}>
           Order Now
@@ -135,17 +130,16 @@ export function GalleryPage() {
 
       <ClosingBanner
         titleId="capture-title"
-        slogan={["Good", "Food", "Good", "Mood"]}
-        sloganAccentFrom={2}
+        slogan={["Fresh From", "The Oven"]}
+        sloganAccentFrom={1}
         titleTop="Capture the"
         titleBottom="Flavour"
-        description="Fresh ingredients. Great taste. Better moments."
+        description="Hungry yet? Everything here is on the menu."
         image={{
-          src: "/images/banner-1600.webp",
-          srcSet: "/images/banner-800.webp 800w, /images/banner-1600.webp 1600w",
-          width: 1600,
-          height: 1067,
-          alt: "Sesame chicken burger with a basket of fries",
+          src: menuImage("pizza-night-for-two", 1080),
+          width: 1080,
+          height: 1080,
+          alt: "Pizzas with different toppings on a dark table",
         }}
       />
 

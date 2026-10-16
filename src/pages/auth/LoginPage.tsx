@@ -58,7 +58,7 @@ export function LoginPage() {
       eyebrow="Welcome back"
       title={
         <>
-          Log in to <span className="text-brand">BurgerBite</span>
+          Log in to <span className="text-brand">Paradise</span>
         </>
       }
       description="Access your account and profile."
@@ -111,7 +111,7 @@ export function LoginPage() {
           )}
         </button>
         <p className="text-center text-[13px] text-muted">
-          New to BurgerBite?{" "}
+          New to Paradise?{" "}
           <Link to={withNext("/register")} className="font-semibold text-brand-dark hover:underline">
             Create an account
           </Link>

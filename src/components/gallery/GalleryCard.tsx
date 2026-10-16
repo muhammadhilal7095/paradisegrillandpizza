@@ -20,8 +20,8 @@ export const GalleryCard = forwardRef<HTMLButtonElement, GalleryCardProps>(funct
       className="group relative block aspect-[4/3] w-full overflow-hidden rounded-md bg-mist"
     >
       <img
-        src={galleryImage(item, 600)}
-        srcSet={`${galleryImage(item, 600)} 600w, ${galleryImage(item, 1200)} 1200w`}
+        src={galleryImage(item, 540)}
+        srcSet={`${galleryImage(item, 540)} 540w, ${galleryImage(item, 1080)} 1080w`}
         sizes="(min-width: 768px) 33vw, (min-width: 375px) 50vw, 100vw"
         width={600}
         height={450}

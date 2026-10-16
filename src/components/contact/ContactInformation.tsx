@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
-import { Globe, Hamburger, Info, Mail, MapPin, Phone, type LucideProps } from "lucide-react";
+import { Globe, Pizza, Info, Mail, MapPin, Phone, type LucideProps } from "lucide-react";
 import { CONTACT, CONTACT_DETAILS_VERIFIED, telHref } from "../../config/contact";
 import { Fries } from "../menu/categoryIcons";
 
@@ -36,7 +36,7 @@ export function ContactInformation() {
       {/* Low-contrast line art in the corner, clear of the details (hidden on small screens). */}
       <div aria-hidden="true" className="pointer-events-none absolute -right-3 -bottom-3 hidden items-end gap-1 text-line lg:flex">
         <Fries size={64} strokeWidth={1.2} />
-        <Hamburger size={92} strokeWidth={1.1} />
+        <Pizza size={92} strokeWidth={1.1} />
       </div>
 
       <h2 id="contact-info-title" className="font-display text-[24px] leading-tight font-extrabold tracking-[-0.4px] text-ink md:text-[26px]">

@@ -1,4 +1,4 @@
-const OPEN_CART = "burgerbite:open-cart";
+const OPEN_CART = "paradise:open-cart";
 
 export interface OpenCartDetail {
   /** Element to refocus when the drawer closes. */

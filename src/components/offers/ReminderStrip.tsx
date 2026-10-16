@@ -15,7 +15,7 @@ export function ReminderStrip() {
         <Clock size={18} strokeWidth={2} aria-hidden="true" />
       </span>
       <p className="min-w-[12rem] flex-1 text-[15px] font-semibold text-ink">
-        <span className="text-brand-dark">Fresh deals. Limited time.</span> Don't miss out!
+        <span className="text-brand-dark">Hungry?</span> Order online for collection or delivery.
       </p>
       <UtensilsCrossed size={20} strokeWidth={1.8} aria-hidden="true" className="hidden shrink-0 text-brand md:block" />
       <Link to={ORDER_PATH} className={buttonClasses("primary", "sm", "w-full sm:w-auto")}>

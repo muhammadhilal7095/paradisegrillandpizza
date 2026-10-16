@@ -12,6 +12,8 @@ import { ORDER_PATH } from "../config/site";
 
 const container = "mx-auto max-w-[1200px] px-4 md:px-6 desk:px-8";
 
+import { heroImage, menuImage } from "../data/menu";
+
 export function ContactPage() {
   return (
     <main>
@@ -20,15 +22,8 @@ export function ContactPage() {
         eyebrow="Get in Touch"
         titleTop="We'd Love to"
         titleBottom="Hear From You"
-        description="Have a question, feedback or a special request? We're always here to serve you better."
-        image={{
-          small: "/images/contact-hero-960.webp",
-          large: "/images/contact-hero-1920.webp",
-          width: 1920,
-          height: 700,
-          alt: "Stacked beef burger with bacon and melted cheese on a dark background",
-        }}
-        annotation="Fresh Food, Happy People"
+        description="Questions about your order, allergies or a large party booking? Call, message or drop in. We're happy to help."
+        image={heroImage("contact", "Pizza on a peel beside a wood-fired oven")}
       >
         <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-7")}>
           Order Now
@@ -51,16 +46,16 @@ export function ContactPage() {
 
       <ClosingBanner
         titleId="stay-connected-title"
-        slogan={["Fresh Food", "Brighter Days"]}
+        slogan={["Fresh Food", "Friendly Faces"]}
         sloganAccentFrom={1}
         titleTop="Let's Stay"
         titleBottom="Connected"
         titleAccent={<Heart size={26} strokeWidth={2} aria-hidden="true" className="ml-2 inline-block -translate-y-1 align-middle" />}
         image={{
-          src: "/images/contact-banner.webp",
-          width: 1200,
-          height: 800,
-          alt: "Double cheeseburger with melted cheese on a dark background",
+          src: menuImage("peri-half-chicken", 1080),
+          width: 1080,
+          height: 1080,
+          alt: "Flame-grilled peri peri chicken on a rack",
         }}
       />
     </main>

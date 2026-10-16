@@ -5,7 +5,7 @@ import {
   CreditCard,
   CupSoda,
   FileText,
-  Hamburger,
+  Pizza,
   Mail,
   Scale,
   ShieldCheck,
@@ -33,7 +33,7 @@ const ICONS: Record<TermsIcon, ComponentType<LucideProps>> = {
   mail: Mail,
 };
 
-const DOODLES: Partial<Record<number, ComponentType<LucideProps>>> = { 0: Hamburger, 4: Fries, 8: CupSoda };
+const DOODLES: Partial<Record<number, ComponentType<LucideProps>>> = { 0: Pizza, 4: Fries, 8: CupSoda };
 
 export function TermsCard({ section, index }: { section: TermsSection; index: number }) {
   return <PolicyCard section={section} index={index} icon={ICONS[section.icon]} doodle={DOODLES[index]} />;

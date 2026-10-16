@@ -3,26 +3,26 @@
  */
 
 export const STORY_PARAGRAPHS = [
-  "BurgerBite started with a simple idea — to serve fresh, tasty and high-quality food that makes people happy. What began as a small dream has grown into a place where flavour, freshness and good moments come together.",
-  "We focus on real ingredients, bold flavours and a great dining experience. Every burger, wrap, fry and drink is prepared with care, so you can enjoy food that always tastes amazing.",
+  "Paradise Grill and Pizza started with a simple idea: cook the food we love to eat, properly, every single time. Fresh dough stretched by hand, chicken marinated overnight and grilled over the flame, curries simmered slowly with our own spice blends.",
+  "Today we serve our neighbourhood stone-baked pizza, peri peri chicken, freshly carved kebabs, burgers and curries for collection and delivery. The menu has grown, but the rule hasn't changed: nothing is cooked until you order it.",
 ];
 
 export type ValueIcon = "leaf" | "chef" | "customers" | "heart";
 
 export const VALUES: readonly { title: string; description: string; icon: ValueIcon }[] = [
-  { title: "Fresh Ingredients", icon: "leaf", description: "We use high-quality ingredients to create fresh and flavourful meals." },
-  { title: "Great Taste", icon: "chef", description: "Bold flavours and carefully prepared food, every time." },
+  { title: "Fresh Every Day", icon: "leaf", description: "Dough made daily and produce delivered fresh." },
+  { title: "Cooked to Order", icon: "chef", description: "Nothing sits under a lamp. We start cooking when you order." },
   { title: "Happy Customers", icon: "customers", description: "Your happiness is at the heart of our approach." },
   { title: "Quality & Care", icon: "heart", description: "Prepared with care, served with love." },
 ];
 
 export const COMMITMENT_TEXT =
-  "We're committed to serving delicious food, maintaining high standards of quality and creating a friendly place where everyone can enjoy great meals. At BurgerBite, every meal is more than just food — it's a moment to enjoy.";
+  "We're committed to fresh ingredients, a spotless kitchen and food that tastes as good on the tenth order as on the first. Tell us about allergies or special requests and we'll do our best to help.";
 
 export const COLLAGE: readonly { caption: string; image: string; alt: string }[] = [
-  { caption: "Fresh Ingredients", image: "/images/about-collage-ingredients.webp", alt: "Colourful fresh vegetables and herbs laid out on a table" },
-  { caption: "Bold Flavours", image: "/images/about-collage-burger.webp", alt: "Stacked burger with bacon, cheese, lettuce and tomato" },
-  { caption: "Tasty Moments", image: "/images/about-collage-moments.webp", alt: "Burger meal with fries and a dip" },
+  { caption: "Stone-Baked Pizza", image: "/images/menu/margherita-540.webp", alt: "Margherita pizza with fresh basil" },
+  { caption: "Flame-Grilled Chicken", image: "/images/menu/peri-half-chicken-540.webp", alt: "Peri peri chicken grilled on a rack" },
+  { caption: "Freshly Carved Kebabs", image: "/images/menu/lamb-doner-kebab-540.webp", alt: "Lamb doner kebab with salad" },
 ];
 
 export type StatIcon = "customers" | "items" | "locations" | "rating";

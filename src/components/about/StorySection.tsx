@@ -1,4 +1,4 @@
-import { Hamburger } from "lucide-react";
+import { Pizza } from "lucide-react";
 import { STORY_PARAGRAPHS } from "../../data/about";
 
 /** Circular restaurant photo with light decorative marks, beside the brand story. */
@@ -20,13 +20,13 @@ export function StorySection() {
             aria-hidden="true"
             className="absolute -bottom-4 -left-4 inline-flex size-14 items-center justify-center rounded-full border border-line bg-white text-brand shadow-[0_6px_18px_-10px_rgba(17,17,17,0.3)]"
           >
-            <Hamburger size={26} strokeWidth={1.6} />
+            <Pizza size={26} strokeWidth={1.6} />
           </span>
           <img
-            src="/images/about-restaurant.webp"
-            alt="Warm restaurant interior with a wooden bar counter, stools and menu boards"
-            width={720}
-            height={720}
+            src="/images/menu/cat-pizza-1080.webp"
+            alt="Pepperoni pizza fresh from the oven"
+            width={1080}
+            height={1080}
             loading="lazy"
             decoding="async"
             className="relative aspect-square w-full rounded-full object-cover"
@@ -36,9 +36,9 @@ export function StorySection() {
         <div className="text-center lg:text-left">
           <p className="text-[12px] font-semibold tracking-[0.14em] text-brand uppercase">Our Story</p>
           <h2 id="story-title" className="mt-2 font-display text-[28px] leading-[1.15] font-extrabold tracking-[-0.6px] text-ink md:text-[32px] desk:text-[36px]">
-            <span className="block">From a Simple Idea</span>
+            <span className="block">A Neighbourhood Kitchen</span>
             <span className="block">
-              to a <span className="text-brand">Bigger Taste</span>
+              With a <span className="text-brand">Big Heart</span>
             </span>
           </h2>
           <span aria-hidden="true" className="mx-auto mt-5 block h-1 w-12 rounded-full bg-brand lg:mx-0" />

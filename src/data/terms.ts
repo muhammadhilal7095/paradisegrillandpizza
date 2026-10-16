@@ -5,7 +5,7 @@
  *
  * Things deliberately left for the business to confirm (do not invent them):
  *  - the order modification/cancellation window (section 04),
- *  - payment methods, fees and delivery charges (sections 03, 05),
+ *  - accepted payment methods, fees and delivery charges (sections 03, 05; see config/ordering.ts),
  *  - the effective date (lastUpdated).
  */
 
@@ -39,7 +39,7 @@ export const TERMS_SECTIONS: readonly TermsSection[] = [
     title: "General Information",
     icon: "file",
     content: [
-      "These terms and conditions apply to all orders, website visits, and interactions with BurgerBite. By using our website or placing an order, you agree to follow these terms.",
+      "These terms and conditions apply to all orders, website visits, and interactions with Paradise Grill and Pizza. By using our website or placing an order, you agree to follow these terms.",
     ],
   },
   {
@@ -55,7 +55,7 @@ export const TERMS_SECTIONS: readonly TermsSection[] = [
     title: "Pricing & Payment",
     icon: "card",
     content: [
-      `All prices are displayed in ${TERMS_META.currency} and include applicable taxes where required. Prices may change without notice. We display available payment methods during checkout and use secure payment processing where supported.`,
+      `All prices are displayed in ${TERMS_META.currency} and include applicable taxes where required. Prices may change without notice. You can pay online by card through Stripe, our secure payment provider; the amount charged is the total shown at checkout. Orders sent by WhatsApp are paid directly to the restaurant once the order is confirmed.`,
     ],
   },
   {
@@ -98,7 +98,7 @@ export const TERMS_SECTIONS: readonly TermsSection[] = [
     title: "Limitation of Liability",
     icon: "shield",
     content: [
-      "BurgerBite aims to provide reliable website and ordering services. Any limitations of liability must be interpreted in accordance with applicable law and must not exclude rights or responsibilities that cannot legally be excluded.",
+      "Paradise Grill and Pizza aims to provide reliable website and ordering services. Any limitations of liability must be interpreted in accordance with applicable law and must not exclude rights or responsibilities that cannot legally be excluded.",
     ],
   },
   {

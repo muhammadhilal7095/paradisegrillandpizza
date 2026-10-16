@@ -1,0 +1,8 @@
+{
+  "_comment": "Shared by the website (src/config/ordering.ts) and the payment server (server/payments.js) so both work out the same total. Amounts in pence. SAMPLE values: set the restaurant's real fees.",
+  "collectionEnabled": true,
+  "deliveryEnabled": true,
+  "deliveryFee": 250,
+  "minimumDeliveryOrder": 1200,
+  "freeDeliveryFrom": 2500
+}

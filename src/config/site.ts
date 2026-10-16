@@ -1,4 +1,13 @@
-/** Replace these with BurgerBite's real profile URLs. */
+/** Brand names used across the site. */
+export const BRAND = {
+  name: "Paradise Grill and Pizza",
+  /** Big word in the logo. */
+  wordmark: "Paradise",
+  /** Small line under the wordmark. */
+  descriptor: "Grill & Pizza",
+} as const;
+
+/** Replace these with Paradise Grill and Pizza's real profile URLs. */
 export const SOCIAL_LINKS = [
   { network: "facebook", label: "Facebook", href: "https://www.facebook.com/" },
   { network: "instagram", label: "Instagram", href: "https://www.instagram.com/" },
@@ -11,20 +20,5 @@ export type SocialNetwork = (typeof SOCIAL_LINKS)[number]["network"];
 /** Where every "Order Now" call to action goes. */
 export const ORDER_PATH = "/menu";
 
-/** Menu sidebar promotion. Display copy only — the cart does not apply this discount. */
-export const TODAYS_SPECIAL = {
-  eyebrow: "Today's Special",
-  headline: "20% OFF",
-  subline: "on All Burgers",
-  to: "/menu?category=burgers",
-};
-
-/** Brand messaging for the menu sidebar — editable copy, not certifications. */
-export const BRAND_PROMISE = {
-  title: "Fresh Ingredients",
-  highlight: "Better Taste",
-  points: ["100% Fresh Produce", "Quality Meat", "Hygienic & Safe"],
-};
-
-/** False until SOCIAL_LINKS point at BurgerBite's real profiles (they are platform homepages for now). */
+/** False until SOCIAL_LINKS point at the restaurant's real profiles (they are platform homepages for now). */
 export const SOCIAL_PROFILES_VERIFIED = false;

@@ -1,11 +1,11 @@
 import type { ComponentType } from "react";
-import { Hamburger, MapPin, Star, UsersRound, type LucideProps } from "lucide-react";
+import { Pizza, MapPin, Star, UsersRound, type LucideProps } from "lucide-react";
 import { STATS, STATS_CONFIRMED, type StatIcon } from "../../data/about";
 import { SectionHeading } from "../ui/SectionHeading";
 
 const ICONS: Record<StatIcon, ComponentType<LucideProps>> = {
   customers: UsersRound,
-  items: Hamburger,
+  items: Pizza,
   locations: MapPin,
   rating: Star,
 };

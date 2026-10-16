@@ -1,4 +1,4 @@
-import { Hamburger } from "lucide-react";
+import { Pizza } from "lucide-react";
 import { RETURN_STEPS } from "../../data/returns";
 import { ContactDetails } from "../policy/ContactDetails";
 
@@ -26,7 +26,7 @@ export function ReturnSupportSection() {
           ))}
         </ol>
         <p className="mt-6 text-[12px] text-white/60">Photos help us review some issues, but they're never required.</p>
-        <Hamburger aria-hidden="true" size={84} strokeWidth={1} className="absolute -right-3 -bottom-4 -z-10 text-white/10" />
+        <Pizza aria-hidden="true" size={84} strokeWidth={1} className="absolute -right-3 -bottom-4 -z-10 text-white/10" />
       </section>
 
       <section
@@ -43,7 +43,7 @@ export function ReturnSupportSection() {
           </div>
         </div>
         <img
-          src="/images/gallery/golden-fries-600.webp"
+          src="/images/menu/french-fries-540.webp"
           alt="Tray of golden French fries"
           width={600}
           height={450}

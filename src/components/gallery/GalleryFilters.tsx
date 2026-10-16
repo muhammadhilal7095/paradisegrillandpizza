@@ -1,17 +1,16 @@
 import type { ComponentType } from "react";
-import { Camera, CakeSlice, CupSoda, Drumstick, Hamburger, LayoutGrid, Sandwich, type LucideProps } from "lucide-react";
+import { CookingPot, Flame, Hamburger, LayoutGrid, Pizza, Sandwich, type LucideProps } from "lucide-react";
 import { GALLERY_CATEGORIES, type GalleryCategoryId } from "../../data/gallery";
 import { Fries } from "../menu/categoryIcons";
 
 const ICONS: Record<GalleryCategoryId | "all", ComponentType<LucideProps>> = {
   all: LayoutGrid,
+  pizza: Pizza,
+  grill: Flame,
+  kebabs: Sandwich,
   burgers: Hamburger,
-  fries: Fries,
-  chicken: Drumstick,
-  wraps: Sandwich,
-  drinks: CupSoda,
-  desserts: CakeSlice,
-  "behind-the-scenes": Camera,
+  curries: CookingPot,
+  sides: Fries,
 };
 
 const FILTERS = [{ id: "all" as const, label: "All" }, ...GALLERY_CATEGORIES];

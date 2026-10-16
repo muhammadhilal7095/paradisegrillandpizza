@@ -11,6 +11,8 @@ import { TERMS_META, TERMS_SECTIONS } from "../data/terms";
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${iso}T00:00:00`));
 
+import { heroImage, menuImage } from "../data/menu";
+
 export function TermsPage() {
   const draft = TERMS_META.status === "draft";
 
@@ -19,17 +21,10 @@ export function TermsPage() {
       <PageHero
         titleId="terms-title"
         eyebrow="Terms & Conditions"
-        titleTop="Good Food"
-        titleBottom="Transparent Rules"
-        description="Our terms and conditions help us serve you better and ensure a smooth, safe and enjoyable experience at BurgerBite."
-        image={{
-          small: "/images/terms-hero-960.webp",
-          large: "/images/terms-hero-1920.webp",
-          width: 1920,
-          height: 700,
-          alt: "Burger with bacon, fried egg and melted cheese on a dark background",
-        }}
-        annotation="Freshly Made Always"
+        titleTop="Good Food,"
+        titleBottom="Clear Terms"
+        description="The terms that apply when you order from Paradise Grill and Pizza or use this website."
+        image={heroImage("legal", "Pizza with toppings on a wooden board against a dark background")}
       >
         <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-7")}>
           Order Now
@@ -88,10 +83,10 @@ export function TermsPage() {
         titleTop="Enjoy Your Favourite Meals"
         titleBottom="with Confidence!"
         image={{
-          src: "/images/terms-banner.webp",
-          width: 1200,
-          height: 800,
-          alt: "Burger with bacon, lettuce, tomato and melted cheese on a dark background",
+          src: menuImage("pepperoni", 1080),
+          width: 1080,
+          height: 1080,
+          alt: "Pepperoni pizza with melted mozzarella",
         }}
       />
     </main>

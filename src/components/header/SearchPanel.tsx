@@ -2,7 +2,8 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Search, X } from "lucide-react";
 import { NAV_ITEMS } from "../../config/navigation";
-import { formatPrice, PRODUCTS } from "../../data/menu";
+import { useMenu } from "../../context/menuStore";
+import { formatPrice } from "../../data/menu";
 import { IconButton } from "./IconButton";
 
 export const SEARCH_PANEL_ID = "header-search";
@@ -21,6 +22,7 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const resultsId = useId();
+  const { products: menuProducts } = useMenu();
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
@@ -31,11 +33,11 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
   const { products, pages } = useMemo(
     () => ({
       products: q
-        ? PRODUCTS.filter((p) => `${p.name} ${p.description ?? ""} ${p.category}`.toLowerCase().includes(q)).map((p) => ({
+        ? menuProducts.filter((p) => `${p.name} ${p.description ?? ""} ${p.category}`.toLowerCase().includes(q)).map((p) => ({
             key: p.id,
             label: p.name,
             detail: formatPrice(p.price),
-            to: `/menu?category=${p.category}#${p.id}`,
+            to: `/menu/${p.category}#${p.id}`,
           }))
         : [],
       pages: (q ? NAV_ITEMS.filter((item) => item.label.toLowerCase().includes(q)) : NAV_ITEMS).map((item) => ({
@@ -44,7 +46,7 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
         to: item.to,
       })),
     }),
-    [q],
+    [q, menuProducts],
   );
 
   if (!open) return null;
@@ -73,7 +75,7 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search burgers, wraps, pages…"
+              placeholder="Search pizza, peri peri, kebabs…"
               aria-controls={resultsId}
               autoComplete="off"
               className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-ink placeholder:text-muted focus:outline-none"

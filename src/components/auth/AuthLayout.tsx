@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BurgerIcon } from "../header/BurgerIcon";
+import { BrandBadge } from "../header/BrandLogo";
 
 interface AuthLayoutProps {
   titleId: string;
@@ -17,7 +17,7 @@ export function AuthLayout({ titleId, eyebrow, title, description, children, wid
     <main className="bg-mist px-4 py-12 md:py-16">
       <section aria-labelledby={titleId} className={`mx-auto ${wide ? "max-w-[880px]" : "max-w-[460px]"}`}>
         <div className="mb-6 text-center">
-          <BurgerIcon className="mx-auto h-[32px] w-[35px] text-brand" />
+          <BrandBadge className="mx-auto size-16" />
           <p className="mt-3 text-[12px] font-semibold tracking-[0.14em] text-brand uppercase">{eyebrow}</p>
           <h1 id={titleId} className="mt-2 font-display text-[28px] leading-tight font-extrabold tracking-[-0.6px] text-ink md:text-[32px]">
             {title}

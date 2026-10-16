@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom";
 import { ArrowRight, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { useCart } from "../../../context/CartContext";
-import { formatPrice } from "../../../data/menu";
+import { formatPrice, menuImage } from "../../../data/menu";
 import { openCartDrawer } from "../../header/cartDrawerEvents";
 import { buttonClasses } from "../../ui/button";
 
@@ -34,17 +35,20 @@ export function QuickOrderCart() {
           {items.map((item) => (
             <li key={item.id} className="flex items-center gap-2.5 py-2.5">
               <img
-                src={item.image}
+                src={menuImage(item.image)}
                 alt=""
                 width={44}
                 height={44}
                 loading="lazy"
-                className="size-11 shrink-0 rounded-lg bg-mist object-cover"
+                className="size-11 shrink-0 rounded-lg border border-line bg-white object-contain"
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-semibold text-ink" title={item.name}>
                   {item.name}
                 </p>
+                {item.options && item.options.length > 0 && (
+                  <p className="truncate text-[11px] text-muted">{item.options.join(" · ")}</p>
+                )}
                 <p className="text-[12px] font-bold text-brand-dark">{formatPrice(item.price * item.quantity)}</p>
               </div>
               <div role="group" aria-label={`Quantity of ${item.name}`} className="flex items-center rounded-full border border-line">
@@ -83,15 +87,21 @@ export function QuickOrderCart() {
         <span className="text-[13px] text-soft">Subtotal</span>
         <span className="text-[16px] font-bold text-ink">{formatPrice(subtotal)}</span>
       </div>
-      <button
-        type="button"
-        onClick={(e) => openCartDrawer(e.currentTarget)}
-        aria-haspopup="dialog"
-        className={buttonClasses("primary", "md", "mt-3 w-full")}
-      >
-        View Cart
-        <ArrowRight size={16} strokeWidth={2.2} aria-hidden="true" />
-      </button>
+      {items.length > 0 ? (
+        <Link to="/checkout" className={buttonClasses("primary", "md", "mt-3 w-full")}>
+          Checkout
+          <ArrowRight size={16} strokeWidth={2.2} aria-hidden="true" />
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={(e) => openCartDrawer(e.currentTarget)}
+          aria-haspopup="dialog"
+          className={buttonClasses("outlineDark", "md", "mt-3 w-full")}
+        >
+          View Cart
+        </button>
+      )}
     </section>
   );
 }

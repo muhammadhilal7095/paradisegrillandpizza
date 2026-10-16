@@ -64,7 +64,7 @@ export function RegisterPage() {
   return (
     <AuthLayout
       titleId="register-title"
-      eyebrow="Join BurgerBite"
+      eyebrow="Join Paradise"
       title={
         <>
           Create your <span className="text-brand">account</span>

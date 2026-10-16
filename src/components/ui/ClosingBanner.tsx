@@ -28,7 +28,7 @@ export function ClosingBanner({ titleId, slogan, sloganAccentFrom = slogan.lengt
     <section aria-labelledby={titleId} className="relative isolate overflow-hidden bg-deep text-white">
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_45%_70%_at_50%_55%,rgba(242,27,45,0.16),transparent_70%)]"
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_45%_70%_at_50%_55%,rgba(224,48,30,0.16),transparent_70%)]"
       />
       <div className="mx-auto grid max-w-[1400px] items-center gap-6 px-4 py-12 md:grid-cols-[1fr_1.2fr] md:px-6 lg:grid-cols-[0.8fr_1.3fr_1fr] lg:py-6 desk:px-8 wide:px-12">
         {/* Decorative — the heading on the right carries the message. */}

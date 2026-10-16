@@ -85,6 +85,9 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
 
 export const isApiConfigured = () => BASE_URL.length > 0;
 
+/** Base URL (no trailing slash), for modules that make their own requests. */
+export const API_BASE_URL = BASE_URL;
+
 // ---------- Core request ----------
 
 type Json = Record<string, unknown>;

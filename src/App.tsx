@@ -1,41 +1,41 @@
 import { Outlet, Route, Routes } from "react-router-dom";
 import { GuestOnly, RequireAuth } from "./components/auth/RouteGuards";
 import { Footer } from "./components/footer/Footer";
-import { BurgerBiteHeader } from "./components/header/BurgerBiteHeader";
+import { SiteHeader } from "./components/header/SiteHeader";
+import { TopBar } from "./components/header/TopBar";
 import { ScrollManager } from "./components/ScrollManager";
-import { NAV_ITEMS } from "./config/navigation";
 import { AboutPage } from "./pages/AboutPage";
 import { AccountPage } from "./pages/auth/AccountPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { CartPage } from "./pages/CartPage";
+import { CheckoutPage } from "./pages/CheckoutPage";
+import { CheckoutSuccessPage } from "./pages/CheckoutSuccessPage";
 import { ContactPage } from "./pages/ContactPage";
 import { GalleryPage } from "./pages/GalleryPage";
 import { HomePage } from "./pages/HomePage";
 import { MenuPage } from "./pages/MenuPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { OffersPage } from "./pages/OffersPage";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
 import { ReturnsPage } from "./pages/ReturnsPage";
 import { TermsPage } from "./pages/TermsPage";
-
-const BUILT_PAGES: Record<string, React.ReactNode> = {
-  "/": <HomePage />,
-  "/menu": <MenuPage />,
-  "/offers": <OffersPage />,
-  "/gallery": <GalleryPage />,
-  "/about": <AboutPage />,
-  "/contact": <ContactPage />,
-  "/terms": <TermsPage />,
-  "/return": <ReturnsPage />,
-};
 
 function Layout() {
   return (
     <div className="flex min-h-svh flex-col">
       <ScrollManager />
-      <BurgerBiteHeader />
-      <div className="flex-1">
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-full bg-ink px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Skip to content
+      </a>
+      <TopBar />
+      <SiteHeader />
+      <div id="main" tabIndex={-1} className="flex-1 outline-none">
         <Outlet />
       </div>
       <Footer />
@@ -47,20 +47,25 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        {NAV_ITEMS.map((item) => (
-          <Route
-            key={item.to}
-            path={item.to}
-            element={BUILT_PAGES[item.to] ?? <PlaceholderPage title={item.label} />}
-          />
-        ))}
-        <Route path="/privacy" element={<PlaceholderPage title="Privacy Policy" />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/menu" element={<MenuPage />} />
+        <Route path="/menu/:category" element={<MenuPage />} />
+        <Route path="/offers" element={<OffersPage />} />
+        <Route path="/gallery" element={<GalleryPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/return" element={<ReturnsPage />} />
         <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
         <Route path="/register" element={<GuestOnly><RegisterPage /></GuestOnly>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/account" element={<RequireAuth><AccountPage /></RequireAuth>} />
-        <Route path="*" element={<PlaceholderPage title="Page not found" />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

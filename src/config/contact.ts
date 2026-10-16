@@ -5,20 +5,20 @@
  *  - details are shown as plain text (no tel:/mailto:/website links, so nobody calls or emails a stranger),
  *  - the map shows a labelled preview instead of a real location, and there is no Get Directions link,
  *  - a short "example details" note is shown to visitors.
- * Replace the values with BurgerBite's real details, then set the flag to true.
+ * Replace the values with Paradise Grill and Pizza's real details, then set the flag to true.
  */
 export const CONTACT_DETAILS_VERIFIED = false;
 
 export const CONTACT = {
-  phones: ["+44 123 456 7890", "+44 987 654 3210"],
-  emails: ["support@burgerbite.com", "info@burgerbite.com"],
+  phones: ["+44 20 7946 0123"],
+  emails: ["hello@paradisegrill.example"],
   address: {
-    lines: ["123 Food Street, Downtown", "London, UK, SW1A 2AB"],
+    lines: ["12 High Street", "London, UK"],
     /** Map pin. Required for the embedded map once verified. */
     lat: undefined as number | undefined,
     lng: undefined as number | undefined,
   },
-  website: "https://www.burgerbite.com",
+  website: "https://www.paradisegrill.example",
 };
 
 export interface OpeningHours {
@@ -30,9 +30,9 @@ export interface OpeningHours {
 }
 
 export const OPENING_HOURS: readonly OpeningHours[] = [
-  { days: "Monday – Friday", open: "10:00", close: "23:00" },
-  { days: "Saturday", open: "10:00", close: "00:00" },
-  { days: "Sunday", open: "10:00", close: "23:00" },
+  { days: "Monday – Thursday", open: "12:00", close: "23:00" },
+  { days: "Friday – Saturday", open: "12:00", close: "00:00" },
+  { days: "Sunday", open: "13:00", close: "23:00" },
 ];
 
 /**
@@ -43,7 +43,7 @@ export const OPENING_HOURS: readonly OpeningHours[] = [
  */
 export const CONTACT_FORM = {
   endpoint: (import.meta.env.VITE_CONTACT_ENDPOINT as string | undefined)?.trim() || "",
-  successTitle: "Thank you for contacting BurgerBite!",
+  successTitle: "Thank you for contacting Paradise Grill and Pizza!",
   successMessage: "Your message has been received. We'll get back to you as soon as possible.",
   errorMessage: "Sorry, your message couldn't be sent. Please check your connection and try again.",
   notConfiguredMessage:
@@ -59,3 +59,20 @@ export function formatTime(hhmm: string) {
   const hour = h % 12 === 0 ? 12 : h % 12;
   return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
 }
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** Day indexes (0 = Sunday) covered by a row like "Monday – Thursday" or "Sunday". */
+function rowDays(days: string) {
+  const [from, to = from] = days.split(/[–-]/).map((d) => DAY_NAMES.indexOf(d.trim()));
+  if (from < 0 || to < 0) return [];
+  const result: number[] = [];
+  for (let d = from; ; d = (d + 1) % 7) {
+    result.push(d);
+    if (d === to) break;
+  }
+  return result;
+}
+
+/** Today's opening hours row, if the table covers today. */
+export const todaysHours = (now = new Date()) => OPENING_HOURS.find((row) => rowDays(row.days).includes(now.getDay()));

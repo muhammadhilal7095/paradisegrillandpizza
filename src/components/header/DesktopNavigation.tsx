@@ -4,7 +4,7 @@ import { NAV_ITEMS } from "../../config/navigation";
 export function DesktopNavigation() {
   return (
     <nav aria-label="Primary" className="hidden min-w-0 flex-1 justify-center desk:flex">
-      <ul className="flex items-center gap-6 wide:gap-9">
+      <ul className="flex items-center gap-4 wide:gap-7">
         {NAV_ITEMS.map((item) => (
           <li key={item.to}>
             <NavLink

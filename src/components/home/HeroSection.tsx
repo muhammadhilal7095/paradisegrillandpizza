@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Heart, Leaf, Truck } from "lucide-react";
+import { ArrowRight, Bike, Flame, Wheat } from "lucide-react";
 import { ORDER_PATH } from "../../config/site";
+import { heroImage } from "../../data/menu";
 import { buttonClasses } from "../ui/button";
 import { PageHero } from "../ui/PageHero";
 
 const FEATURES = [
-  { icon: Leaf, title: "Fresh Ingredients", note: "100% Quality" },
-  { icon: Heart, title: "Hygienic & Safe", note: "Your Health Matters" },
-  { icon: Truck, title: "Fast Delivery", note: "Hot & Fresh" },
+  { icon: Wheat, title: "Fresh Dough Daily", note: "Hand-stretched" },
+  { icon: Flame, title: "Flame-Grilled", note: "Cooked to order" },
+  { icon: Bike, title: "Collect or Delivery", note: "Hot to your door" },
 ];
 
 export function HeroSection() {
@@ -15,30 +16,11 @@ export function HeroSection() {
     <PageHero
       size="lg"
       titleId="hero-title"
-      eyebrow="Real Ingredients · Freshly Made"
-      titleTop="Bigger Taste"
-      titleBottom="Better Moments"
-      description="From juicy burgers to crispy fries, we serve fresh, delicious food made for every craving."
-      image={{
-        small: "/images/hero-960.webp",
-        large: "/images/hero-1920.webp",
-        width: 1920,
-        height: 880,
-        alt: "Sesame burger and golden fries on a wooden board in warm restaurant light",
-      }}
-      decoration={
-        <p
-          aria-hidden="true"
-          className="pointer-events-none absolute right-[4%] bottom-[9%] hidden -rotate-12 text-right font-hand text-[34px] leading-[0.95] text-white md:block desk:text-[42px]"
-        >
-          Good Food
-          <br />
-          Good Mood
-          <svg viewBox="0 0 120 16" className="mt-1 ml-auto h-3 w-28 text-brand" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round">
-            <path d="M4 12C40 4 80 2 116 5" />
-          </svg>
-        </p>
-      }
+      eyebrow="Pizza · Peri Peri · Kebabs · Curries"
+      titleTop="Stone-Baked Pizza."
+      titleBottom="Flame-Grilled Taste."
+      description="Hand-stretched pizza, peri peri chicken, freshly carved kebabs and slow-cooked curries, made fresh when you order."
+      image={heroImage("home", "Freshly baked pizzas with different toppings on a dark table")}
     >
       <div className="mt-8 flex flex-wrap gap-3">
         <Link to={ORDER_PATH} className={buttonClasses("primary", "md")}>

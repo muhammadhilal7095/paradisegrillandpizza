@@ -1,11 +1,18 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export interface CartItem {
+  /** Line id: the product plus its chosen options (see lineId in data/menu). */
   id: string;
+  productId: string;
   name: string;
-  /** Unit price in pence. */
+  /** Unit price in pence, options included. */
   price: number;
+  /** Square menu photo name (see menuImage in data/menu). */
   image: string;
+  /** Chosen option labels, e.g. ['12" Large', "Extra mozzarella"]. */
+  options?: string[];
+  /** Raw option choices (groupId → choice ids), used to re-price saved carts. */
+  selections?: Record<string, string[]>;
   quantity: number;
 }
 
@@ -17,13 +24,18 @@ interface CartContextValue {
   quantity: number;
   /** Subtotal in pence. */
   subtotal: number;
-  addItem: (item: CartItemInput) => void;
+  addItem: (item: CartItemInput, quantity?: number) => void;
   setItemQuantity: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
+  /** Empties the cart (after an order is confirmed). */
+  clear: () => void;
+  /** Re-syncs every line with fresh menu data; lines mapped to null are dropped. */
+  resync: (refresh: (item: CartItem) => CartItem | null) => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
-const STORAGE_KEY = "burgerbite-cart";
+/** v2: carts saved before the menu came from the POS held demo products, so they are not restored. */
+const STORAGE_KEY = "paradise-cart-v2";
 
 function readStoredCart(): CartItem[] | null {
   try {
@@ -58,6 +70,17 @@ export function CartProvider({ children, initialItems = [], refreshItem }: CartP
     }
   }, [items]);
 
+  // Stable identity, so consumers can depend on it without re-running on every cart change.
+  const resync = useCallback<CartContextValue["resync"]>(
+    (refresh) =>
+      setItems((current) => {
+        const next = current.flatMap((line) => refresh(line) ?? []);
+        const same = next.length === current.length && next.every((line, i) => JSON.stringify(line) === JSON.stringify(current[i]));
+        return same ? current : next;
+      }),
+    [],
+  );
+
   const value = useMemo<CartContextValue>(() => {
     const setItemQuantity = (id: string, quantity: number) =>
       setItems((current) =>
@@ -70,16 +93,18 @@ export function CartProvider({ children, initialItems = [], refreshItem }: CartP
       items,
       quantity: items.reduce((sum, line) => sum + line.quantity, 0),
       subtotal: items.reduce((sum, line) => sum + line.quantity * line.price, 0),
-      addItem: (item) =>
+      addItem: (item, quantity = 1) =>
         setItems((current) =>
           current.some((line) => line.id === item.id)
-            ? current.map((line) => (line.id === item.id ? { ...line, quantity: line.quantity + 1 } : line))
-            : [...current, { ...item, quantity: 1 }],
+            ? current.map((line) => (line.id === item.id ? { ...line, quantity: line.quantity + quantity } : line))
+            : [...current, { ...item, quantity }],
         ),
       setItemQuantity,
       removeItem: (id) => setItemQuantity(id, 0),
+      clear: () => setItems([]),
+      resync,
     };
-  }, [items]);
+  }, [items, resync]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

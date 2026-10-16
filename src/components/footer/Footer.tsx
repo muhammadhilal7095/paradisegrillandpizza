@@ -1,38 +1,26 @@
-import { Link, NavLink } from "react-router-dom";
-import { NAV_ITEMS } from "../../config/navigation";
-import { SOCIAL_LINKS } from "../../config/site";
+import { Link } from "react-router-dom";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { CONTACT, CONTACT_DETAILS_VERIFIED, formatTime, OPENING_HOURS, telHref } from "../../config/contact";
+import { INFO_LINKS, LEGAL_LINKS } from "../../config/navigation";
+import { BRAND, SOCIAL_LINKS } from "../../config/site";
+import { useMenu } from "../../context/menuStore";
 import { BrandLogo } from "../header/BrandLogo";
 import { SocialIcon } from "./SocialIcon";
 
-/** The footer carries the six primary pages; T&Cs sits in the legal row instead. */
-const FOOTER_PATHS = ["/", "/menu", "/offers", "/gallery", "/about", "/contact"];
-const FOOTER_NAV = NAV_ITEMS.filter((item) => FOOTER_PATHS.includes(item.to));
+const container = "mx-auto max-w-[1400px] px-4 md:px-6 desk:px-8 wide:px-12";
+const heading = "font-display text-[15px] font-bold tracking-[0.02em] text-white";
+const link = "inline-flex min-h-9 items-center text-[14px] text-white/70 transition-colors hover:text-white md:min-h-8";
 
-const LEGAL_LINKS = [
-  { label: "Privacy Policy", to: "/privacy" },
-  { label: "Terms & Conditions", to: "/terms" },
-  { label: "Returns & Refunds", to: "/return" },
-];
-
-const container = "mx-auto max-w-[1400px] px-4 md:px-6 desk:px-10 wide:px-14";
-
-function FooterNavigation() {
+function LinkColumn({ title, links }: { title: string; links: readonly { label: string; to: string }[] }) {
   return (
-    <nav aria-label="Footer navigation" className="order-2 w-full md:order-3 lg:order-2 lg:w-auto lg:flex-1">
-      <ul className="mx-auto grid max-w-[18rem] grid-cols-3 justify-items-center gap-x-4 md:flex md:max-w-none md:justify-center md:gap-x-7 desk:gap-x-8">
-        {FOOTER_NAV.map((item) => (
-          <li key={item.to}>
-            <NavLink
-              to={item.to}
-              end={item.to === "/"}
-              className={({ isActive }) =>
-                `inline-flex min-h-10 items-center text-[12px] font-medium transition-colors duration-200 hover:text-brand ${
-                  isActive ? "text-brand underline decoration-1 underline-offset-[5px]" : "text-white"
-                }`
-              }
-            >
-              {item.label}
-            </NavLink>
+    <nav aria-label={title}>
+      <h2 className={heading}>{title}</h2>
+      <ul className="mt-3">
+        {links.map((l) => (
+          <li key={l.to}>
+            <Link to={l.to} className={link}>
+              {l.label}
+            </Link>
           </li>
         ))}
       </ul>
@@ -40,67 +28,93 @@ function FooterNavigation() {
   );
 }
 
-function FooterSocial() {
-  return (
-    <div className="order-3 flex items-center gap-3.5 md:order-2 md:ml-auto lg:order-3 lg:ml-0">
-      <p className="text-[12px] font-medium whitespace-nowrap text-white">Follow Us</p>
-      <ul className="flex gap-3 md:gap-2.5">
-        {SOCIAL_LINKS.map((social) => (
-          <li key={social.network}>
-            <a
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Follow BurgerBite on ${social.label} (opens in a new tab)`}
-              // 26px circle; the ::before pad keeps the tap target at ~42px.
-              className="relative inline-flex size-[26px] items-center justify-center rounded-full border border-white/35 text-white transition-colors duration-200 before:absolute before:-inset-2 hover:border-brand hover:text-brand"
-            >
-              <SocialIcon network={social.network} />
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function FooterBottom() {
-  return (
-    <div className="flex flex-col items-center gap-1 py-3 text-center text-[11px] text-silver md:min-h-10 md:flex-row md:justify-between md:py-0 md:text-left md:text-[10px]">
-      <p>© {new Date().getFullYear()} BurgerBite. All rights reserved.</p>
-      <nav aria-label="Legal navigation">
-        <ul className="flex flex-wrap items-center justify-center gap-x-3">
-          {LEGAL_LINKS.map((link, i) => (
-            <li key={link.to} className="flex items-center gap-3">
-              {i > 0 && <span aria-hidden="true" className="h-2.5 w-px bg-soft" />}
-              <Link
-                to={link.to}
-                className="inline-flex min-h-10 items-center transition-colors duration-200 hover:text-brand md:min-h-8"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
-  );
-}
-
 export function Footer() {
+  const { categories } = useMenu();
+  const phone = CONTACT.phones[0];
+  const email = CONTACT.emails[0];
+
   return (
-    <footer className="border-t border-soft bg-deep text-white">
-      <div className={container}>
-        {/* Mobile: stacked. Tablet: logo + social, nav below. 1024px+: one row. */}
-        <div className="flex flex-col items-center gap-4 py-7 md:flex-row md:flex-wrap md:gap-x-8 md:gap-y-3 md:py-5 lg:flex-nowrap lg:py-2.5">
-          <div className="order-1">
-            <BrandLogo tone="dark" />
-          </div>
-          <FooterNavigation />
-          <FooterSocial />
+    <footer className="bg-deep text-white">
+      <div className={`${container} grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:py-14 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr]`}>
+        <div className="col-span-2 lg:col-span-1">
+          <BrandLogo tone="dark" size="lg" />
+          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-white/70">
+            Stone-baked pizza, flame-grilled peri peri chicken, kebabs and curries, cooked fresh for collection and delivery.
+          </p>
+          <ul className="mt-5 flex gap-2.5">
+            {SOCIAL_LINKS.map((social) => (
+              <li key={social.network}>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${BRAND.name} on ${social.label} (opens in a new tab)`}
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-white/25 text-white transition-colors hover:border-brand hover:bg-brand"
+                >
+                  <SocialIcon network={social.network} />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-        <hr className="h-px border-0 bg-soft" />
-        <FooterBottom />
+
+        <LinkColumn title="Our Menu" links={[{ label: "Full Menu", to: "/menu" }, ...categories.slice(0, 10).map((c) => ({ label: c.name, to: `/menu/${c.id}` }))]} />
+        <LinkColumn title="Information" links={[...INFO_LINKS, ...LEGAL_LINKS]} />
+
+        <div className="col-span-2 lg:col-span-1">
+          <h2 className={heading}>Find Us</h2>
+          <ul className="mt-3 space-y-3 text-[14px] text-white/70">
+            <li className="flex gap-2.5">
+              <MapPin size={17} strokeWidth={1.9} aria-hidden="true" className="mt-0.5 shrink-0 text-brand" />
+              <address className="not-italic">{CONTACT.address.lines.join(", ")}</address>
+            </li>
+            {phone && (
+              <li className="flex gap-2.5">
+                <Phone size={17} strokeWidth={1.9} aria-hidden="true" className="mt-0.5 shrink-0 text-brand" />
+                {CONTACT_DETAILS_VERIFIED ? (
+                  <a href={telHref(phone)} className="hover:text-white">
+                    {phone}
+                  </a>
+                ) : (
+                  <span>{phone}</span>
+                )}
+              </li>
+            )}
+            {email && (
+              <li className="flex gap-2.5">
+                <Mail size={17} strokeWidth={1.9} aria-hidden="true" className="mt-0.5 shrink-0 text-brand" />
+                {CONTACT_DETAILS_VERIFIED ? (
+                  <a href={`mailto:${email}`} className="break-all hover:text-white">
+                    {email}
+                  </a>
+                ) : (
+                  <span className="break-all">{email}</span>
+                )}
+              </li>
+            )}
+            <li className="flex gap-2.5">
+              <Clock size={17} strokeWidth={1.9} aria-hidden="true" className="mt-0.5 shrink-0 text-brand" />
+              <dl className="space-y-1.5">
+                {OPENING_HOURS.map((row) => (
+                  <div key={row.days}>
+                    <dt>{row.days}</dt>
+                    <dd className="whitespace-nowrap text-white">{row.closed || !row.open || !row.close ? "Closed" : `${formatTime(row.open)} – ${formatTime(row.close)}`}</dd>
+                  </div>
+                ))}
+              </dl>
+            </li>
+          </ul>
+          {!CONTACT_DETAILS_VERIFIED && <p className="mt-3 text-[11px] text-white/45">Example contact details, to be confirmed.</p>}
+        </div>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className={`${container} flex flex-col items-center gap-2 py-5 text-center text-[12px] text-white/55 md:flex-row md:justify-between md:text-left`}>
+          <p>
+            © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
+          </p>
+          <p>Food photography from Unsplash.</p>
+        </div>
       </div>
     </footer>
   );

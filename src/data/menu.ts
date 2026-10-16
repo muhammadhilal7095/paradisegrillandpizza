@@ -1,194 +1,297 @@
 /**
- * Single source of truth for menu, category, section and offer data.
- * Prices are SAMPLE values in pence — replace them with the restaurant's real pricing.
- * Products can be marked `available: false` to hide them without deleting them.
+ * Menu types and helpers. There is NO built-in menu: every product and category comes from the
+ * POS API (see lib/products.ts) and is served to components by context/MenuContext.tsx.
  */
 
-export type CategoryId = "burgers" | "chicken" | "wraps" | "pizza" | "sides" | "drinks" | "desserts" | "combos";
+/** Category slug, made from the portal's category name (e.g. "Starters & Sides" → "starters-and-sides"). */
+export type CategoryId = string;
 
-export interface Product {
+/** Neutral photo for products and categories that have no image in the POS. */
+export const FALLBACK_PHOTO = "/images/brand/logo-512.webp";
+
+// ---------- Options (sizes, extras) — only used if the POS ever sends them ----------
+
+export interface OptionChoice {
   id: string;
-  name: string;
-  description?: string;
-  /** Price in pence. */
-  price: number;
-  category: CategoryId;
-  /** Extra categories the product is also listed under (e.g. a chicken wrap under Chicken). */
-  alsoIn?: CategoryId[];
-  image: string;
-  imageAlt: string;
-  bestSeller?: boolean;
-  available?: boolean;
+  label: string;
+  /** Added to the base price, in pence. */
+  price?: number;
 }
 
-/** Order and copy for the category strip and menu sections. */
+export interface OptionGroup {
+  id: string;
+  label: string;
+  /** "single" = pick exactly one (first choice is the default); "multi" = pick any. */
+  type: "single" | "multi";
+  choices: readonly OptionChoice[];
+}
+
+/** groupId → chosen choice ids. */
+export type Selections = Record<string, string[]>;
+
+// ---------- Categories ----------
+
 export interface MenuCategory {
   id: CategoryId;
+  /** Exactly as named in the portal. */
   name: string;
+  /** Short line on category tiles. */
+  short: string;
   /** Shown under the section heading. */
   tagline: string;
-  /** Products shown on the full menu, in order. "View All" shows every product in the category. */
-  featured: string[];
-  /** Sides, drinks and desserts use the smaller card. */
+  /** Category page intro. */
+  intro: string;
+  /** Square tile photo: the first product photo in the category, or FALLBACK_PHOTO. */
+  tile: string;
+  /** Wide decorative hero (/images/hero/<hero>-960|1920.webp), picked from the category name. */
+  hero: string;
+  heroAlt: string;
+  /** Drinks and desserts use the smaller card. */
   compact?: boolean;
 }
 
-export const MENU_CATEGORIES: readonly MenuCategory[] = [
-  { id: "burgers", name: "Burgers", tagline: "Juicy, fresh and full of flavour.", featured: ["classic-burger", "cheese-burger", "bbq-burger", "spicy-burger"] },
-  { id: "chicken", name: "Chicken", tagline: "Crispy, tender and always a good idea.", featured: ["chicken-burger", "chicken-wrap", "hot-chicken-burger", "chicken-wings"] },
-  { id: "wraps", name: "Wraps", tagline: "Fresh, light and full of flavour.", featured: ["chicken-wrap", "bbq-chicken-wrap", "spicy-chicken-wrap", "veggie-wrap"] },
-  // No pizzas yet — add products with category "pizza" and they appear automatically.
-  { id: "pizza", name: "Pizza", tagline: "Stone-baked favourites.", featured: [] },
-  { id: "sides", name: "Sides", tagline: "Perfect sides for your meal.", featured: ["french-fries", "loaded-fries", "onion-rings", "mozzarella-sticks"], compact: true },
-  { id: "drinks", name: "Drinks", tagline: "Cool sips for hot cravings.", featured: ["coke", "diet-coke", "fanta", "sprite"], compact: true },
-  { id: "desserts", name: "Desserts", tagline: "Sweet endings.", featured: ["chocolate-cake", "ice-cream", "cheesecake", "brownie"], compact: true },
-  { id: "combos", name: "Combos", tagline: "Meals made for sharing — or not.", featured: ["classic-burger-meal", "chicken-bucket", "chicken-wrap-combo"] },
+/** Decorative banner photo for a category, chosen from words in its name. Not product data. */
+const HERO_BY_NAME: [RegExp, string, string][] = [
+  [/pizza/i, "pizza", "Pizza baking in a wood-fired oven"],
+  [/burger/i, "burgers", "Cheeseburger on a dark background"],
+  [/peri|piri/i, "peri-peri", "Spicy chicken wings charring on a grill"],
+  [/kebab|wrap|doner|shawarma/i, "kebabs", "Doner meat turning on a rotisserie"],
+  [/grill|chicken|shish|tikka/i, "grilled-chicken", "Chicken skewers on a charcoal grill"],
+  [/curr|karahi|masala/i, "curries", "Pan of curry topped with coriander"],
+  [/drink|beverage|soda|juice|shake/i, "drinks", "Glass of iced drink"],
+  [/dessert|sweet|cake|ice cream/i, "desserts", "Brownie topped with ice cream"],
+  [/deal|offer|combo|bundle|meal/i, "deals", "Sliced pizzas on a dark table"],
+  [/side|starter|fries|chips|bread/i, "sides", "Cheesy garlic bread"],
 ];
 
-const img = (name: string) => `/images/product-${name}.webp`;
+/** Words in a category name that mean "these are deals" (shown on the Deals page and homepage). */
+export const DEAL_CATEGORY = /deal|offer|combo|bundle/i;
 
-export const PRODUCTS: readonly Product[] = [
-  // Burgers
-  { id: "classic-burger", name: "Classic Burger", description: "Beef patty, lettuce, tomato, red onion and special sauce.", price: 699, category: "burgers", image: img("classic-burger"), imageAlt: "Classic beef burger with lettuce, tomato and onion", bestSeller: true },
-  { id: "cheese-burger", name: "Cheese Burger", description: "Beef patty, melted cheese, lettuce, tomato and sauce.", price: 749, category: "burgers", image: img("cheese-burger"), imageAlt: "Double cheeseburger with melted cheese", bestSeller: true },
-  { id: "bbq-burger", name: "BBQ Burger", description: "Beef patty, bacon, cheese, lettuce, onion and BBQ sauce.", price: 849, category: "burgers", image: img("bbq-burger"), imageAlt: "Stacked beef burger with bacon and cheese" },
-  { id: "spicy-burger", name: "Spicy Burger", description: "Beef patty, jalapeños, lettuce, tomato and spicy sauce.", price: 799, category: "burgers", image: img("spicy-burger"), imageAlt: "Beef burger with lettuce and tomato on a dark board" },
-  // Chicken
-  { id: "chicken-burger", name: "Chicken Burger", description: "Crispy chicken, lettuce, mayo and fresh veggies.", price: 699, category: "chicken", image: img("chicken-burger"), imageAlt: "Crispy chicken burger with lettuce" },
-  { id: "hot-chicken-burger", name: "Hot Chicken Burger", description: "Spicy chicken, lettuce, tomato and chilli sauce.", price: 749, category: "chicken", image: img("hot-chicken-burger"), imageAlt: "Crispy spicy chicken burger" },
-  { id: "spicy-chicken-burger", name: "Spicy Chicken Burger", description: "Crispy chicken, lettuce and spicy mayo.", price: 529, category: "chicken", image: img("spicy-chicken-burger"), imageAlt: "Crispy chicken burger with slaw and spicy mayo", bestSeller: true },
-  { id: "chicken-wings", name: "Chicken Wings (6 pcs)", description: "Crispy wings served with your choice of sauce.", price: 599, category: "chicken", image: img("chicken-wings"), imageAlt: "Glazed chicken wings with a dip", bestSeller: true },
-  // Wraps
-  { id: "chicken-wrap", name: "Chicken Wrap", description: "Grilled chicken, lettuce, fresh vegetables and special sauce.", price: 599, category: "wraps", alsoIn: ["chicken"], image: img("chicken-wrap"), imageAlt: "Grilled chicken wrap cut in half", bestSeller: true },
-  { id: "bbq-chicken-wrap", name: "BBQ Chicken Wrap", description: "Chicken, smoky BBQ sauce and fresh vegetables.", price: 649, category: "wraps", image: img("bbq-chicken-wrap"), imageAlt: "Toasted chicken wraps with salad" },
-  { id: "spicy-chicken-wrap", name: "Spicy Chicken Wrap", description: "Chicken with spicy sauce and crunchy vegetables.", price: 649, category: "wraps", image: img("spicy-chicken-wrap"), imageAlt: "Chicken wraps on a wooden board with dips" },
-  { id: "veggie-wrap", name: "Veggie Wrap", description: "Fresh vegetables with a flavourful sauce.", price: 549, category: "wraps", image: img("veggie-wrap"), imageAlt: "Fresh vegetable rolls with herbs" },
-  // Sides
-  { id: "french-fries", name: "French Fries", description: "Crispy skin-on fries, lightly salted.", price: 299, category: "sides", image: img("fries"), imageAlt: "Tray of golden French fries" },
-  { id: "loaded-fries", name: "Loaded Fries", description: "Fries topped with cheese, bacon and sauce.", price: 499, category: "sides", image: img("loaded-fries"), imageAlt: "Loaded fries topped with cheese and herbs" },
-  { id: "onion-rings", name: "Onion Rings", price: 349, category: "sides", image: img("onion-rings"), imageAlt: "Golden battered onion rings" },
-  { id: "mozzarella-sticks", name: "Mozzarella Sticks", price: 399, category: "sides", image: img("mozzarella-sticks"), imageAlt: "Breaded mozzarella sticks" },
-  // Drinks
-  { id: "coke", name: "Coke", price: 199, category: "drinks", image: img("soft-drink"), imageAlt: "Glass of cola with ice" },
-  { id: "diet-coke", name: "Diet Coke", price: 199, category: "drinks", image: img("diet-cola"), imageAlt: "Tall glass of iced cola" },
-  { id: "fanta", name: "Fanta", price: 199, category: "drinks", image: img("orange-soda"), imageAlt: "Glass of orange soda with orange slices" },
-  { id: "sprite", name: "Sprite", price: 199, category: "drinks", image: img("lemon-lime-soda"), imageAlt: "Glass of lemon-lime soda with lemon slices" },
-  // Desserts
-  { id: "chocolate-cake", name: "Chocolate Cake", price: 399, category: "desserts", image: img("chocolate-cake"), imageAlt: "Chocolate cake with chocolate drip" },
-  { id: "ice-cream", name: "Ice Cream", price: 299, category: "desserts", image: img("ice-cream"), imageAlt: "Scoops of vanilla ice cream with sprinkles" },
-  { id: "cheesecake", name: "Cheesecake", price: 399, category: "desserts", image: img("cheesecake"), imageAlt: "Slice of blueberry cheesecake" },
-  { id: "brownie", name: "Brownie", price: 299, category: "desserts", image: img("brownie"), imageAlt: "Squares of chocolate brownie" },
-  { id: "chocolate-lava-cake", name: "Chocolate Lava Cake", description: "Warm chocolate cake with vanilla ice cream.", price: 399, category: "desserts", image: img("lava-cake"), imageAlt: "Chocolate cake covered in melted chocolate", bestSeller: true },
-  // Combos
-  { id: "classic-burger-meal", name: "Classic Burger Meal", description: "Burger + Fries + Drink", price: 699, category: "combos", image: img("classic-burger-meal"), imageAlt: "Burger served with fries and a dip" },
-  { id: "chicken-bucket", name: "Chicken Bucket", description: "6 pcs Chicken + Fries + Dip", price: 999, category: "combos", image: img("chicken-bucket"), imageAlt: "Bucket of crispy fried chicken pieces" },
-  { id: "chicken-wrap-combo", name: "Chicken Wrap Combo", description: "Wrap + Fries + Drink", price: 599, category: "combos", image: img("chicken-wrap-combo"), imageAlt: "Chicken wrap filled with fries and onions" },
-  { id: "double-burger-combo", name: "Double Burger Combo", description: "2 Classic Burgers + 2 Fries + 2 Drinks", price: 1099, category: "combos", image: img("double-burger-combo"), imageAlt: "Two beef burgers on a wooden serving board" },
-  { id: "family-feast", name: "Family Feast", description: "2 Burgers + 6 pcs Chicken + 4 Fries + 4 Drinks", price: 1999, category: "combos", image: img("family-feast"), imageAlt: "Burger served with fries and salad on a platter" },
-  { id: "chicken-lovers-box", name: "Chicken Lover's Box", description: "Chicken Burger + 4 pcs Chicken + Fries + Drink", price: 1299, category: "combos", image: img("chicken-lovers-box"), imageAlt: "Crispy fried chicken pieces on a banana leaf" },
-];
+export function makeCategory(id: string, name: string): MenuCategory {
+  const [, hero, heroAlt] = HERO_BY_NAME.find(([re]) => re.test(name)) ?? [null, "menu", "Platter of grilled food with dips"];
+  const lower = name.toLowerCase();
+  return {
+    id,
+    name,
+    short: "View all",
+    tagline: `Our ${lower}, freshly prepared.`,
+    intro: `Explore our ${lower}, made fresh when you order.`,
+    tile: FALLBACK_PHOTO,
+    hero,
+    heroAlt,
+    compact: /drink|beverage|soda|dessert|sweet/i.test(name),
+  };
+}
 
-const AVAILABLE = PRODUCTS.filter((p) => p.available !== false);
-const BY_ID = new Map(AVAILABLE.map((p) => [p.id, p]));
+// ---------- Products ----------
 
-export const getProduct = (id: string) => BY_ID.get(id);
-
-export const productsInCategory = (category: CategoryId) =>
-  AVAILABLE.filter((p) => p.category === category || p.alsoIn?.includes(category));
-
-export const featuredProducts = (category: MenuCategory) =>
-  category.featured.map(getProduct).filter((p): p is Product => Boolean(p));
-
-export const BEST_SELLERS = AVAILABLE.filter((p) => p.bestSeller);
-
-export const isCategoryId = (value: string | null): value is CategoryId =>
-  MENU_CATEGORIES.some((c) => c.id === value);
-
-// ---- Homepage category tiles (photo-led; each links into a menu category) ----
-
-export interface CategoryTile {
-  id: CategoryId;
+export interface Product {
+  /** Site id ("pos-<POS id>"), used in URLs and the cart. */
+  id: string;
+  /** The POS API's own id. */
+  apiId?: string;
   name: string;
-  description: string;
-  image: string;
+  description?: string;
+  /** Price in pence (after any POS discount). */
+  price: number;
+  /** Price before the POS discount, in pence; shown struck through. */
+  originalPrice?: number;
+  category: CategoryId;
+  /** Extra categories the product is also listed under. */
+  alsoIn?: CategoryId[];
+  /** Full photo URL from the POS. */
+  imageUrl?: string;
+  /** Stand-in stock photo (see stockPhotoFor), shown when the POS has no photo for this product. */
+  stockImage?: string;
+  imageAlt: string;
+  options?: readonly OptionGroup[];
+  bestSeller?: boolean;
+  /** Small label on the card, e.g. "Spicy". */
+  tag?: string;
+  available?: boolean;
 }
 
-export const CATEGORY_TILES: readonly CategoryTile[] = [
-  { id: "burgers", name: "Burgers", description: "Juicy & Fresh", image: "/images/cat-burgers.webp" },
-  { id: "sides", name: "Fries", description: "Crispy & Golden", image: "/images/cat-fries.webp" },
-  { id: "chicken", name: "Chicken", description: "Tender & Delicious", image: "/images/cat-chicken.webp" },
-  { id: "wraps", name: "Wraps", description: "Fresh & Healthy", image: "/images/cat-wraps.webp" },
-  { id: "drinks", name: "Drinks", description: "Cool & Refreshing", image: "/images/cat-drinks.webp" },
-  { id: "desserts", name: "Desserts", description: "Sweet Endings", image: "/images/cat-desserts.webp" },
+export type Catalog = ReturnType<typeof createCatalog>;
+
+/** Lookups over the products (and categories) loaded from the POS API. */
+export function createCatalog(products: readonly Product[], categoryList: readonly MenuCategory[] = []) {
+  const seen = new Set<string>();
+  const available = products.filter((p) => p.available !== false && !seen.has(p.id) && seen.add(p.id));
+  const byId = new Map(available.map((p) => [p.id, p]));
+  const getProduct = (id: string) => byId.get(id);
+
+  /** The category's own products first, then ones cross-listed from other categories. */
+  const productsInCategory = (category: CategoryId) => [
+    ...available.filter((p) => p.category === category),
+    ...available.filter((p) => p.category !== category && p.alsoIn?.includes(category)),
+  ];
+
+  /** Up to four items per category for the full menu. */
+  const featuredProducts = (category: MenuCategory) => productsInCategory(category.id).slice(0, 4);
+
+  // Each category's tile: its POS image, else its first product photo, else a stand-in for its name, else its first product's stand-in.
+  const categories = categoryList
+    .map((c) => {
+      const inCategory = available.filter((p) => p.category === c.id);
+      if (c.tile !== FALLBACK_PHOTO) return c; // the POS category's own image
+      const photo = inCategory.find((p) => p.imageUrl)?.imageUrl ?? stockPhotoFor("", c.name) ?? inCategory.find((p) => p.stockImage)?.stockImage;
+      return photo ? { ...c, tile: photo } : c;
+    })
+    .filter((c) => productsInCategory(c.id).length > 0);
+  const getCategory = (id: string) => categories.find((c) => c.id === id);
+
+  /** POS-flagged favourites first, topped up to at least 8 with the first items of each category. */
+  const flagged = available.filter((p) => p.bestSeller);
+  const fillers = categories.filter((c) => !c.compact).flatMap((c) => productsInCategory(c.id).slice(0, 2));
+  const bestSellers = [...flagged, ...fillers.filter((p) => !flagged.includes(p))].slice(0, Math.max(8, flagged.length));
+
+  /** Products in deal categories ("Meal Deals", "Offers", "Combos"…). */
+  const dealProducts = categories.filter((c) => DEAL_CATEGORY.test(c.name)).flatMap((c) => productsInCategory(c.id));
+
+  return { products: available, categories, getCategory, getProduct, productsInCategory, featuredProducts, bestSellers, dealProducts };
+}
+
+/** Nothing loaded yet. */
+export const EMPTY_CATALOG = createCatalog([]);
+
+// ---------- Images ----------
+
+/**
+ * Stand-in stock photos for POS products without their own image, matched on the product name plus its
+ * category name: most specific first. Values are files in /images/menu (Unsplash stock, see CREDITS.md).
+ */
+const STOCK_PHOTOS: [RegExp, string][] = [
+  // Pizza
+  [/margherita/, "margherita"],
+  [/pepperoni/, "pepperoni"],
+  [/(bbq|chicken).*pizza|pizza.*(bbq|chicken)/, "bbq-chicken-pizza"],
+  [/(veg|vegetarian|vegan).*pizza|pizza.*(veg|vegetarian|vegan)/, "veggie-supreme"],
+  [/(meat|feast|hot ?shot|mighty).*pizza|pizza.*(meat|feast)/, "meat-feast"],
+  [/pizza/, "cat-pizza"],
+  // Sides & starters (before chicken, so "chicken wings" and "garlic bread" match here)
+  [/peri.*wing|wing.*peri/, "peri-wings"],
+  [/wing/, "chicken-wings"],
+  [/cheesy garlic|garlic bread.*chees|garlic.*cheese/, "cheesy-garlic-bread"],
+  [/garlic bread|garlic naan/, "garlic-bread"],
+  [/loaded/, "loaded-fries"],
+  [/fries|chips/, "french-fries"],
+  [/onion ring/, "onion-rings"],
+  [/mozzarella|cheese stick/, "mozzarella-sticks"],
+  // Burgers
+  [/(double|cheese).*burger/, "cheese-burger"],
+  [/burger/, "classic-burger"],
+  // Peri peri, kebabs, grill
+  [/peri|piri/, "peri-half-chicken"],
+  [/shawarma|wrap/, "chicken-shawarma-wrap"],
+  [/mixed.*(kebab|doner)/, "mixed-kebab-plate"],
+  [/doner|kebab|gyro/, "lamb-doner-kebab"],
+  [/mixed.*(grill|platter)|platter/, "mixed-grill"],
+  [/shish|skewer/, "chicken-shish"],
+  // Curries
+  [/tikka masala/, "chicken-tikka-masala"],
+  [/butter chicken|makhani/, "butter-chicken"],
+  [/karahi/, "chicken-karahi"],
+  [/curr|masala|korma|bhuna|jalfrezi|balti|madras|vindaloo|biryani/, "cat-curries"],
+  [/tikka/, "chicken-tikka-skewers"],
+  [/grill|chicken/, "cat-grilled-chicken"],
+  // Drinks
+  [/fanta|orange/, "fanta"],
+  [/sprite|7 ?up|lemonade|lemon/, "sprite"],
+  [/cola|coke|pepsi/, "coke"],
+  [/drink|soda|juice|water|beverage/, "cat-drinks"],
+  // Desserts
+  [/lava|molten/, "chocolate-lava-cake"],
+  [/cheesecake/, "cheesecake"],
+  [/brownie/, "brownie"],
+  [/ice ?cream|gelato|sundae/, "ice-cream"],
+  [/cake|gateau/, "chocolate-cake"],
+  [/dessert|sweet/, "cat-desserts"],
+  // Deals & everything else
+  [/wing.*box|box.*wing/, "wings-box"],
+  [/deal|feast|combo|bundle|family|sharing/, "pizza-night-for-two"],
+  [/side|starter/, "cat-sides"],
 ];
 
-// ---- Deals: each one points at a real product, so cart lines merge with the menu ----
-
-export type OfferType = "discount" | "combo";
-
-/** Anything that can be switched off or limited to a date window. */
-export interface Schedulable {
-  /** Set false to pause without deleting. */
-  active?: boolean;
-  /** Local ISO dates (YYYY-MM-DD, inclusive). Outside this window the item is hidden. */
-  validFrom?: string;
-  validUntil?: string;
+/**
+ * The best-matching stand-in photo: the product's own name decides first, its category name only if
+ * the name matches nothing. Undefined when neither fits (the restaurant badge is shown then).
+ */
+export function stockPhotoFor(productName: string, categoryName = ""): string | undefined {
+  const match = (text: string) => (text ? STOCK_PHOTOS.find(([re]) => re.test(text.toLowerCase()))?.[1] : undefined);
+  return match(productName) ?? match(categoryName);
 }
 
-/** True when the item is switched on and today (local time) falls inside its date window. */
-export function isLive(item: Schedulable, now = new Date()) {
-  if (item.active === false) return false;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  if (item.validFrom && today < item.validFrom) return false;
-  if (item.validUntil && today > item.validUntil) return false;
-  return true;
-}
+const isUrl = (name: string) => /^(https?:)?\/\//i.test(name) || name.startsWith("/");
 
-export interface Offer extends Schedulable {
-  productId: string;
-  /** "discount" shows a % OFF badge (Exclusive Deals); "combo" shows SAVE £x (Combo Deals). */
-  type: OfferType;
-  /** Pre-discount price in pence. The current price is the product's own price. */
-  originalPrice: number;
-  /** % OFF badge figure as advertised (kept explicit rather than derived from rounded prices). */
-  discountPercent?: number;
-  /** Deal copy when it should differ from the product description. */
-  blurb?: string;
-}
+/** Square photo: full URLs pass through; bare names are local files in /images/menu (site imagery, not menu data). */
+export const menuImage = (name: string, size: 540 | 1080 = 540) => (isUrl(name) ? name : `/images/menu/${name}-${size}.webp`);
+export const menuSrcSet = (name: string) => (isUrl(name) ? undefined : `${menuImage(name, 540)} 540w, ${menuImage(name, 1080)} 1080w`);
+/** The POS photo, else a matching stand-in stock photo, else the restaurant badge. */
+export const productImageName = (p: Product) => p.imageUrl ?? p.stockImage ?? FALLBACK_PHOTO;
 
-const OFFER_DEFS: readonly Offer[] = [
-  { productId: "classic-burger-meal", type: "discount", originalPrice: 899, discountPercent: 20 },
-  { productId: "chicken-bucket", type: "discount", originalPrice: 1499, discountPercent: 30 },
-  { productId: "chicken-wrap-combo", type: "discount", originalPrice: 699, discountPercent: 15 },
-  { productId: "loaded-fries", type: "discount", originalPrice: 699, discountPercent: 25, blurb: "Cheese + Bacon + Sauce" },
-  { productId: "double-burger-combo", type: "combo", originalPrice: 1399 },
-  { productId: "family-feast", type: "combo", originalPrice: 2499 },
-  { productId: "chicken-lovers-box", type: "combo", originalPrice: 1699 },
-];
+/** Classes for an <img> showing FALLBACK_PHOTO: a smaller, centred badge instead of a cropped photo. */
+export const PLACEHOLDER_IMG_CLASSES = ["object-contain", "p-[18%]", "opacity-90"];
+export const isPlaceholderImage = (src: string) => src.endsWith(FALLBACK_PHOTO);
 
-export interface ResolvedOffer extends Offer {
-  product: Product;
-  /** Saving in pence (original − current). */
-  savings: number;
-}
+/** Wide banner photo. */
+export const heroImage = (name: string, alt: string) => ({
+  small: `/images/hero/${name}-960.webp`,
+  large: `/images/hero/${name}-1920.webp`,
+  width: 1920,
+  height: 880,
+  alt,
+});
 
-/** Live offers of one type, resolved against current product data. */
-export function liveOffers(type: OfferType, now = new Date()): ResolvedOffer[] {
-  return OFFER_DEFS.filter((o) => o.type === type && isLive(o, now)).flatMap((offer) => {
-    const product = getProduct(offer.productId);
-    return product ? [{ ...offer, product, savings: offer.originalPrice - product.price }] : [];
-  });
-}
-
-/** Badge text, e.g. { lead: "20%", tail: "OFF" } or { lead: "SAVE", tail: "£3" }. */
-export function offerBadge(offer: ResolvedOffer) {
-  return offer.type === "combo"
-    ? { lead: "SAVE", tail: formatSavings(offer.savings), label: `Save ${formatSavings(offer.savings)}` }
-    : { lead: `${offer.discountPercent}%`, tail: "OFF", label: `${offer.discountPercent}% off` };
-}
+// ---------- Prices ----------
 
 const gbp = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
 export const formatPrice = (pence: number) => gbp.format(pence / 100);
-/** Whole pounds drop the pence (£3 rather than £3.00). */
-const formatSavings = (pence: number) => (pence % 100 === 0 ? `£${pence / 100}` : formatPrice(pence));
+/** Whole pounds drop the pence (£25 rather than £25.00). For notes, not item prices. */
+export const formatShortPrice = (pence: number) => (pence % 100 === 0 ? `£${pence / 100}` : formatPrice(pence));
+
+// ---------- Option pricing ----------
+
+/** Defaults: first choice of every single-choice group, nothing for multi groups. */
+export function defaultSelections(product: Product): Selections {
+  return Object.fromEntries((product.options ?? []).map((g) => [g.id, g.type === "single" ? [g.choices[0].id] : []]));
+}
+
+/** Drops unknown groups/choices and fills missing single-choice groups with their default. */
+export function normaliseSelections(product: Product, selections: Selections): Selections {
+  const result: Selections = {};
+  for (const group of product.options ?? []) {
+    const valid = (selections[group.id] ?? []).filter((id) => group.choices.some((c) => c.id === id));
+    result[group.id] = group.type === "single" ? [valid[0] ?? group.choices[0].id] : group.choices.filter((c) => valid.includes(c.id)).map((c) => c.id);
+  }
+  return result;
+}
+
+/** Unit price in pence for a product with the given options. */
+export function unitPrice(product: Product, selections: Selections) {
+  let total = product.price;
+  for (const group of product.options ?? []) {
+    for (const choice of group.choices) {
+      if (selections[group.id]?.includes(choice.id)) total += choice.price ?? 0;
+    }
+  }
+  return total;
+}
+
+/** Human-readable option labels. */
+export function describeSelections(product: Product, selections: Selections) {
+  return (product.options ?? []).flatMap((group) =>
+    group.choices.filter((c) => selections[group.id]?.includes(c.id)).map((c) => c.label),
+  );
+}
+
+/** True when options can change the price (cards then show "from £x"). */
+export const hasPricedOptions = (product: Product) =>
+  (product.options ?? []).some((g) => g.choices.some((c) => (c.price ?? 0) > 0));
+
+/** Stable cart line id: same product + same options = same line. */
+export function lineId(product: Product, selections: Selections) {
+  const parts = (product.options ?? [])
+    .map((g) => `${g.id}=${[...(selections[g.id] ?? [])].sort().join("+")}`)
+    .filter((p) => !p.endsWith("="));
+  return parts.length ? `${product.id}|${parts.join("|")}` : product.id;
+}

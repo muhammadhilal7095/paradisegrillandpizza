@@ -45,7 +45,7 @@ export function GalleryLightbox({ items, index, onIndexChange, onClose }: Galler
     if (!many) return;
     for (const step of [-1, 1]) {
       const next = items[(index + step + items.length) % items.length];
-      new Image().src = galleryImage(next, 1200);
+      new Image().src = galleryImage(next, 1080);
     }
   }, [index, items, many]);
 
@@ -119,7 +119,7 @@ export function GalleryLightbox({ items, index, onIndexChange, onClose }: Galler
         >
           <img
             key={item.id}
-            src={galleryImage(item, 1200)}
+            src={galleryImage(item, 1080)}
             width={1200}
             height={900}
             alt={item.alt}
