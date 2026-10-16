@@ -52,7 +52,7 @@ export interface MenuCategory {
 
 /** Decorative banner photo for a category, chosen from words in its name. Not product data. */
 const HERO_BY_NAME: [RegExp, string, string][] = [
-  [/pizza/i, "pizza", "Pizza baking in a wood-fired oven"],
+  [/pizza/i, "pizza", "Pepperoni pizza with melted mozzarella on a dark board"],
   [/burger/i, "burgers", "Cheeseburger on a dark background"],
   [/peri|piri/i, "peri-peri", "Spicy chicken wings charring on a grill"],
   [/kebab|wrap|doner|shawarma/i, "kebabs", "Doner meat turning on a rotisserie"],

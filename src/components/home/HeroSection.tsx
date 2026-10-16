@@ -20,7 +20,7 @@ export function HeroSection() {
       titleTop="Stone-Baked Pizza."
       titleBottom="Flame-Grilled Taste."
       description="Hand-stretched pizza, peri peri chicken, freshly carved kebabs and slow-cooked curries, made fresh when you order."
-      image={heroImage("home", "Freshly baked pizzas with different toppings on a dark table")}
+      image={heroImage("home", "Pizza with bubbling mozzarella baking in a flaming wood-fired oven")}
     >
       <div className="mt-8 flex flex-wrap gap-3">
         <Link to={ORDER_PATH} className={buttonClasses("primary", "md")}>

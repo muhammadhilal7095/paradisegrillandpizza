@@ -59,9 +59,9 @@ Source: `https://images.unsplash.com/photo-<id>`. Each was cropped and converted
 
 | Name | Unsplash photo id |
 | --- | --- |
-| home | 1651981075280-9a9e01acbff0 |
+| home | 1622880833523-7cf1c0bd4296 |
 | menu | 1555939594-58d7cb561ad1 |
-| pizza | 1622880833523-7cf1c0bd4296 |
+| pizza | 1628840042765-356cda07504e |
 | burgers | 1586816001966-79b736744398 |
 | grilled-chicken | 1779358964755-75464e144187 |
 | peri-peri | 1592011432621-f7f576f44484 |
