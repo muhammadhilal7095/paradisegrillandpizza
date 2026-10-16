@@ -13,9 +13,9 @@ export function CategorySection() {
           title="Explore Our Menu"
           description="Choose from a variety of fresh, tasty and high-quality meals, made just for you."
         />
-        <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-3 md:gap-x-6 lg:grid-cols-6 lg:gap-x-4">
+        <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-3 md:gap-x-6 lg:grid-cols-6 lg:gap-x-0">
           {CATEGORY_TILES.map((category) => (
-            <li key={category.id}>
+            <li key={category.id} className="lg:border-l lg:border-line lg:first:border-l-0">
               <CategoryCard category={category} />
             </li>
           ))}

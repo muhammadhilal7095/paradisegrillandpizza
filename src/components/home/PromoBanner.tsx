@@ -1,62 +1,75 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ClipboardList, Truck, Wallet } from "lucide-react";
 import { ORDER_PATH } from "../../config/site";
-import { BrushStroke } from "../ui/BrushStroke";
 import { buttonClasses } from "../ui/button";
 
-const PERKS = ["Fresh Ingredients", "Great Taste", "Best Deals"];
+const PERKS = [
+  { icon: ClipboardList, title: "Easy Ordering", note: "In Just a Few Clicks" },
+  { icon: Wallet, title: "Secure Payment", note: "100% Safe" },
+  { icon: Truck, title: "Fast Delivery", note: "Hot & Fresh" },
+];
+
+/** Red paint streaks swept across the banner corners. */
+function Streaks() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+      <span className="absolute -top-6 -left-16 h-24 w-72 -rotate-[28deg] rounded-full bg-[linear-gradient(90deg,transparent,#f21b2d_25%,#d91024_80%,transparent)] opacity-90 blur-[1px] md:w-[420px]" />
+      <span className="absolute top-14 -left-24 h-6 w-64 -rotate-[28deg] rounded-full bg-brand/70 md:w-96" />
+      <span className="absolute -right-24 bottom-10 hidden h-28 w-[620px] -rotate-[24deg] rounded-full bg-[linear-gradient(90deg,transparent,#f21b2d_30%,#d91024_85%)] opacity-90 md:block" />
+      <span className="absolute top-1/3 -right-20 hidden h-10 w-[480px] -rotate-[24deg] rounded-full bg-brand/60 md:block" />
+    </div>
+  );
+}
 
 export function PromoBanner() {
   return (
     <section aria-labelledby="promo-title" className="relative isolate overflow-hidden bg-deep">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_45%_70%_at_50%_55%,rgba(242,27,45,0.16),transparent_70%)]"
-      />
-      <div className="mx-auto grid max-w-[1400px] items-center gap-6 px-4 py-12 md:grid-cols-[1fr_1.1fr] md:px-6 lg:grid-cols-[1fr_1.25fr_0.9fr] lg:py-6 desk:px-8 wide:px-12">
-        {/* Slogan */}
-        <div className="flex flex-col items-center text-center md:items-start md:text-left">
-          <div className="relative px-7 py-5">
-            <BrushStroke className="absolute inset-0 -z-10 size-full -rotate-2 text-brand" />
-            <h2
-              id="promo-title"
-              className="-rotate-2 font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.5px] text-white uppercase md:text-[40px] desk:text-[48px]"
-            >
-              <span className="block">Good Food</span>
-              <span className="block">Good Mood</span>
-            </h2>
-          </div>
-          <ul className="mt-5 flex flex-wrap justify-center gap-x-3 gap-y-1 text-[13px] font-medium text-white/80 md:justify-start">
-            {PERKS.map((perk, i) => (
-              <li key={perk} className="flex items-center gap-3">
-                {i > 0 && <span aria-hidden="true" className="h-3 w-px bg-white/40" />}
-                {perk}
+      <Streaks />
+      <div className="mx-auto grid max-w-[1400px] items-center gap-8 px-4 py-12 md:grid-cols-[1.1fr_1fr] md:px-6 lg:py-14 desk:px-8 wide:px-12">
+        <div className="relative z-10 md:pl-6 desk:pl-12">
+          <h2 id="promo-title" className="text-white">
+            <span className="block -rotate-3 font-hand text-[40px] leading-none md:text-[48px]">Fresh Food</span>
+            <span className="mt-1 block font-display text-[30px] leading-[1.1] font-extrabold tracking-[-0.6px] md:text-[36px] desk:text-[42px]">
+              Delivered to Your Door
+            </span>
+          </h2>
+          <p className="mt-3 text-[15px] text-white/80">Your favorite meals, faster and easier.</p>
+
+          <ul className="mt-7 grid grid-cols-1 gap-4 xs:grid-cols-3 xs:gap-0">
+            {PERKS.map(({ icon: Icon, title, note }, i) => (
+              <li
+                key={title}
+                className={`flex items-center gap-2.5 xs:flex-col xs:items-start xs:px-3 xs:first:pl-0 sm:flex-row sm:items-center ${
+                  i > 0 ? "xs:border-l xs:border-white/20" : ""
+                }`}
+              >
+                <Icon size={24} strokeWidth={1.8} className="shrink-0 text-brand" aria-hidden="true" />
+                <span className="leading-tight">
+                  <span className="block text-[13px] font-semibold text-white">{title}</span>
+                  <span className="block text-[11px] text-white/60">{note}</span>
+                </span>
               </li>
             ))}
           </ul>
+
+          <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-8")}>
+            Order Now
+            <ArrowRight size={17} strokeWidth={2.2} aria-hidden="true" />
+          </Link>
         </div>
 
-        {/* Photo — the source has a pure black background that melts into the section. */}
+        {/* Photo: the source has a pure black background that melts into the section. */}
         <img
           src="/images/banner-1600.webp"
           srcSet="/images/banner-800.webp 800w, /images/banner-1600.webp 1600w"
-          sizes="(min-width: 1024px) 40vw, (min-width: 768px) 50vw, 100vw"
+          sizes="(min-width: 768px) 45vw, 100vw"
           width={1600}
           height={1067}
           alt="Sesame chicken burger with a basket of fries"
           loading="lazy"
           decoding="async"
-          className="mx-auto w-full max-w-[560px] object-contain [mask-image:radial-gradient(ellipse_closest-side,#000_72%,transparent_100%)]"
+          className="relative z-10 mx-auto w-full max-w-[560px] object-contain [mask-image:radial-gradient(ellipse_closest-side,#000_72%,transparent_100%)]"
         />
-
-        {/* Call to action */}
-        <div className="flex flex-col items-center gap-5 md:col-span-2 lg:col-span-1 lg:items-start">
-          <p className="-rotate-3 font-hand text-[30px] leading-none text-white desk:text-[34px]">Taste the Difference</p>
-          <Link to={ORDER_PATH} className={buttonClasses("primary", "md")}>
-            Order Now
-            <ArrowRight size={17} strokeWidth={2.2} aria-hidden="true" />
-          </Link>
-        </div>
       </div>
     </section>
   );

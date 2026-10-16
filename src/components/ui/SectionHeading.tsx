@@ -8,12 +8,14 @@ interface SectionHeadingProps {
   description: string;
   align?: "center" | "left";
   tone?: "light" | "dark";
+  /** Overrides the default max-w-xl for longer titles. */
+  widthClass?: string;
 }
 
-export function SectionHeading({ id, eyebrow, title, description, align = "left", tone = "light" }: SectionHeadingProps) {
+export function SectionHeading({ id, eyebrow, title, description, align = "left", tone = "light", widthClass = "max-w-xl" }: SectionHeadingProps) {
   const dark = tone === "dark";
   return (
-    <div className={align === "center" ? "mx-auto max-w-xl text-center" : "max-w-xl"}>
+    <div className={align === "center" ? `mx-auto text-center ${widthClass}` : widthClass}>
       <p className="text-[12px] font-semibold tracking-[0.14em] text-brand uppercase">{eyebrow}</p>
       <h2
         id={id}

@@ -16,6 +16,8 @@ interface PageHeroProps {
   annotation?: string;
   /** Call to action, or a decorative line. */
   children?: ReactNode;
+  /** Extra decorative layer positioned against the whole banner. */
+  decoration?: ReactNode;
 }
 
 const SIZES = {
@@ -35,7 +37,7 @@ const SIZES = {
  * Dark photo banner: copy on the left, food on the right. On phones the photo
  * sits below the copy so text never lands on the busy part of the image.
  */
-export function PageHero({ titleId, eyebrow, titleTop, titleBottom, description, image, size = "md", annotation, children }: PageHeroProps) {
+export function PageHero({ titleId, eyebrow, titleTop, titleBottom, description, image, size = "md", annotation, children, decoration }: PageHeroProps) {
   const s = SIZES[size];
   return (
     <section aria-labelledby={titleId} className="relative isolate flex flex-col overflow-hidden bg-deep md:block">
@@ -81,6 +83,7 @@ export function PageHero({ titleId, eyebrow, titleTop, titleBottom, description,
           </svg>
         </p>
       )}
+      {decoration}
     </section>
   );
 }
