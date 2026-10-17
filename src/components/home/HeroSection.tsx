@@ -3,12 +3,10 @@ import { ArrowRight, BadgeCheck, Bike, Flame, MapPin, Phone, Star } from "lucide
 import { CONTACT, formatTime, OPENING_HOURS_VERIFIED, telHref, todaysHours } from "../../config/contact";
 import { ORDER_PATH } from "../../config/site";
 import { useMenu } from "../../context/menuStore";
-import { formatPrice, heroImage, menuImage, productImageName } from "../../data/menu";
+import { formatPrice, menuImage, productImageName } from "../../data/menu";
 import { fallbackImage } from "../menu/imageFallback";
 import { AddToCartButton } from "../ui/AddToCartButton";
 import { buttonClasses } from "../ui/button";
-
-const IMAGE = heroImage("home", "Paradise Grill and Pizza meal: pizza, crispy chicken burger, fried chicken, fries and a cold drink");
 
 const FEATURES = [
   { icon: BadgeCheck, title: "Halal", note: "As on our logo" },
@@ -87,26 +85,22 @@ export function HeroSection() {
   const phone = CONTACT.phones[0];
   return (
     <section aria-labelledby="hero-title" className="relative isolate overflow-hidden bg-deep text-white">
-      {/* Photo: full-bleed behind the copy on larger screens, a banner above it on phones. */}
-      <div className="relative aspect-[16/10] desk:absolute desk:inset-0 desk:aspect-auto">
+      {/* Photo: full-bleed behind the copy on larger screens (its left side is already dark), a banner above it on phones. */}
+      <div className="relative aspect-[16/9] desk:absolute desk:inset-0 desk:aspect-auto">
         <img
-          src={IMAGE.large}
-          srcSet={`${IMAGE.small} 960w, ${IMAGE.large} 1672w`}
+          src="/images/hero/home-feast-1672.webp"
+          srcSet="/images/hero/home-feast-960.webp 960w, /images/hero/home-feast-1672.webp 1672w"
           sizes="100vw"
           width={1672}
           height={941}
-          alt={IMAGE.alt}
+          alt="Paradise Grill and Pizza feast: pizza, crispy chicken burger, fried chicken, fries and a cold drink"
           fetchPriority="high"
           decoding="async"
-          className="size-full object-cover object-[78%_center] [filter:saturate(1.06)_contrast(1.04)] motion-safe:animate-[hero-zoom_14s_ease-out_both] desk:object-[70%_center]"
+          className="size-full object-cover object-right motion-safe:animate-[hero-zoom_14s_ease-out_both]"
         />
-        {/* Phones: fade into the copy below. Larger screens: darken only the copy side. */}
-        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0)_55%,#050505_100%)] desk:bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.92)_28%,rgba(5,5,5,0.35)_52%,rgba(5,5,5,0)_70%)]" />
-        {/* Warm glow behind the food and a soft fade into the next section. */}
-        <div aria-hidden="true" className="absolute inset-0 hidden bg-[radial-gradient(ellipse_45%_60%_at_75%_60%,rgba(224,48,30,0.18),transparent_70%)] desk:block" />
-        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 hidden h-24 bg-[linear-gradient(180deg,transparent,rgba(5,5,5,0.55))] desk:block" />
+        {/* Phones: fade into the copy below. Larger screens: keep the copy side dark. */}
+        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0)_60%,#050505_100%)] desk:bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.85)_30%,rgba(5,5,5,0)_55%)]" />
       </div>
-
       <div className="relative mx-auto flex max-w-[1400px] items-center px-4 pt-2 pb-12 md:px-6 md:pb-16 desk:min-h-[620px] desk:px-8 desk:py-20 wide:px-12">
         <div className="max-w-[540px]">
           <StatusChip />
