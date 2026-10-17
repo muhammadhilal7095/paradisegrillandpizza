@@ -3,6 +3,8 @@ import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT, CONTACT_DETAILS_VERIFIED, formatTime, OPENING_HOURS, telHref } from "../../config/contact";
 import { LEGAL_LINKS, MAIN_LINKS } from "../../config/navigation";
 import { BRAND, SOCIAL_LINKS } from "../../config/site";
+import { WHATSAPP_DISPLAY, WHATSAPP_NUMBER } from "../../config/ordering";
+import { WhatsAppIcon } from "../cart/WhatsAppIcon";
 import { BrandLogo } from "../header/BrandLogo";
 import { SocialIcon } from "./SocialIcon";
 
@@ -78,6 +80,13 @@ export function Footer() {
                 )}
               </li>
             )}
+            <li className="flex gap-2.5">
+              <WhatsAppIcon className="mt-0.5 size-[17px] shrink-0 text-brand" />
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                WhatsApp {WHATSAPP_DISPLAY}
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
             {email && (
               <li className="flex gap-2.5">
                 <Mail size={17} strokeWidth={1.9} aria-hidden="true" className="mt-0.5 shrink-0 text-brand" />

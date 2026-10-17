@@ -8,7 +8,7 @@ import { createPayments } from "./server/payments.js";
 function serverRoutesPlugin(env: Record<string, string>): Plugin {
   const pos = { baseUrl: env.POS_API_BASE_URL || env.VITE_API_BASE_URL, email: env.POS_MENU_EMAIL, password: env.POS_MENU_PASSWORD };
   const proxy = createMenuProxy(pos);
-  const payments = createPayments({ stripeKey: env.STRIPE_SECRET_KEY, siteUrl: env.SITE_URL, pos });
+  const payments = createPayments({ stripeKey: env.STRIPE_SECRET_KEY, siteUrl: env.SITE_URL, pos, whatsapp: { phone: env.WHATSAPP_NOTIFY_PHONE || "447486643846", apiKey: env.WHATSAPP_NOTIFY_APIKEY, baseUrl: env.WHATSAPP_NOTIFY_BASE } });
   const handle = (req: Parameters<typeof proxy>[0], res: Parameters<typeof proxy>[1], next: () => void) =>
     void proxy(req, res, () => void payments(req, res, next));
   return {

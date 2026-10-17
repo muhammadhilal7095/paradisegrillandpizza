@@ -8,6 +8,8 @@ import { MenuContext, type MenuStatus } from "./menuStore";
 /** Keeps a saved cart line in step with the current menu (name, price, options); null drops it. */
 function refreshCartItem(catalog: Catalog) {
   return (item: CartItem): CartItem | null => {
+    // Special deals aren't menu products; the payment server re-checks them against the POS.
+    if (item.productId.startsWith("deal-")) return item;
     const p = catalog.getProduct(item.productId);
     if (!p) return null;
     const selections = normaliseSelections(p, item.selections ?? {});

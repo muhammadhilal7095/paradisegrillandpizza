@@ -36,7 +36,12 @@ const pos = {
   password: process.env.POS_MENU_PASSWORD,
 };
 const menuProxy = createMenuProxy(pos);
-const payments = createPayments({ stripeKey: process.env.STRIPE_SECRET_KEY, siteUrl: process.env.SITE_URL, pos });
+const payments = createPayments({
+  stripeKey: process.env.STRIPE_SECRET_KEY,
+  siteUrl: process.env.SITE_URL,
+  pos,
+  whatsapp: { phone: process.env.WHATSAPP_NOTIFY_PHONE || "447486643846", apiKey: process.env.WHATSAPP_NOTIFY_APIKEY, baseUrl: process.env.WHATSAPP_NOTIFY_BASE },
+});
 
 const TYPES = {
   ".html": "text/html; charset=utf-8",

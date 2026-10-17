@@ -38,7 +38,10 @@ export type Fulfilment = "collection" | "delivery";
  * Set VITE_WHATSAPP_NUMBER in .env.local. While it's empty the WhatsApp button
  * explains that WhatsApp ordering isn't set up yet instead of opening a chat.
  */
-export const WHATSAPP_NUMBER = ((import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined) ?? "").replace(/\D/g, "");
+/** The restaurant's WhatsApp number (+44 7486 643846). VITE_WHATSAPP_NUMBER overrides it if set. */
+export const WHATSAPP_NUMBER = ((import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined) || "447486643846").replace(/\D/g, "");
+/** Shown to customers. */
+export const WHATSAPP_DISPLAY = "+44 7486 643846";
 
 /**
  * Optional online order endpoint (your own API / POS). It receives a POST with the order as JSON

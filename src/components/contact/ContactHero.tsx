@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowDown, ArrowRight, ChevronRight, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT, telHref } from "../../config/contact";
+import { WHATSAPP_DISPLAY, WHATSAPP_NUMBER } from "../../config/ordering";
+import { WhatsAppIcon } from "../cart/WhatsAppIcon";
 import { ORDER_PATH } from "../../config/site";
 import { heroImage } from "../../data/menu";
 import { buttonClasses } from "../ui/button";
@@ -17,6 +19,7 @@ export function ContactHero() {
   const actions = [
     { icon: Phone, label: "Call us", value: phone, href: telHref(phone), external: false },
     { icon: Mail, label: "Email us", value: email, href: `mailto:${email}`, external: false },
+    { icon: WhatsAppIcon, label: "WhatsApp", value: WHATSAPP_DISPLAY, href: `https://wa.me/${WHATSAPP_NUMBER}`, external: true },
     { icon: MapPin, label: "Visit us", value: address, href: directions, external: true },
   ];
 
@@ -71,12 +74,12 @@ export function ContactHero() {
                 className="group flex h-full items-center gap-3.5 rounded-xl p-3 transition-colors hover:bg-white/[0.08]"
               >
                 <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-brand text-white">
-                  <Icon size={19} strokeWidth={2.1} aria-hidden="true" />
+                  <Icon size={19} strokeWidth={2.1} className="size-[19px]" aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-[12px] font-semibold tracking-[0.08em] text-white/60 uppercase">{label}</span>
                   <span className="block text-[14px] leading-snug font-semibold break-words">{value}</span>
-                  {external && <span className="sr-only"> (opens Google Maps in a new tab)</span>}
+                  {external && <span className="sr-only"> (opens in a new tab)</span>}
                 </span>
                 <ChevronRight size={18} aria-hidden="true" className="shrink-0 text-white/40 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
               </a>

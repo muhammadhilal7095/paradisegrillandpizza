@@ -4,4 +4,5 @@ export function createPayments(config: {
   stripeKey?: string;
   siteUrl?: string;
   pos: { baseUrl?: string; email?: string; password?: string };
+  whatsapp?: { phone?: string; apiKey?: string; baseUrl?: string };
 }): (req: IncomingMessage, res: ServerResponse, next?: () => void) => Promise<void>;

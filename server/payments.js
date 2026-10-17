@@ -13,6 +13,7 @@
  */
 
 import { readFileSync } from "node:fs";
+import { createWhatsAppNotifier } from "./notify.js";
 import { createPosClient } from "./posClient.js";
 
 const DELIVERY = JSON.parse(readFileSync(new URL("../src/config/delivery.json", import.meta.url), "utf8"));
@@ -47,13 +48,52 @@ function formEncode(/** @type {Raw} */ obj, prefix = "", out = new URLSearchPara
 }
 
 /**
- * @param {{ stripeKey?: string; siteUrl?: string; pos: { baseUrl?: string; email?: string; password?: string } }} config
+ * @param {{ stripeKey?: string; siteUrl?: string; pos: { baseUrl?: string; email?: string; password?: string }; whatsapp?: { phone?: string; apiKey?: string; baseUrl?: string } }} config
  * @returns {(req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse, next?: () => void) => Promise<void>}
  */
-export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig }) {
+export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, whatsapp = {} }) {
   const key = stripeKey.trim();
   const pos = createPosClient(posConfig);
   const enabled = Boolean(key && pos.configured);
+  const notifier = createWhatsAppNotifier(whatsapp);
+  /** Sessions whose alert is being sent right now (stops a double send if the page loads twice). */
+  const sending = new Set();
+
+  /**
+   * Sends the paid order to the restaurant's WhatsApp, once per payment. The "sent" mark is stored
+   * on the Stripe session itself, so it survives server restarts.
+   * @param {Raw} s Stripe Checkout Session (with line_items)
+   */
+  async function notifyPaidOrder(s) {
+    const m = s.metadata ?? {};
+    if (!notifier.enabled || m.whatsapp_notified === "1" || sending.has(s.id)) return;
+    sending.add(s.id);
+    try {
+      const ref = str(s.payment_intent).slice(-8).toUpperCase() || str(s.id).slice(-8).toUpperCase();
+      const lines = [
+        "NEW PAID WEBSITE ORDER",
+        `Ref: ${ref}`,
+        `Type: ${m.fulfilment === "delivery" ? "DELIVERY" : "COLLECTION"}`,
+        "",
+        ...(s.line_items?.data ?? []).map((/** @type {Raw} */ li) => `${li.quantity} x ${str(li.description)} - ${money(li.amount_total)}`),
+        "",
+        `TOTAL PAID: ${money(s.amount_total)} (card)`,
+        "",
+        `Name: ${m.customer_name || "-"}`,
+        `Phone: ${m.customer_phone || "-"}`,
+      ];
+      if (m.customer_email) lines.push(`Email: ${m.customer_email}`);
+      if (m.fulfilment === "delivery") lines.push(`Address: ${m.address || "-"}`);
+      if (m.notes) lines.push(`Notes: ${m.notes}`);
+      if (await notifier.send(lines.join("\n"))) {
+        await stripe(`/checkout/sessions/${s.id}`, "POST", formEncode({ metadata: { whatsapp_notified: "1" } })).catch((error) =>
+          console.error("[payments] couldn't mark WhatsApp as sent:", error instanceof Error ? error.message : error),
+        );
+      }
+    } finally {
+      sending.delete(s.id);
+    }
+  }
 
   /** @param {string} path @param {"GET" | "POST"} method @param {URLSearchParams} [body] */
   async function stripe(path, method, body) {
@@ -84,6 +124,48 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig })
       path = next ? `/products${new URL(next).search}` : "";
     }
     return byId;
+  }
+
+  /** Live special deals from the POS, keyed by id. */
+  async function loadDeals() {
+    /** @type {Map<string, Raw>} */
+    const byId = new Map();
+    const { status, body } = await pos.get("/mobile/deals");
+    if (status < 200 || status >= 300) throw new Error(`POS deals ${status}`);
+    const data = JSON.parse(body);
+    const list = Array.isArray(data) ? data : data.items ?? data.data ?? [];
+    for (const d of Array.isArray(list) ? list : []) byId.set(str(d.id), d);
+    return byId;
+  }
+
+  /**
+   * Prices a special deal: its fixed deal_price, valid only when it's live and every slot has a valid
+   * choice (and an allowed flavour where the slot offers one).
+   * @param {Raw} d @param {Record<string, string[]>} selections
+   */
+  function priceDeal(d, selections) {
+    const price = toPence(d.deal_price);
+    if (!price || !on(d.is_active)) return null;
+    const today = new Date().toISOString().slice(0, 10);
+    const start = str(d.starts_at).slice(0, 10);
+    const end = str(d.ends_at).slice(0, 10);
+    if ((start && start > today) || (end && end < today)) return null;
+    const products = new Map((Array.isArray(d.products) ? d.products : []).map((/** @type {Raw} */ p) => [str(p.id), p]));
+    const labels = [];
+    for (const slot of Array.isArray(d.items) ? d.items : []) {
+      const choice = (slot.choices ?? []).find((/** @type {Raw} */ c) => str(c.id) === selections[str(slot.id)]?.[0]);
+      if (!choice) return null;
+      const p = choice.product ?? products.get(str(choice.product_id)) ?? {};
+      const variant = choice.variant ?? (p.variants ?? []).find((/** @type {Raw} */ v) => str(v.id) === str(choice.variant_id));
+      const allowed = (slot.allowed_addon_ids ?? []).map(str);
+      const addons = (p.addons ?? []).filter((/** @type {Raw} */ a) => allowed.includes(str(a.id)) && on(a.is_available));
+      const addonId = selections[`${str(slot.id)}:addon`]?.[0];
+      const addon = addons.find((/** @type {Raw} */ a) => str(a.id) === addonId);
+      if (addons.length && !addon) return null;
+      const qty = Number(slot.quantity) > 1 ? `${Number(slot.quantity)} x ` : "";
+      labels.push(`${qty}${str(p.name)}${variant ? ` ${str(variant.name).replace(/\s+/g, " ")}` : ""}${addon ? ` - ${str(addon.name)}` : ""}`);
+    }
+    return { name: str(d.title), unit: price, labels, image: /^https:\/\//.test(str(d.banner_url)) ? str(d.banner_url) : undefined };
   }
 
   /**
@@ -165,8 +247,20 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig })
         if (fulfilment === "collection" && !DELIVERY.collectionEnabled) return send(400, { message: "Collection isn't available right now." });
 
         const products = await loadProducts(typeof req.headers.authorization === "string" ? req.headers.authorization : undefined);
+        /** @type {Map<string, Raw> | null} */
+        let deals = null;
         const lines = [];
         for (const item of items) {
+          // Special deals (POS Mobile App deals): fixed deal price, every pick checked against the deal.
+          if (str(item.productId).startsWith("deal-")) {
+            deals ??= await loadDeals();
+            const deal = deals.get(str(item.productId).slice(5));
+            const priced = deal && priceDeal(deal, item.selections && typeof item.selections === "object" ? item.selections : {});
+            const qty = Math.floor(Number(item.quantity));
+            if (!priced || !(qty >= 1 && qty <= MAX_QTY)) return send(409, { message: "A deal in your cart has changed or ended. Please remove it and add it again." });
+            lines.push({ ...priced, qty });
+            continue;
+          }
           const p = products.get(str(item.productId).replace(/^pos-/, ""));
           const priced = p && priceLine(p, item.selections && typeof item.selections === "object" ? item.selections : {});
           const qty = Math.floor(Number(item.quantity));
@@ -236,6 +330,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig })
         if (!/^cs_(live|test)_[A-Za-z0-9]+$/.test(id)) return send(400, { message: "Invalid payment reference." });
         const s = await stripe(`/checkout/sessions/${id}?expand[]=line_items`, "GET");
         const m = s.metadata ?? {};
+        if (s.payment_status === "paid") await notifyPaidOrder(s);
         return send(200, {
           paid: s.payment_status === "paid",
           status: s.status,

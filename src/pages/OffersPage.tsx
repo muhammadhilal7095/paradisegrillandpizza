@@ -5,6 +5,8 @@ import { DealGrid } from "../components/menu/DealCard";
 import { ReminderStrip } from "../components/offers/ReminderStrip";
 import { buttonClasses } from "../components/ui/button";
 import { OffersHero } from "../components/offers/OffersHero";
+import { OnSaleSection } from "../components/deals/OnSaleSection";
+import { SpecialDealsSection } from "../components/deals/SpecialDealsSection";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { useMenu } from "../context/menuStore";
 
@@ -18,18 +20,21 @@ export function OffersPage() {
     <main>
       <OffersHero />
 
+      <SpecialDealsSection id="special-deals" tone="light" />
+      <OnSaleSection tone="mist" />
+
       <section id="deals" aria-labelledby="deals-title" className="scroll-mt-20 bg-white py-16 md:py-20">
         <div className={container}>
           <SectionHeading
             id="deals-title"
             align="center"
-            eyebrow="Save on Favourites"
+            eyebrow="Meal Deals"
             title={
               <>
-                Current <em>Deals</em>
+                Meal Deal <em>Menu</em>
               </>
             }
-            description="Our deals and bundles, straight from today's menu."
+            description="Bundles from our Meal Deals menu, ready to add to your order."
           />
           <div className="mt-10">
             {status !== "ready" ? (

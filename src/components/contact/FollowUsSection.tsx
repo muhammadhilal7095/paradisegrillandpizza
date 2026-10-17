@@ -9,7 +9,6 @@ const BRAND_COLOURS: Record<SocialNetwork, string> = {
   facebook: "text-[#1877F2]",
   instagram: "text-[#E4405F]",
   tiktok: "text-ink",
-  youtube: "text-[#FF0000]",
 };
 
 function SocialTile({ network, label, href }: { network: SocialNetwork; label: string; href: string }) {

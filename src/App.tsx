@@ -4,6 +4,7 @@ import { Footer } from "./components/footer/Footer";
 import { SiteHeader } from "./components/header/SiteHeader";
 import { TopBar } from "./components/header/TopBar";
 import { ScrollManager } from "./components/ScrollManager";
+import { WhatsAppButton } from "./components/WhatsAppButton";
 import { AboutPage } from "./pages/AboutPage";
 import { AccountPage } from "./pages/auth/AccountPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
@@ -40,6 +41,7 @@ function Layout() {
         <Outlet />
       </div>
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 }
