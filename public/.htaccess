@@ -1,0 +1,10 @@
+# Static hosting (Apache/LiteSpeed): send every page route (/menu, /offers, …) to index.html
+# so the React router can show it. Real files (images, /assets) are served as they are.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

@@ -63,7 +63,8 @@ const server = createServer(async (req, res) => {
 
   // Static files; every other route gets index.html so the React router can handle it.
   const file = normalize(join(dist, pathname));
-  const safe = file.startsWith(dist) && existsSync(file) && statSync(file).isFile();
+  // Dotfiles (e.g. .htaccess, used only by static hosting) are never served.
+  const safe = file.startsWith(dist) && !/(^|[\\/])\./.test(pathname) && existsSync(file) && statSync(file).isFile();
   const target = safe ? file : join(dist, "index.html");
   const ext = extname(target);
   res.setHeader("Content-Type", TYPES[/** @type {keyof typeof TYPES} */ (ext)] ?? "application/octet-stream");

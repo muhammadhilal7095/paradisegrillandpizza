@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Bike, CircleAlert, CircleCheck, KeyRound, LoaderCircle, Lock, Mail, MapPin, Phone, ShoppingBag, ShoppingCart, UserRound } from "lucide-react";
+import { ArrowRight, Bike, CircleAlert, CircleCheck, CreditCard, KeyRound, LoaderCircle, Lock, Mail, MapPin, Phone, ShoppingBag, ShoppingCart, UserRound } from "lucide-react";
 import { AuthField } from "../components/auth/AuthField";
 import { FormAlert } from "../components/auth/FormAlert";
 import { OrderSummary } from "../components/cart/OrderSummary";
@@ -89,7 +89,6 @@ export function CheckoutPage() {
       live = false;
     };
   }, []);
-  const canOrder = cardPay || whatsappConfigured || onlineOrderingConfigured;
 
   const set = <K extends keyof CheckoutDetails>(key: K, value: CheckoutDetails[K]) => {
     setDetails((d) => ({ ...d, [key]: value }));
@@ -151,6 +150,18 @@ export function CheckoutPage() {
   const handleCardPayment = async () => {
     setSubmitError("");
     if (!check()) return;
+    if (!cardPay) {
+      const on = await cardPaymentsEnabled();
+      setCardPay(on);
+      if (!on) {
+        setSubmitError(
+          whatsappConfigured
+            ? "Card payment isn't available right now, sorry. Please send your order on WhatsApp instead and pay when you collect or on delivery."
+            : `Card payment isn't available right now, sorry. Please call us on ${CONTACT.phones[0]} to place your order.`,
+        );
+        return;
+      }
+    }
     setStatus({ kind: "submitting" });
     const account = await ensureAccount();
     try {
@@ -169,12 +180,8 @@ export function CheckoutPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (cardPay) return handleCardPayment();
-    if (!onlineOrderingConfigured) {
-      if (whatsappConfigured) handleWhatsApp();
-      else check();
-      return;
-    }
+    // Card payment (Stripe) is always offered; handleCardPayment re-checks the payment server first.
+    if (cardPay || !onlineOrderingConfigured) return handleCardPayment();
     setSubmitError("");
     if (!check()) return;
     setStatus({ kind: "submitting" });
@@ -298,14 +305,6 @@ export function CheckoutPage() {
             <FormAlert tone="info">
               <p className="font-semibold text-ink">Payment cancelled. You haven't been charged.</p>
               <p className="mt-0.5">Your order is still here. Check your details and try again when you're ready.</p>
-            </FormAlert>
-          )}
-          {!canOrder && (
-            <FormAlert tone="info">
-              <p className="font-semibold text-ink">Online ordering isn't switched on yet.</p>
-              <p className="mt-0.5">
-                You can still check your order here. To order now, please call us on {CONTACT.phones[0]}.
-              </p>
             </FormAlert>
           )}
 
@@ -524,7 +523,7 @@ export function CheckoutPage() {
               </div>
             )}
 
-            {cardPay && (
+            {(cardPay || !onlineOrderingConfigured) && (
               <button type="submit" disabled={submitting} className={buttonClasses("primary", "md", "mt-4 h-12 w-full text-[15px] disabled:opacity-70")}>
                 {submitting ? (
                   <>
@@ -533,8 +532,8 @@ export function CheckoutPage() {
                   </>
                 ) : (
                   <>
-                    <Lock size={17} strokeWidth={2.2} aria-hidden="true" />
-                    Pay {formatPrice(totals.total)} securely
+                    <CreditCard size={17} strokeWidth={2.2} aria-hidden="true" />
+                    Pay {formatPrice(totals.total)} by card
                   </>
                 )}
               </button>
@@ -556,29 +555,18 @@ export function CheckoutPage() {
                 type="button"
                 onClick={handleWhatsApp}
                 disabled={submitting}
-                className={buttonClasses(cardPay || onlineOrderingConfigured ? "outlineDark" : "primary", "md", "mt-2 w-full disabled:opacity-70")}
+                className={buttonClasses("outlineDark", "md", "mt-2 w-full disabled:opacity-70")}
               >
                 {submitting ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <WhatsAppIcon className="size-[18px]" />}
-                {submitting ? "Preparing your order…" : cardPay ? "Or order on WhatsApp (pay later)" : "Send order on WhatsApp"}
-              </button>
-            )}
-            {!canOrder && (
-              <button type="button" disabled className={buttonClasses("primary", "md", "mt-4 w-full cursor-not-allowed opacity-50")}>
-                Ordering not available yet
+                {submitting ? "Preparing your order…" : "Or order on WhatsApp (pay later)"}
               </button>
             )}
 
-            {cardPay ? (
-              <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-muted">
-                <Lock size={13} strokeWidth={2.2} aria-hidden="true" className="mt-0.5 shrink-0" />
-                Card payments are processed securely by Stripe. We never see or store your card details.
-              </p>
-            ) : (
-              <p className="mt-3 text-[12px] leading-relaxed text-muted">
-                No payment is taken on this website. You pay the restaurant directly, and they'll confirm the total and how to pay when they
-                accept your order.
-              </p>
-            )}
+            <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-muted">
+              <Lock size={13} strokeWidth={2.2} aria-hidden="true" className="mt-0.5 shrink-0" />
+              Card payments (Visa, Mastercard, Amex, Apple Pay, Google Pay) are processed securely by Stripe. We never see or store your card
+              details.
+            </p>
           </OrderSummary>
         </div>
       </form>
