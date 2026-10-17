@@ -1,14 +1,12 @@
 import { useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, ImageOff } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { ImageOff } from "lucide-react";
 import { GalleryCard } from "../components/gallery/GalleryCard";
 import { GalleryFilters } from "../components/gallery/GalleryFilters";
 import { GalleryLightbox } from "../components/gallery/GalleryLightbox";
 import { buttonClasses } from "../components/ui/button";
-import { ClosingBanner } from "../components/ui/ClosingBanner";
-import { PageHero } from "../components/ui/PageHero";
+import { GalleryHero } from "../components/gallery/GalleryHero";
 import { SectionHeading } from "../components/ui/SectionHeading";
-import { ORDER_PATH } from "../config/site";
 import {
   GALLERY_INITIAL_COUNT,
   GALLERY_ITEMS,
@@ -17,7 +15,6 @@ import {
   type GalleryCategoryId,
 } from "../data/gallery";
 
-import { heroImage, menuImage } from "../data/menu";
 
 export function GalleryPage() {
   const [params, setParams] = useSearchParams();
@@ -59,23 +56,11 @@ export function GalleryPage() {
 
   return (
     <main>
-      <PageHero
-        titleId="gallery-title"
-        eyebrow="Our Gallery"
-        titleTop="Straight From"
-        titleBottom="Our Kitchen"
-        description="Pizza fresh from the oven, chicken off the grill and everything in between."
-        image={heroImage("about-grill", "Marinated chicken skewers grilling over charcoal")}
-      >
-        <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-7")}>
-          Order Now
-          <ArrowRight size={17} strokeWidth={2.2} aria-hidden="true" />
-        </Link>
-      </PageHero>
+      <GalleryHero photoCount={GALLERY_ITEMS.length} />
 
       <GalleryFilters active={active} onChange={setFilter} />
 
-      <section aria-labelledby="food-gallery-title" className="bg-white pt-10 pb-16 md:pt-12 md:pb-20">
+      <section id="photos" aria-labelledby="food-gallery-title" className="scroll-mt-20 bg-white pt-10 pb-16 md:pt-12 md:pb-20">
         <div className="mx-auto max-w-[1400px] px-4 md:px-6 desk:px-8 wide:px-12">
           <SectionHeading
             id="food-gallery-title"
@@ -128,20 +113,6 @@ export function GalleryPage() {
         </div>
       </section>
 
-      <ClosingBanner
-        titleId="capture-title"
-        slogan={["Fresh From", "The Oven"]}
-        sloganAccentFrom={1}
-        titleTop="Capture the"
-        titleBottom="Flavour"
-        description="Hungry yet? Everything here is on the menu."
-        image={{
-          src: menuImage("pizza-night-for-two", 1080),
-          width: 1080,
-          height: 1080,
-          alt: "Pizzas with different toppings on a dark table",
-        }}
-      />
 
       {openIndex !== null && visible[openIndex] && (
         <GalleryLightbox items={visible} index={openIndex} onIndexChange={setOpenIndex} onClose={closeLightbox} />

@@ -1,25 +1,25 @@
 /**
- * Contact page configuration.
+ * Contact details: the restaurant's real, confirmed details.
  *
- * Everything below is EXAMPLE data from the design brief. While CONTACT_DETAILS_VERIFIED is false:
- *  - details are shown as plain text (no tel:/mailto:/website links, so nobody calls or emails a stranger),
- *  - the map shows a labelled preview instead of a real location, and there is no Get Directions link,
- *  - a short "example details" note is shown to visitors.
- * Replace the values with Paradise Grill and Pizza's real details, then set the flag to true.
+ * With CONTACT_DETAILS_VERIFIED true the site shows tap-to-call / email links, the real map and
+ * a Get Directions link. Opening hours below are still to be confirmed by the restaurant.
  */
-export const CONTACT_DETAILS_VERIFIED = false;
+export const CONTACT_DETAILS_VERIFIED = true;
 
 export const CONTACT = {
-  phones: ["+44 20 7946 0123"],
-  emails: ["hello@paradisegrill.example"],
+  phones: ["+44 1753 371730"],
+  emails: ["info@paradisegap.co.uk"],
   address: {
-    lines: ["12 High Street", "London, UK"],
-    /** Map pin. Required for the embedded map once verified. */
-    lat: undefined as number | undefined,
-    lng: undefined as number | undefined,
+    lines: ["121 Bath Rd, Slough", "SL1 3UW, United Kingdom"],
+    /** Map pin (Bath Road, SL1 3UW, from OpenStreetMap). */
+    lat: 51.51263 as number | undefined,
+    lng: -0.61279 as number | undefined,
   },
-  website: "https://www.paradisegrill.example",
+  website: "https://paradisegap.co.uk",
 };
+
+/** False until the restaurant confirms the opening hours below (a "to be confirmed" note shows until then). */
+export const OPENING_HOURS_VERIFIED = false;
 
 export interface OpeningHours {
   days: string;

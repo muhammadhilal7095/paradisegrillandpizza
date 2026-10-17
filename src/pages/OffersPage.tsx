@@ -4,11 +4,9 @@ import { MenuStatusNotice } from "../components/menu/MenuStatusNotice";
 import { DealGrid } from "../components/menu/DealCard";
 import { ReminderStrip } from "../components/offers/ReminderStrip";
 import { buttonClasses } from "../components/ui/button";
-import { PageHero } from "../components/ui/PageHero";
+import { OffersHero } from "../components/offers/OffersHero";
 import { SectionHeading } from "../components/ui/SectionHeading";
-import { ORDER_PATH } from "../config/site";
 import { useMenu } from "../context/menuStore";
-import { heroImage } from "../data/menu";
 
 const container = "mx-auto max-w-[1400px] px-4 md:px-6 desk:px-8 wide:px-12";
 
@@ -18,21 +16,9 @@ export function OffersPage() {
 
   return (
     <main>
-      <PageHero
-        titleId="offers-title"
-        eyebrow="Special Offers & Deals"
-        titleTop="More Food,"
-        titleBottom="Less to Pay"
-        description="Meal deals and bundles from our kitchen, added straight to your order."
-        image={heroImage("deals", "Sliced pizzas on a dark table")}
-      >
-        <Link to={ORDER_PATH} className={buttonClasses("primary", "md", "mt-7")}>
-          Order Now
-          <ArrowRight size={17} strokeWidth={2.2} aria-hidden="true" />
-        </Link>
-      </PageHero>
+      <OffersHero />
 
-      <section aria-labelledby="deals-title" className="bg-white py-16 md:py-20">
+      <section id="deals" aria-labelledby="deals-title" className="scroll-mt-20 bg-white py-16 md:py-20">
         <div className={container}>
           <SectionHeading
             id="deals-title"

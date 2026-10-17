@@ -20,6 +20,7 @@ import { MenuPage } from "./pages/MenuPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { OffersPage } from "./pages/OffersPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
+import { RefundPage } from "./pages/RefundPage";
 import { ReturnsPage } from "./pages/ReturnsPage";
 import { TermsPage } from "./pages/TermsPage";
 
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/return" element={<ReturnsPage />} />
+        <Route path="/refund" element={<RefundPage />} />
         <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
         <Route path="/register" element={<GuestOnly><RegisterPage /></GuestOnly>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

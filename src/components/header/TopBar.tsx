@@ -10,7 +10,7 @@ export function TopBar() {
   const { delivery } = ORDERING;
 
   return (
-    <div className="bg-deep text-[12px] text-white/85">
+    <div className="bg-deep text-[12px] text-white/85 print:hidden">
       <div className="mx-auto flex h-9 max-w-[1400px] items-center justify-between gap-4 px-3 xs:px-4 md:px-6 desk:px-8 wide:px-12">
         <p className="flex items-center gap-1.5 truncate">
           <Clock size={14} strokeWidth={2} aria-hidden="true" className="shrink-0 text-brand" />

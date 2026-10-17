@@ -1,18 +1,20 @@
 import type { ComponentType } from "react";
-import { ChefHat, Heart, Leaf, UsersRound, type LucideProps } from "lucide-react";
+import { BadgeCheck, ChefHat, HandCoins, Leaf, ShieldCheck, TriangleAlert, type LucideProps } from "lucide-react";
 import { VALUES, type ValueIcon } from "../../data/about";
 import { SectionHeading } from "../ui/SectionHeading";
 
 const ICONS: Record<ValueIcon, ComponentType<LucideProps>> = {
   leaf: Leaf,
   chef: ChefHat,
-  customers: UsersRound,
-  heart: Heart,
+  halal: BadgeCheck,
+  allergy: TriangleAlert,
+  clean: ShieldCheck,
+  price: HandCoins,
 };
 
 export function ValuesSection() {
   return (
-    <section aria-labelledby="values-title" className="border-t border-line bg-white py-16 md:py-20">
+    <section aria-labelledby="values-title" className="bg-white py-16 md:py-24">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 desk:px-8">
         <SectionHeading
           id="values-title"
@@ -23,22 +25,20 @@ export function ValuesSection() {
               What We <em>Stand For</em>
             </>
           }
-          description="The simple things we care about in every meal we serve."
+          description="The simple promises behind every meal we cook."
         />
-        <ul className="mt-10 grid grid-cols-1 gap-x-6 gap-y-9 xs:grid-cols-2 lg:grid-cols-4">
-          {VALUES.map(({ title, description, icon }, i) => {
+        <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3">
+          {VALUES.map(({ title, description, icon }) => {
             const Icon = ICONS[icon];
             return (
-              <li key={title} className="flex flex-col items-center text-center">
-                <span
-                  className={`inline-flex size-14 items-center justify-center rounded-full ${
-                    i === 0 ? "bg-brand text-white" : "bg-mist text-ink"
-                  }`}
-                >
-                  <Icon size={24} strokeWidth={1.8} aria-hidden="true" />
+              <li key={title} className="flex gap-4 rounded-2xl border border-line bg-white p-5 md:p-6">
+                <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <Icon size={22} strokeWidth={1.9} aria-hidden="true" />
                 </span>
-                <h3 className="mt-4 text-[14px] font-semibold text-ink">{title}</h3>
-                <p className="mt-1.5 max-w-[15rem] text-[13px] leading-relaxed text-muted">{description}</p>
+                <span>
+                  <h3 className="font-display text-[17px] font-bold text-ink">{title}</h3>
+                  <p className="mt-1 text-[14px] leading-relaxed text-muted">{description}</p>
+                </span>
               </li>
             );
           })}

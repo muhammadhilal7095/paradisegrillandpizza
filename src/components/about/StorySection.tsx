@@ -1,19 +1,15 @@
 import { Pizza } from "lucide-react";
 import { STORY_PARAGRAPHS } from "../../data/about";
 
-/** Circular restaurant photo with light decorative marks, beside the brand story. */
+/** Circular food photo with light decorative rings, beside the brand story. */
 export function StorySection() {
   return (
-    <section aria-labelledby="story-title" className="overflow-hidden bg-white py-16 md:py-20">
+    <section aria-labelledby="story-title" className="overflow-hidden bg-white py-16 md:py-24">
       <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 md:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 desk:px-8">
-        <div className="relative mx-auto w-[min(78vw,280px)] md:w-[320px] desk:w-[360px]">
+        <div className="relative mx-auto w-[min(72vw,280px)] md:w-[340px] desk:w-[380px]">
           {/* Decorative rings and accents sit outside the photo, never on the text. */}
           <span aria-hidden="true" className="absolute -inset-3 rounded-full border border-line" />
           <span aria-hidden="true" className="absolute -inset-6 rounded-full border border-dashed border-line" />
-          <svg aria-hidden="true" viewBox="0 0 100 100" className="absolute -top-6 -left-6 h-[calc(100%+3rem)] w-[calc(100%+3rem)] text-brand" fill="none">
-            {/* Short red arc on the outer ring, upper-left. */}
-            <path d="M15.7 15.7A48.5 48.5 0 0 1 50 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-          </svg>
           <span aria-hidden="true" className="absolute top-[8%] -left-5 size-2.5 rounded-full bg-brand" />
           <span aria-hidden="true" className="absolute right-[2%] bottom-[12%] size-1.5 rounded-full bg-brand" />
           <span
@@ -35,14 +31,11 @@ export function StorySection() {
 
         <div className="text-center lg:text-left">
           <p className="text-[12px] font-semibold tracking-[0.14em] text-brand uppercase">Our Story</p>
-          <h2 id="story-title" className="mt-2 font-display text-[28px] leading-[1.15] font-extrabold tracking-[-0.6px] text-ink md:text-[32px] desk:text-[36px]">
-            <span className="block">A Neighbourhood Kitchen</span>
-            <span className="block">
-              With a <span className="text-brand">Big Heart</span>
-            </span>
+          <h2 id="story-title" className="mt-2 font-display text-[28px] leading-[1.15] font-extrabold tracking-[-0.6px] text-ink md:text-[34px] desk:text-[38px]">
+            A Neighbourhood Kitchen <span className="text-brand">With a Big Heart</span>
           </h2>
           <span aria-hidden="true" className="mx-auto mt-5 block h-1 w-12 rounded-full bg-brand lg:mx-0" />
-          <div className="mx-auto mt-5 flex max-w-[34rem] flex-col gap-4 text-[14px] leading-[1.65] text-muted lg:mx-0">
+          <div className="mx-auto mt-5 flex max-w-[36rem] flex-col gap-4 text-[15px] leading-[1.75] text-soft md:text-[16px] lg:mx-0">
             {STORY_PARAGRAPHS.map((paragraph) => (
               <p key={paragraph.slice(0, 24)}>{paragraph}</p>
             ))}

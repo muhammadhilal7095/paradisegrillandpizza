@@ -60,7 +60,7 @@ const HERO_BY_NAME: [RegExp, string, string][] = [
   [/curr|karahi|masala/i, "curries", "Pan of curry topped with coriander"],
   [/drink|beverage|soda|juice|shake/i, "drinks", "Glass of iced drink"],
   [/dessert|sweet|cake|ice cream/i, "desserts", "Brownie topped with ice cream"],
-  [/deal|offer|combo|bundle|meal/i, "deals", "Sliced pizzas on a dark table"],
+  [/deal|offer|combo|bundle|meal/i, "deals", "Basket of crispy fried chicken with a dipping sauce"],
   [/side|starter|fries|chips|bread/i, "sides", "Cheesy garlic bread"],
 ];
 

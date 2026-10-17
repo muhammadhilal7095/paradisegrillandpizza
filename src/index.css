@@ -23,6 +23,33 @@
   --breakpoint-wide: 90rem; /* 1440px */
 }
 
+@keyframes hero-zoom {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes gallery-kenburns {
+  from {
+    transform: scale(1.12) translateX(1.5%);
+  }
+  to {
+    transform: scale(1.02) translateX(0);
+  }
+}
+
+@keyframes slide-progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;

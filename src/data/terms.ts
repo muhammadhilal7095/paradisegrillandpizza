@@ -1,135 +1,142 @@
 /**
- * Terms & Conditions content — EDITABLE DRAFT, not legal advice.
- * The business owner must review every clause for the jurisdiction it operates in
- * before setting TERMS_META.status to "published".
+ * Terms and Conditions: for consumers in England & Wales (UK law). Not legal advice.
  *
- * Things deliberately left for the business to confirm (do not invent them):
- *  - the order modification/cancellation window (section 04),
- *  - accepted payment methods, fees and delivery charges (sections 03, 05; see config/ordering.ts),
- *  - the effective date (lastUpdated).
+ * Reflects: Consumer Rights Act 2015, Consumer Contracts Regulations 2013, Electronic Commerce
+ * Regulations 2002, Food Information Regulations 2014. Liability for death or personal injury caused
+ * by negligence, or for fraud, can never be excluded, so these terms don't try to.
+ *
+ * If the business is a limited company, add its registered name, company number and registered office
+ * to "About Us" (and its VAT number if VAT-registered).
  */
+import type { PolicyDocument } from "./policy";
 
-import type { PolicyMeta, PolicySection } from "./policy";
-
-export const TERMS_META: PolicyMeta & { currency: string } = {
-  status: "draft",
-  lastUpdated: null,
-  currency: "GBP (£)",
+export const TERMS: PolicyDocument = {
+  meta: { status: "published", lastUpdated: "2026-10-16" },
+  summary: [
+    "Ordering means you accept these terms.",
+    "Prices are in pounds sterling (GBP) and include VAT where it applies.",
+    "Orders can't be cancelled or refunded once placed, except where the law requires.",
+    "Tell us about any allergies before you order.",
+  ],
+  sections: [
+    {
+      id: "about-us",
+      title: "About Us",
+      icon: "user",
+      content: [
+        "This website is operated by Paradise Grill and Pizza, 121 Bath Rd, Slough SL1 3UW, United Kingdom. Email: info@paradisegap.co.uk. Phone: +44 1753 371730.",
+        "These terms apply to every order placed through our website, by phone, by WhatsApp or in person. Please read them before ordering.",
+      ],
+    },
+    {
+      id: "using-our-website",
+      title: "Using Our Website",
+      icon: "globe",
+      content: [
+        "You may use our website to view our menu and place orders for personal use. You must not misuse the website, place false orders, or try to access parts of it you are not authorised to use. We try to keep the website available and accurate, but cannot guarantee it will always be uninterrupted or error-free.",
+      ],
+    },
+    {
+      id: "placing-an-order",
+      title: "Placing an Order",
+      icon: "bag",
+      content: [
+        "When you place an order, you are offering to buy the items in your basket. A contract between you and us is formed when we accept your order: for card payments, when your payment is confirmed; for WhatsApp or phone orders, when we confirm the order with you.",
+        "We may decline an order, for example if an item is unavailable, we are closed, or your address is outside our delivery area. If we do, any payment taken will be refunded in full.",
+      ],
+    },
+    {
+      id: "prices-payment",
+      title: "Prices and Payment",
+      icon: "card",
+      content: [
+        "All prices are shown in pounds sterling (GBP) and include VAT where it applies. Delivery charges and any minimum order value are shown at checkout before you pay.",
+        "Online card payments are processed securely by Stripe. Orders sent by WhatsApp are paid to the restaurant when you collect or receive them, as confirmed with you. If a price is shown incorrectly because of an obvious error, we will contact you before accepting the order.",
+      ],
+    },
+    {
+      id: "collection-delivery",
+      title: "Collection and Delivery",
+      icon: "truck",
+      content: [
+        "Collection and delivery times are estimates and may vary at busy times. For delivery, please make sure your address and phone number are correct and that someone is available to receive the order.",
+        "If we cannot deliver because of an incorrect address or because nobody is available, we are not able to offer a refund.",
+      ],
+    },
+    {
+      id: "allergens",
+      title: "Allergies and Food Information",
+      icon: "alert",
+      content: [
+        "Our food is prepared in a kitchen that handles all 14 major allergens, including gluten, milk, eggs, nuts, peanuts, sesame, soya and fish. We cannot guarantee that any dish is completely free from allergens. If you have an allergy or intolerance, please tell us before ordering and ask us for allergen information, which we will provide as required by the Food Information Regulations 2014.",
+      ],
+    },
+    {
+      id: "cancellations-refunds",
+      title: "Cancellations, Returns and Refunds",
+      icon: "x",
+      content: [
+        "Our food is perishable and made to your order, so the 14-day cancellation right does not apply. Orders cannot be cancelled once placed and paid for, and we do not accept returns or give refunds for change of mind.",
+        { text: "For full details of when a refund is given, please read our", link: { label: "Refund Policy", to: "/refund" } },
+        { text: "For why food cannot be returned, please read our", link: { label: "Return Policy", to: "/return" } },
+      ],
+    },
+    {
+      id: "your-rights",
+      title: "Your Statutory Rights",
+      icon: "scale",
+      content: [
+        "Under the Consumer Rights Act 2015, the food we supply must be of satisfactory quality, as described and fit for purpose. If it is not, you are entitled to have it put right. Nothing in these terms affects your statutory rights.",
+      ],
+    },
+    {
+      id: "accounts",
+      title: "Your Account",
+      icon: "lock",
+      content: [
+        "If you create an account, or one is created for you when you order, please keep your password safe and tell us if you think someone else has used your account. You can ask us to delete your account at any time.",
+      ],
+    },
+    {
+      id: "liability",
+      title: "Our Responsibility to You",
+      icon: "shield",
+      content: [
+        "We are responsible for loss or damage you suffer that is a foreseeable result of us breaking these terms or failing to use reasonable care and skill. We are not responsible for loss that was not foreseeable, or for business losses, as our food is supplied for personal use only.",
+        "Nothing in these terms limits our liability for death or personal injury caused by our negligence, for fraud, or for anything else that cannot be limited by law.",
+      ],
+    },
+    {
+      id: "events-outside-control",
+      title: "Events Outside Our Control",
+      icon: "cloud",
+      content: [
+        "We are not responsible for delays or failure to supply caused by events outside our reasonable control, such as extreme weather, power failures or supplier problems. If this affects an order you have paid for, we will contact you and refund the order if it cannot be supplied.",
+      ],
+    },
+    {
+      id: "intellectual-property",
+      title: "Website Content",
+      icon: "copyright",
+      content: [
+        "The text, logo, design and images on this website belong to us or our licensors and may not be copied or reused without permission. Some food photography is used under licence and may differ from the dish you receive.",
+      ],
+    },
+    {
+      id: "changes",
+      title: "Changes to These Terms",
+      icon: "refresh",
+      content: [
+        "We may update these terms from time to time. The terms that apply to your order are the ones shown on this page when you place it.",
+      ],
+    },
+    {
+      id: "law",
+      title: "Governing Law",
+      icon: "file",
+      content: [
+        "These terms are governed by the law of England and Wales, and any dispute will be dealt with by the courts of England and Wales. If you live in Scotland or Northern Ireland, you may also bring proceedings in your local courts.",
+      ],
+    },
+  ],
 };
-
-export type TermsIcon =
-  | "file"
-  | "bag"
-  | "card"
-  | "clipboard"
-  | "truck"
-  | "star"
-  | "users"
-  | "shield"
-  | "copyright"
-  | "scale"
-  | "mail";
-
-export type TermsSection = PolicySection<TermsIcon>;
-
-/** Order here is the order on the page; numbers (01–11) are derived from it. */
-export const TERMS_SECTIONS: readonly TermsSection[] = [
-  {
-    id: "general-information",
-    title: "General Information",
-    icon: "file",
-    content: [
-      "These terms and conditions apply to all orders, website visits, and interactions with Paradise Grill and Pizza. By using our website or placing an order, you agree to follow these terms.",
-    ],
-  },
-  {
-    id: "orders-availability",
-    title: "Orders & Availability",
-    icon: "bag",
-    content: [
-      "All orders are subject to availability. We reserve the right to correct or refuse an order where necessary, in accordance with applicable law and our published ordering policies.",
-    ],
-  },
-  {
-    id: "pricing-payment",
-    title: "Pricing & Payment",
-    icon: "card",
-    content: [
-      `All prices are displayed in ${TERMS_META.currency} and include applicable taxes where required. Prices may change without notice. You can pay online by card through Stripe, our secure payment provider; the amount charged is the total shown at checkout. Orders sent by WhatsApp are paid directly to the restaurant once the order is confirmed.`,
-    ],
-  },
-  {
-    id: "order-modification-cancellation",
-    title: "Order Modification & Cancellation",
-    icon: "clipboard",
-    content: [
-      "Orders can be modified or cancelled within a stated period after placement, where permitted by our operational policies and applicable law. Once preparation has started, cancellation or modification may not be possible.",
-      { text: "For urgent changes to an order, please get in touch as soon as possible.", link: { label: "Contact us", to: "/contact" } },
-    ],
-  },
-  {
-    id: "delivery-pickup",
-    title: "Delivery & Pickup",
-    icon: "truck",
-    content: [
-      "We aim to deliver your order on time or prepare it for collection within the displayed time estimate. Delivery times may vary because of demand, traffic, weather, and other circumstances.",
-    ],
-  },
-  {
-    id: "food-quality",
-    title: "Food Quality",
-    icon: "star",
-    content: [
-      "We aim to serve freshly prepared food using ingredients selected according to our food preparation standards. If you experience an issue with your order, please contact us promptly so we can review the matter.",
-      { text: "If you have an allergy or dietary requirement, please speak to us before ordering.", link: { label: "Contact us", to: "/contact" } },
-    ],
-  },
-  {
-    id: "customer-responsibilities",
-    title: "Customer Responsibilities",
-    icon: "users",
-    content: [
-      "Please provide accurate contact and delivery information when placing an order. Customers should use the website respectfully and avoid unauthorized activity.",
-      "Please review your order details before confirming a purchase.",
-    ],
-  },
-  {
-    id: "limitation-of-liability",
-    title: "Limitation of Liability",
-    icon: "shield",
-    content: [
-      "Paradise Grill and Pizza aims to provide reliable website and ordering services. Any limitations of liability must be interpreted in accordance with applicable law and must not exclude rights or responsibilities that cannot legally be excluded.",
-    ],
-  },
-  {
-    id: "content-branding",
-    title: "Content & Branding",
-    icon: "copyright",
-    content: [
-      "Website text, branding, logos, photographs, graphics, and other materials may be protected by intellectual-property laws.",
-      "You may not reproduce or distribute protected materials without appropriate permission, except where permitted by law.",
-    ],
-  },
-  {
-    id: "changes-to-terms",
-    title: "Changes to Terms",
-    icon: "scale",
-    content: [
-      "We may update these terms when our services, business operations, or legal requirements change. The latest version will be published on this page, together with the applicable effective date.",
-      "Where required, we will provide notice of significant changes.",
-    ],
-  },
-  {
-    id: "contact-us",
-    title: "Contact Us",
-    icon: "mail",
-    content: [
-      "If you have questions about these terms and conditions, please contact our customer-support team using the contact details provided on our Contact page.",
-    ],
-    showContactDetails: true,
-  },
-];
-
-/** Supporting brand message beside the last card — not part of the terms themselves. */
-export const BRAND_RULES = ["Fresh Food", "Fair Policies", "Safe & Secure Orders", "Better Experience", "Happy Customers"];
-

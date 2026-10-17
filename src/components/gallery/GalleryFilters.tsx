@@ -1,16 +1,26 @@
 import type { ComponentType } from "react";
-import { CookingPot, Flame, Hamburger, LayoutGrid, Pizza, Sandwich, type LucideProps } from "lucide-react";
+import { CookingPot, CupSoda, Droplet, Drumstick, Fish, Flame, Hamburger, LayoutGrid, Pizza, Sandwich, UsersRound, Wheat, type LucideProps } from "lucide-react";
 import { GALLERY_CATEGORIES, type GalleryCategoryId } from "../../data/gallery";
 import { Fries } from "../menu/categoryIcons";
 
 const ICONS: Record<GalleryCategoryId | "all", ComponentType<LucideProps>> = {
   all: LayoutGrid,
   pizza: Pizza,
-  grill: Flame,
+  "family-deals": UsersRound,
+  chicken: Drumstick,
+  "chicken-meals": CupSoda,
+  "hot-wings": Flame,
+  nuggets: Drumstick,
+  "peri-burger-meal": Flame,
+  "lamb-doner": Sandwich,
   kebabs: Sandwich,
   burgers: Hamburger,
   curries: CookingPot,
-  sides: Fries,
+  naan: Wheat,
+  fish: Fish,
+  dips: Droplet,
+  drinks: CupSoda,
+  starters: Fries,
 };
 
 const FILTERS = [{ id: "all" as const, label: "All" }, ...GALLERY_CATEGORIES];
@@ -20,14 +30,14 @@ interface GalleryFiltersProps {
   onChange: (id: GalleryCategoryId | "all") => void;
 }
 
-/** Toggle buttons that filter the grid in place. Scrolls sideways on narrow screens. */
+/** Toggle buttons that filter the grid in place. Scrolls sideways on phones and tablets; wraps onto centred rows on laptops. */
 export function GalleryFilters({ active, onChange }: GalleryFiltersProps) {
   return (
     <div className="border-b border-line bg-white">
       <div
         role="group"
         aria-label="Filter photos by category"
-        className="mx-auto flex max-w-[1400px] gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] md:px-6 lg:justify-center desk:px-8 wide:px-12 [&::-webkit-scrollbar]:hidden"
+        className="mx-auto flex max-w-[1400px] gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] md:px-6 lg:flex-wrap lg:justify-center lg:overflow-visible desk:px-8 wide:px-12 [&::-webkit-scrollbar]:hidden"
       >
         {FILTERS.map(({ id, label }) => {
           const Icon = ICONS[id];

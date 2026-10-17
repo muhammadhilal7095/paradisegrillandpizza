@@ -59,8 +59,8 @@ Source: `https://images.unsplash.com/photo-<id>`. Each was cropped and converted
 
 | Name | Unsplash photo id |
 | --- | --- |
-| home | 1622880833523-7cf1c0bd4296 |
-| menu | 1555939594-58d7cb561ad1 |
+| home | Paradise Grill and Pizza's own image (not Unsplash) |
+| menu | 1551782450-17144efb9c50 |
 | pizza | 1628840042765-356cda07504e |
 | burgers | 1586816001966-79b736744398 |
 | grilled-chicken | 1779358964755-75464e144187 |
@@ -70,11 +70,16 @@ Source: `https://images.unsplash.com/photo-<id>`. Each was cropped and converted
 | curries | 1596797038530-2c107229654b |
 | drinks | 1581636625402-29b2a704ef13 |
 | desserts | 1624353365286-3f8d62daad51 |
-| deals | 1590947132387-155cc02f3212 |
-| about | 1651981075280-9a9e01acbff0 |
-| contact | 1579751626657-72bc17010498 |
+| deals | 1626645738196-c2a7c87a8f58 |
+| about | 1670819916552-67698b1c86ae |
+| contact | 1489528792647-46ec39027556 |
 | legal | 1613564834361-9436948817d1 |
 | promo-pizza | 1579751626657-72bc17010498 |
 | promo-wings | 1767065703745-f3c33524605a |
 | about-oven | 1622880833523-7cf1c0bd4296 |
 | about-grill | 1789493513908-cb0185caa2fb |
+| order (homepage "Visit or Order", order-1080 / order-wide) | 1622883618971-97068745dc6c |
+
+## Restaurant's own photos
+
+Supplied by Paradise Grill and Pizza (not Unsplash): `menu/wrap-lamb-doner-fries`, `menu/wrap-lamb-tikka-fries`, `menu/starter-cheesy-garlic-bread`, `menu/starter-loaded-cheese-fries`, `menu/pizza-mixed-meat-feast`, `menu/pizza-cheese`, `menu/peri-peri-wings-meal`, `menu/popcorn-chicken-bucket-meal`, `menu/lamb-doner-naan-salad`, `menu/lamb-doner-chips`, `menu/nuggets-crispy`, `menu/nuggets-platter`, `menu/naan-garlic`, `menu/naan-keema`, `menu/seekh-kebab-wrap`, `menu/seekh-kebab-wrap-triple`, `menu/hot-wings-platter`, `menu/hot-wings-spicy`, `menu/fish-and-chips`, `menu/fish-masala-fried`, `menu/family-deal-wings-fries`, `menu/drink-paradise-cola-can`, `menu/drink-paradise-cola-bottle`, `menu/dip-bbq-sauce`, `menu/dip-sweet-chilli`, `menu/dip-garlic-mayo`, `menu/dip-spicy-mayo`, `menu/curry-chicken-tikka-masala`, `menu/curry-lamb-karahi`, `menu/curry-lamb-masala`, `menu/curry-chicken-karahi`, `menu/chicken-meal-classic`, `menu/chicken-meal-hot-crispy`, `menu/chicken-meal-family`, `menu/chicken-meal-spicy`, `menu/crispy-chicken-drumsticks-fries`, `menu/fried-chicken-basket`, `menu/spicy-fried-drumsticks`, `menu/crispy-chicken-drumstick`, `menu/crispy-chicken-burger-fries`, `menu/crispy-chicken-cheese-burger`, `menu/double-beef-smash-burger`, `menu/double-cheeseburger-fries`, and the homepage banner `hero/home`.

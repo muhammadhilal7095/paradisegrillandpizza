@@ -1,111 +1,78 @@
 /**
- * Returns & Refunds content — EDITABLE DRAFT, not legal advice.
- * The business must approve every clause and check it against applicable consumer-protection
- * and food-safety law before setting RETURNS_META.status to "published".
+ * Return Policy: written for consumers in England & Wales (UK law). Not legal advice.
  *
- * Deliberately NOT stated (confirm before adding): a request deadline, refund processing times,
- * any fees. Nothing here may remove customers' statutory rights.
+ * Business position: we do not accept returns. That is lawful for freshly prepared food, which is
+ * perishable and made to order (Consumer Contracts Regulations 2013, reg. 28(1)(b) and (d)). What the
+ * law does NOT allow is removing customers' rights under the Consumer Rights Act 2015 when an order is
+ * wrong, missing or not of satisfactory quality, so those remedies are stated plainly below.
+ *
+ * If the business trades as a limited company, add its registered name, company number and registered
+ * office to the "About us" section of terms.ts (Companies Act 2006 / E-Commerce Regulations 2002).
  */
-import type { PolicyMeta, PolicySection } from "./policy";
+import type { PolicyDocument } from "./policy";
 
-export const RETURNS_META: PolicyMeta & {
-  /** e.g. "24 hours of receiving your order". Leave null until the business confirms a window. */
-  requestWindow: string | null;
-} = {
-  status: "draft",
-  lastUpdated: null,
-  requestWindow: null,
+export const RETURN_POLICY: PolicyDocument = {
+  meta: { status: "published", lastUpdated: "2026-10-16" },
+  summary: [
+    "We do not accept returns of food or drink.",
+    "Food is perishable and made to order, so the 14-day cancellation right does not apply.",
+    "If your order is wrong, missing items or not of satisfactory quality, tell us and we'll put it right.",
+    "Your statutory rights are not affected.",
+  ],
+  sections: [
+    {
+      id: "no-returns",
+      title: "We Do Not Accept Returns",
+      icon: "ban",
+      content: [
+        "Paradise Grill and Pizza sells freshly prepared hot food and drinks. Once an order has been collected or delivered, we cannot accept any of it back, and we do not exchange or take back items because you have changed your mind, ordered the wrong item or no longer want it.",
+      ],
+    },
+    {
+      id: "why",
+      title: "Why Food Cannot Be Returned",
+      icon: "utensils",
+      content: [
+        "Every order is cooked fresh when you place it, so it is made to your request and is perishable. Under the Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013, the usual 14-day right to cancel an online order does not apply to goods that are perishable or made to the customer's specification.",
+        "For food safety and hygiene reasons (Food Safety Act 1990), food that has left our premises can never be taken back, re-sold or re-served.",
+      ],
+    },
+    {
+      id: "check-your-order",
+      title: "Please Check Your Order",
+      icon: "clipboard",
+      content: ["Please check your order as soon as you collect it or it is delivered, so that any problem can be sorted out straight away."],
+      bullets: [
+        "Check that every item and any extras you chose are included.",
+        "Check that the order is the one you placed and is in a suitable condition.",
+        "If something isn't right, contact us as soon as possible, ideally on the same day.",
+      ],
+    },
+    {
+      id: "if-something-is-wrong",
+      title: "If Something Is Wrong With Your Order",
+      icon: "refresh",
+      content: [
+        "Under the Consumer Rights Act 2015, the food we supply must be of satisfactory quality, as described and fit for purpose. If your order is incorrect, has missing items, or is not of satisfactory quality, please contact us with your order details and, if you can, a photo. You do not need to bring or send the food back.",
+        "Where the law requires it, we will put things right, usually by preparing the correct or missing item again. See our Refund Policy for the rare cases where money is returned.",
+        { text: "Read how we handle these cases in our", link: { label: "Refund Policy", to: "/refund" } },
+      ],
+    },
+    {
+      id: "allergies",
+      title: "Allergies and Dietary Requirements",
+      icon: "alert",
+      content: [
+        "If you have a food allergy or intolerance, please tell us before you order and ask us about the 14 allergens. We cannot take back or replace food because of an allergen or dietary need that was not mentioned when ordering. If you believe you were given incorrect allergen information, please contact us immediately.",
+      ],
+    },
+    {
+      id: "statutory-rights",
+      title: "Your Statutory Rights",
+      icon: "scale",
+      content: [
+        "Nothing in this policy affects your statutory rights as a consumer. For free, impartial advice about your rights, contact the Citizens Advice consumer helpline on 0808 223 1133 or visit citizensadvice.org.uk.",
+      ],
+    },
+  ],
 };
-
-export type ReturnsIcon = "utensils" | "clipboard" | "ban" | "wallet" | "refresh" | "truck" | "x" | "message";
-
-export type ReturnsSection = PolicySection<ReturnsIcon>;
-
-const contactPromptly = RETURNS_META.requestWindow
-  ? `please contact our support team within ${RETURNS_META.requestWindow}`
-  : "please contact our support team promptly";
-
-/** Order here is the order on the page; numbers (01–08) are derived from it. */
-export const RETURNS_SECTIONS: readonly ReturnsSection[] = [
-  {
-    id: "what-can-be-returned",
-    title: "What Can Be Returned",
-    icon: "utensils",
-    content: [
-      "We accept requests for refunds or replacements for incorrect items, damaged items, or meals that do not meet our published food-quality standards.",
-      "Each request is reviewed according to the circumstances and applicable consumer-protection requirements.",
-    ],
-  },
-  {
-    id: "eligibility-for-return",
-    title: "Eligibility for Return",
-    icon: "clipboard",
-    content: [
-      `To request a return, refund, or replacement, ${contactPromptly} and provide your order reference, a description of the issue, and any relevant supporting information.`,
-      "We will review the request and explain the available options.",
-    ],
-  },
-  {
-    id: "non-returnable-items",
-    title: "Non-Returnable Items",
-    icon: "ban",
-    content: [
-      "For food-safety reasons, we generally cannot accept ordinary physical returns of prepared food after delivery or collection.",
-      "However, you can still contact us about incorrect orders, quality concerns, food-safety issues, or other problems requiring review. Nothing in this policy affects your rights under applicable law.",
-    ],
-  },
-  {
-    id: "refund-process",
-    title: "Refund Process",
-    icon: "wallet",
-    content: [
-      "Once a refund request has been reviewed and approved, any refund will be processed through the applicable payment method or another agreed method, subject to the payment provider's processing arrangements.",
-      "We will communicate the outcome and any relevant next steps.",
-    ],
-  },
-  {
-    id: "replacement",
-    title: "Replacement",
-    icon: "refresh",
-    content: [
-      "Where appropriate, we may offer a replacement for an incorrect, missing, damaged, or unsatisfactory item.",
-      "Replacement options depend on the issue, product availability, and applicable consumer rights. We will explain the available resolution options during the review.",
-    ],
-  },
-  {
-    id: "delivery-issues",
-    title: "Delivery Issues",
-    icon: "truck",
-    content: [
-      "If your order arrives incomplete, incorrect, or in an unsuitable condition, please contact our support team and provide your order reference and a description of the issue.",
-      "Where helpful and appropriate, you may provide photographs to assist our review. We will assess the circumstances and explain the available next steps.",
-    ],
-  },
-  {
-    id: "change-of-mind",
-    title: "No Refund for Change of Mind",
-    icon: "x",
-    content: [
-      "A change of preference after an order has been prepared or supplied may not, by itself, qualify for a refund under our standard policy.",
-      "This does not affect any mandatory consumer rights or remedies that apply to your circumstances.",
-    ],
-  },
-  {
-    id: "need-help",
-    title: "Need Help?",
-    icon: "message",
-    content: [
-      "If you have questions about returns, refunds, replacements, or an existing order, please contact our support team.",
-      "We will review the information you provide and explain the next steps.",
-    ],
-    showContactDetails: true,
-  },
-];
-
-/** "How to Request a Return" — the general support workflow. Photos are optional. */
-export const RETURN_STEPS = [
-  "Contact our support team.",
-  "Share your order details.",
-  "Provide clear photos if applicable.",
-  "We will review and process your request.",
-];

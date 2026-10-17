@@ -87,7 +87,7 @@ export function SiteHeader() {
   }, [active, close]);
 
   return (
-    <header ref={headerRef} className="sticky top-0 z-40 border-b border-line bg-white">
+    <header ref={headerRef} className="sticky top-0 z-40 border-b border-line bg-white print:hidden">
       <div className="mx-auto flex h-[60px] max-w-[1400px] items-center justify-between gap-3 px-3 xs:px-4 md:h-16 md:px-6 desk:gap-6 desk:px-8 wide:px-12">
         <BrandLogo />
 

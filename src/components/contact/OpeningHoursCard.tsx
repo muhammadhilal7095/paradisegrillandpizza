@@ -1,5 +1,5 @@
 import { CalendarDays, Clock3 } from "lucide-react";
-import { CONTACT_DETAILS_VERIFIED, formatTime, OPENING_HOURS } from "../../config/contact";
+import { formatTime, OPENING_HOURS, OPENING_HOURS_VERIFIED } from "../../config/contact";
 
 export function OpeningHoursCard() {
   return (
@@ -26,7 +26,7 @@ export function OpeningHoursCard() {
         ))}
       </dl>
 
-      {!CONTACT_DETAILS_VERIFIED && <p className="mt-4 text-[12px] text-white/60">Sample hours — to be confirmed.</p>}
+      {!OPENING_HOURS_VERIFIED && <p className="mt-4 text-[12px] text-white/60">Opening hours to be confirmed.</p>}
     </section>
   );
 }

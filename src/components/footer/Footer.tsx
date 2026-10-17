@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT, CONTACT_DETAILS_VERIFIED, formatTime, OPENING_HOURS, telHref } from "../../config/contact";
-import { INFO_LINKS, LEGAL_LINKS } from "../../config/navigation";
+import { LEGAL_LINKS, MAIN_LINKS } from "../../config/navigation";
 import { BRAND, SOCIAL_LINKS } from "../../config/site";
-import { useMenu } from "../../context/menuStore";
 import { BrandLogo } from "../header/BrandLogo";
 import { SocialIcon } from "./SocialIcon";
 
@@ -29,12 +28,11 @@ function LinkColumn({ title, links }: { title: string; links: readonly { label: 
 }
 
 export function Footer() {
-  const { categories } = useMenu();
   const phone = CONTACT.phones[0];
   const email = CONTACT.emails[0];
 
   return (
-    <footer className="bg-deep text-white">
+    <footer className="bg-deep text-white print:hidden">
       <div className={`${container} grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:py-14 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr]`}>
         <div className="col-span-2 lg:col-span-1">
           <BrandLogo tone="dark" size="lg" />
@@ -58,8 +56,8 @@ export function Footer() {
           </ul>
         </div>
 
-        <LinkColumn title="Our Menu" links={[{ label: "Full Menu", to: "/menu" }, ...categories.slice(0, 10).map((c) => ({ label: c.name, to: `/menu/${c.id}` }))]} />
-        <LinkColumn title="Information" links={[...INFO_LINKS, ...LEGAL_LINKS]} />
+        <LinkColumn title="Main" links={MAIN_LINKS} />
+        <LinkColumn title="Privacy" links={LEGAL_LINKS} />
 
         <div className="col-span-2 lg:col-span-1">
           <h2 className={heading}>Find Us</h2>

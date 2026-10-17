@@ -13,17 +13,18 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Contact", to: "/contact" },
 ];
 
-/** Footer "Information" column. */
-export const INFO_LINKS: readonly NavItem[] = [
-  { label: "About Us", to: "/about" },
-  { label: "Special Offers", to: "/offers" },
-  { label: "Gallery", to: "/gallery" },
-  { label: "Contact Us", to: "/contact" },
-  { label: "Your Cart", to: "/cart" },
+/** Footer "Main" column. */
+export const MAIN_LINKS: readonly NavItem[] = [
+  { label: "Home", to: "/" },
+  { label: "Menu", to: "/menu" },
+  { label: "Contact", to: "/contact" },
+  { label: "About", to: "/about" },
 ];
 
+/** Footer "Privacy" column: the legal pages. */
 export const LEGAL_LINKS: readonly NavItem[] = [
   { label: "Privacy Policy", to: "/privacy" },
-  { label: "Terms & Conditions", to: "/terms" },
-  { label: "Refunds", to: "/return" },
+  { label: "Return Policy", to: "/return" },
+  { label: "Refund Policy", to: "/refund" },
+  { label: "Terms and Conditions", to: "/terms" },
 ];
