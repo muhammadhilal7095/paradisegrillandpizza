@@ -12,7 +12,7 @@ export function SpecialDealsSection({ tone = "dark", limit, showAllLink = false,
   const shown = limit ? deals.slice(0, limit) : deals;
   const dark = tone === "dark";
   const wide = shown.length <= 2;
-  const cols = shown.length === 1 ? "max-w-3xl" : wide ? "md:grid-cols-2" : shown.length === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4";
+  const cols = shown.length === 1 ? "mx-auto max-w-3xl" : wide ? "mx-auto max-w-3xl desk:max-w-none desk:grid-cols-2" : shown.length === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4";
 
   return (
     <section id={id} aria-labelledby={`${id}-title`} className={`relative isolate scroll-mt-20 overflow-hidden py-16 md:py-24 ${dark ? "bg-deep" : "bg-white"}`}>

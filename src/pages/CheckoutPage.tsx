@@ -292,7 +292,7 @@ export function CheckoutPage() {
     <main>
       <PageTitleBar title="Checkout" trail={[{ label: "Cart", to: "/cart" }]} description="A few details and your order is on its way to us." />
 
-      <form noValidate onSubmit={handleSubmit} className={`${container} grid gap-8 py-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start`}>
+      <form noValidate onSubmit={handleSubmit} className={`${container} grid grid-cols-[minmax(0,1fr)] gap-8 py-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start`}>
         <div className="flex flex-col gap-6">
           {paymentCancelled && (
             <FormAlert tone="info">

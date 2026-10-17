@@ -1,4 +1,4 @@
-import { formatPrice, hasPricedOptions, menuImage, menuSrcSet, productImageName, type Product } from "../../data/menu";
+import { formatPrice, hasPricedOptions, startingPrice, menuImage, menuSrcSet, productImageName, type Product } from "../../data/menu";
 import { AddToCartButton } from "../ui/AddToCartButton";
 import { fallbackImage } from "./imageFallback";
 import { isPlaceholderImage, PLACEHOLDER_IMG_CLASSES } from "../../data/menu";
@@ -50,11 +50,11 @@ export function ProductCard({ product, headingLevel: Heading = "h3", variant = "
         <p className={`mt-auto font-bold text-ink ${compact ? "pt-2 text-[15px]" : "pt-3 text-[16px]"}`}>
           {hasPricedOptions(product) && <span className="mr-1 text-[12px] font-medium text-muted">from</span>}
           {product.originalPrice ? <span className="sr-only">Now </span> : null}
-          <span className={product.originalPrice ? "text-brand-dark" : ""}>{formatPrice(product.price)}</span>
+          <span className={product.originalPrice ? "text-brand-dark" : ""}>{formatPrice(startingPrice(product))}</span>
           {product.originalPrice ? (
             <>
               <span className="sr-only">, was </span>
-              <s className="ml-1.5 text-[13px] font-medium text-muted">{formatPrice(product.originalPrice)}</s>
+              <s className="ml-1.5 text-[13px] font-medium text-muted">{formatPrice(startingPrice(product, product.originalPrice))}</s>
             </>
           ) : null}
         </p>

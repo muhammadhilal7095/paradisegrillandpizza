@@ -189,6 +189,9 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
       const chosen = variants.find((/** @type {Raw} */ v, /** @type {number} */ i) => (str(v.id) || `v${i}`) === chosenId) ?? variants[0];
       unit += toPence(chosen.price_adjustment) ?? 0;
       labels.push(str(chosen.name));
+    } else if (variants.length === 1) {
+      // Only one size: its price is part of the item's price (the site shows it that way too).
+      unit += toPence(variants[0].price_adjustment) ?? 0;
     }
     const addons = (Array.isArray(p.addons) ? p.addons : []).filter((/** @type {Raw} */ a) => str(a.name) && on(a.is_available));
     addons.forEach((/** @type {Raw} */ a, /** @type {number} */ i) => {

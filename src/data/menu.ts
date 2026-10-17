@@ -284,6 +284,16 @@ export function describeSelections(product: Product, selections: Selections) {
   );
 }
 
+/** Cheapest price a customer can pay: base price plus the cheapest choice of each "choose one" option
+ *  (pizzas priced only by size have a £0 base in the POS). Pass `originalPrice` for the struck-through price. */
+export function startingPrice(product: Product, base = product.price) {
+  let total = base;
+  for (const group of product.options ?? []) {
+    if (group.type === "single" && group.choices.length) total += Math.min(...group.choices.map((c) => c.price ?? 0));
+  }
+  return total;
+}
+
 /** True when options can change the price (cards then show "from £x"). */
 export const hasPricedOptions = (product: Product) =>
   (product.options ?? []).some((g) => g.choices.some((c) => (c.price ?? 0) > 0));

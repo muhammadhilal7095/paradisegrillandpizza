@@ -1,4 +1,4 @@
-import { formatPrice, hasPricedOptions, isPlaceholderImage, menuImage, PLACEHOLDER_IMG_CLASSES, productImageName, type Product } from "../../data/menu";
+import { formatPrice, hasPricedOptions, startingPrice, isPlaceholderImage, menuImage, PLACEHOLDER_IMG_CLASSES, productImageName, type Product } from "../../data/menu";
 import { AddToCartButton } from "../ui/AddToCartButton";
 import { fallbackImage } from "./imageFallback";
 
@@ -31,11 +31,11 @@ export function MenuItemRow({ product }: { product: Product }) {
         <p className="mt-auto flex flex-wrap items-baseline gap-x-2 pt-3">
           {hasPricedOptions(product) && <span className="text-[12px] font-medium text-muted">from</span>}
           {product.originalPrice ? <span className="sr-only">Now </span> : null}
-          <span className={`text-[16px] font-bold ${product.originalPrice ? "text-brand-dark" : "text-ink"}`}>{formatPrice(product.price)}</span>
+          <span className={`text-[16px] font-bold ${product.originalPrice ? "text-brand-dark" : "text-ink"}`}>{formatPrice(startingPrice(product))}</span>
           {product.originalPrice ? (
             <>
               <span className="sr-only">, was </span>
-              <s className="text-[13px] text-muted">{formatPrice(product.originalPrice)}</s>
+              <s className="text-[13px] text-muted">{formatPrice(startingPrice(product, product.originalPrice))}</s>
             </>
           ) : null}
         </p>

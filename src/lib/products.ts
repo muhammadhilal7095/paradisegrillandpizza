@@ -66,6 +66,12 @@ function toImageUrl(raw: Raw): string | undefined {
   }
 }
 
+/** Price adjustment of the only available variant (0 when there are none or several). */
+function soleVariantPence(raw: Raw) {
+  const variants = (Array.isArray(raw.variants) ? (raw.variants as Raw[]) : []).filter((v) => str(v.name) && flagOn(v.is_available));
+  return variants.length === 1 ? (toPence(variants[0].price_adjustment) ?? 0) : 0;
+}
+
 /** Variants become a "choose one" option (price adjustments added), add-ons an optional multi-pick. */
 function toOptions(raw: Raw): OptionGroup[] | undefined {
   const groups: OptionGroup[] = [];
@@ -114,6 +120,8 @@ function toProduct(raw: Raw, categoriesById: Map<string, CategoryInfo>): { produ
   // Discounts: the POS works out current_price; the original is shown struck through.
   const current = toPence(raw.current_price);
   const discounted = current !== null && current < base && raw.has_active_discount !== false;
+  // A product with just one size carries its price on that size (e.g. £0 base + "Only" £4.99): add it in.
+  const single = soleVariantPence(raw);
   const apiId = str(pick(raw, "id", "uuid", "sku")) || slug(name);
 
   return {
@@ -123,8 +131,8 @@ function toProduct(raw: Raw, categoriesById: Map<string, CategoryInfo>): { produ
       apiId,
       name,
       description: str(pick(raw, "short_description", "description", "details")) || undefined,
-      price: discounted ? current : base,
-      originalPrice: discounted ? base : undefined,
+      price: (discounted ? current : base) + single,
+      originalPrice: discounted ? base + single : undefined,
       category: category.id,
       imageUrl: toImageUrl(raw),
       stockImage: stockPhotoFor(name, label),

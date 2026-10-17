@@ -1,5 +1,5 @@
 import { ShoppingBag, Tag } from "lucide-react";
-import { formatPrice, formatShortPrice, hasPricedOptions, isPlaceholderImage, menuImage, PLACEHOLDER_IMG_CLASSES, productImageName, type Product } from "../../data/menu";
+import { formatPrice, formatShortPrice, hasPricedOptions, startingPrice, isPlaceholderImage, menuImage, PLACEHOLDER_IMG_CLASSES, productImageName, type Product } from "../../data/menu";
 import { AddToCartButton } from "../ui/AddToCartButton";
 import { fallbackImage } from "./imageFallback";
 
@@ -66,11 +66,11 @@ export function DealCard({ product, layout = "tall", headingLevel: Heading = "h3
               <p className="text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">{hasPricedOptions(product) ? "From" : "Deal price"}</p>
               <p className="mt-0.5 flex items-baseline gap-2">
                 {product.originalPrice ? <span className="sr-only">Now </span> : null}
-                <span className={`font-display leading-none font-extrabold text-ink ${wide ? "text-[28px]" : "text-[24px]"}`}>{formatPrice(product.price)}</span>
+                <span className={`font-display leading-none font-extrabold text-ink ${wide ? "text-[28px]" : "text-[24px]"}`}>{formatPrice(startingPrice(product))}</span>
                 {product.originalPrice ? (
                   <>
                     <span className="sr-only">, was </span>
-                    <s className="text-[14px] text-muted">{formatPrice(product.originalPrice)}</s>
+                    <s className="text-[14px] text-muted">{formatPrice(startingPrice(product, product.originalPrice))}</s>
                   </>
                 ) : null}
               </p>
@@ -88,7 +88,7 @@ export function DealCard({ product, layout = "tall", headingLevel: Heading = "h3
 export function DealGrid({ products, limit }: { products: Product[]; limit?: number }) {
   const shown = limit ? products.slice(0, limit) : products;
   const wide = shown.length <= 2;
-  const cols = shown.length === 1 ? "max-w-3xl" : wide ? "md:grid-cols-2" : shown.length === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4";
+  const cols = shown.length === 1 ? "mx-auto max-w-3xl" : wide ? "mx-auto max-w-3xl desk:max-w-none desk:grid-cols-2" : shown.length === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4";
   return (
     <ul className={`grid gap-5 md:gap-6 ${cols}`}>
       {shown.map((product) => (

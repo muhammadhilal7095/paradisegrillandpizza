@@ -3,7 +3,7 @@ import { ArrowRight, BadgeCheck, Bike, Flame, MapPin, Phone, Star } from "lucide
 import { CONTACT, formatTime, OPENING_HOURS_VERIFIED, telHref, todaysHours } from "../../config/contact";
 import { ORDER_PATH } from "../../config/site";
 import { useMenu } from "../../context/menuStore";
-import { formatPrice, menuImage, productImageName } from "../../data/menu";
+import { formatPrice, menuImage, startingPrice, productImageName } from "../../data/menu";
 import { fallbackImage } from "../menu/imageFallback";
 import { AddToCartButton } from "../ui/AddToCartButton";
 import { buttonClasses } from "../ui/button";
@@ -73,7 +73,7 @@ function DealCard() {
           <p title={deal.name} className="mt-1 line-clamp-2 text-[14px] leading-snug font-semibold">
             {deal.name}
           </p>
-          <p className="mt-1 font-display text-[18px] font-bold">{formatPrice(deal.price)}</p>
+          <p className="mt-1 font-display text-[18px] font-bold">{formatPrice(startingPrice(deal))}</p>
         </div>
       </div>
       <AddToCartButton product={deal} size="sm" className="mt-3 w-full" />

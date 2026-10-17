@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Search, X } from "lucide-react";
 import { NAV_ITEMS } from "../../config/navigation";
 import { useMenu } from "../../context/menuStore";
-import { formatPrice } from "../../data/menu";
+import { formatPrice, hasPricedOptions, startingPrice } from "../../data/menu";
 import { IconButton } from "./IconButton";
 
 export const SEARCH_PANEL_ID = "header-search";
@@ -36,7 +36,7 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
         ? menuProducts.filter((p) => `${p.name} ${p.description ?? ""} ${p.category}`.toLowerCase().includes(q)).map((p) => ({
             key: p.id,
             label: p.name,
-            detail: formatPrice(p.price),
+            detail: `${hasPricedOptions(p) ? "from " : ""}${formatPrice(startingPrice(p))}`,
             to: `/menu/${p.category}#${p.id}`,
           }))
         : [],

@@ -9,6 +9,9 @@
     "preview": "vite preview",
     "start": "node server/index.js"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "lucide-react": "^1.55.0",
     "react": "^19.3.0",
