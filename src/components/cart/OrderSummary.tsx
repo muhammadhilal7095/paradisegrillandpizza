@@ -38,6 +38,12 @@ export function OrderSummary({ totals, fulfilment, itemCount, children }: OrderS
             <dd className="font-semibold text-ink">Free</dd>
           </div>
         )}
+        {totals.serviceFee > 0 && (
+          <div className="flex justify-between">
+            <dt className="text-soft">Service fee</dt>
+            <dd className="font-semibold text-ink">{formatPrice(totals.serviceFee)}</dd>
+          </div>
+        )}
         <div className="flex items-baseline justify-between border-t border-line pt-3">
           <dt className="font-semibold text-ink">Total</dt>
           <dd className="font-display text-[22px] font-bold text-ink">{formatPrice(totals.total)}</dd>
@@ -46,8 +52,8 @@ export function OrderSummary({ totals, fulfilment, itemCount, children }: OrderS
       {!fulfilment && delivery.enabled && (
         <p className="mt-3 text-[12px] leading-relaxed text-muted">
           Delivery {formatShortPrice(delivery.fee)}
-          {delivery.freeFrom !== null && <>, free over {formatShortPrice(delivery.freeFrom)}</>}. Minimum delivery order {formatShortPrice(delivery.minimumOrder)}.
-          Collection is free.
+          {delivery.freeFrom !== null && <>, free on orders of {formatShortPrice(delivery.freeFrom)} or more</>}. Minimum delivery order {formatShortPrice(delivery.minimumOrder)}.
+          Collection has no delivery charge.
         </p>
       )}
       {!ORDERING_SETTINGS_VERIFIED && (

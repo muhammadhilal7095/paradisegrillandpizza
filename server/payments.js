@@ -181,6 +181,8 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig })
           deliveryFee = DELIVERY.freeDeliveryFrom !== null && subtotal >= DELIVERY.freeDeliveryFrom ? 0 : DELIVERY.deliveryFee;
         }
 
+        const serviceFee = Number(DELIVERY.serviceFee) || 0;
+
         const address = fulfilment === "delivery" ? clip(`${str(body.address)}, ${str(body.postcode).toUpperCase()}`, 300) : "";
         const summary = clip(lines.map((l) => `${l.qty}× ${l.name}${l.labels.length ? ` (${l.labels.join(", ")})` : ""}`).join("; "));
         const metadata = {
@@ -193,6 +195,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig })
           notes: clip(str(body.notes)),
           items: summary,
           delivery_fee: money(deliveryFee),
+          service_fee: money(serviceFee),
         };
         const lineItems = lines.map((l) => ({
           quantity: l.qty,
@@ -202,6 +205,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig })
             product_data: { name: clip(`${l.name}${l.labels.length ? ` (${l.labels.join(", ")})` : ""}`, 250), images: l.image ? [l.image] : undefined },
           },
         }));
+        if (serviceFee) lineItems.push({ quantity: 1, price_data: { currency: "gbp", unit_amount: serviceFee, product_data: { name: "Service fee", images: undefined } } });
         if (deliveryFee) lineItems.push({ quantity: 1, price_data: { currency: "gbp", unit_amount: deliveryFee, product_data: { name: "Delivery", images: undefined } } });
 
         const site = origin(req);

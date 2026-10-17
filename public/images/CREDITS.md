@@ -78,7 +78,6 @@ Source: `https://images.unsplash.com/photo-<id>`. Each was cropped and converted
 | promo-wings | 1767065703745-f3c33524605a |
 | about-oven | 1622880833523-7cf1c0bd4296 |
 | about-grill | 1789493513908-cb0185caa2fb |
-| order (homepage "Visit or Order", order-1080 / order-wide) | 1622883618971-97068745dc6c |
 
 ## Restaurant's own photos
 

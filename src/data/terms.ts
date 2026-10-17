@@ -50,7 +50,7 @@ export const TERMS: PolicyDocument = {
       title: "Prices and Payment",
       icon: "card",
       content: [
-        "All prices are shown in pounds sterling (GBP) and include VAT where it applies. Delivery charges and any minimum order value are shown at checkout before you pay.",
+        "All prices are shown in pounds sterling (GBP) and include VAT where it applies. A service fee of £0.99 applies to every order. Delivery charges, the service fee and any minimum order value are all shown at checkout before you pay.",
         "Online card payments are processed securely by Stripe. Orders sent by WhatsApp are paid to the restaurant when you collect or receive them, as confirmed with you. If a price is shown incorrectly because of an obvious error, we will contact you before accepting the order.",
       ],
     },

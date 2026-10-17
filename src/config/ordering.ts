@@ -15,11 +15,13 @@ import DELIVERY from "./delivery.json";
 export const ORDERING_SETTINGS_VERIFIED = false;
 
 export const ORDERING = {
+  /** Added to every order (collection and delivery), in pence. */
+  serviceFee: DELIVERY.serviceFee,
   collection: { enabled: DELIVERY.collectionEnabled, label: "Collection", note: "Ready in about 20 minutes" },
   delivery: {
     enabled: DELIVERY.deliveryEnabled,
     label: "Delivery",
-    note: "Usually 35–50 minutes",
+    note: "Usually 15–30 minutes",
     /** In pence. */
     fee: DELIVERY.deliveryFee,
     /** Subtotal (pence) needed before delivery can be chosen. */

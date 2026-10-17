@@ -29,7 +29,11 @@ function StatusChip() {
     const open = oh * 60 + om;
     const close = ch * 60 + cm || 24 * 60; // "00:00" closes at midnight
     live = mins >= open && mins < close;
-    label = live ? `Open now · until ${formatTime(today.close)}` : `Opens ${formatTime(today.open)} today`;
+    label = live
+      ? `Open now · until ${formatTime(today.close)}`
+      : mins < open
+        ? `Closed now · opens ${formatTime(today.open)} today`
+        : `Closed now · opens ${formatTime(today.open)} tomorrow`;
   }
   return (
     <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm">

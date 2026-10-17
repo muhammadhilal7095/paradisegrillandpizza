@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowDown, ArrowRight, Camera, Pause, Play } from "lucide-react";
 import { ORDER_PATH } from "../../config/site";
-import { heroImage } from "../../data/menu";
 import { buttonClasses } from "../ui/button";
 
-/** Slides: wide food photos already used across the site (public/images/hero). */
+/** Slides: the restaurant's own square food photos (public/images/menu/<name>-540|1080.webp). */
 const SLIDES = [
-  { name: "pizza", label: "Pizza", alt: "Pepperoni pizza with melted mozzarella" },
-  { name: "deals", label: "Fried Chicken", alt: "Basket of crispy fried chicken with a dipping sauce" },
-  { name: "menu", label: "Burgers", alt: "Crispy chicken burger with fries and ketchup" },
-  { name: "about-oven", label: "From the Oven", alt: "Pizza baking in a wood-fired oven" },
-  { name: "kebabs", label: "Doner", alt: "Doner meat turning on a rotisserie" },
-].map((s) => ({ ...s, ...heroImage(s.name, s.alt) }));
+  { name: "family-deal-wings-fries", label: "Family Deals", alt: "Platter of crispy fried chicken with fries and a Paradise cola" },
+  { name: "pizza-mixed-meat-feast", label: "Pizza", alt: "Mixed meat feast pizza with a cheesy slice being lifted" },
+  { name: "double-beef-smash-burger", label: "Burgers", alt: "Double beef smash burger with melted cheese and fries" },
+  { name: "chicken-meal-classic", label: "Chicken Meals", alt: "Paradise chicken meal with fries and an iced cola" },
+  { name: "wrap-lamb-doner-fries", label: "Wraps", alt: "Lamb doner wrap with salad, sauces and fries" },
+  { name: "curry-lamb-karahi", label: "Curries", alt: "Lamb karahi in a copper bowl with naan" },
+].map((s) => ({ ...s, small: `/images/menu/${s.name}-540.webp`, large: `/images/menu/${s.name}-1080.webp` }));
 
 const SLIDE_MS = 5500;
 
@@ -37,7 +37,8 @@ export function GalleryHero({ photoCount }: { photoCount: number }) {
   return (
     <section aria-labelledby="gallery-title" aria-roledescription="carousel" className="relative isolate overflow-hidden bg-deep text-white">
       {/* Slides */}
-      <div className="absolute inset-0 -z-20" aria-live="off">
+      {/* Square photos: the right side on laptops (fading into the copy), full width behind the copy on phones and tablets. */}
+      <div className="absolute inset-0 -z-20 desk:left-auto desk:w-[62%]" aria-live="off">
         {SLIDES.map((slide, i) => {
           const active = i === index;
           return (
@@ -45,23 +46,24 @@ export function GalleryHero({ photoCount }: { photoCount: number }) {
               // The key changes each time a slide becomes active, restarting its zoom.
               key={active ? `${slide.name}-${index}` : slide.name}
               src={slide.large}
-              srcSet={`${slide.small} 960w, ${slide.large} 1920w`}
-              sizes="100vw"
-              width={1920}
-              height={880}
+              srcSet={`${slide.small} 540w, ${slide.large} 1080w`}
+              sizes="(min-width: 1200px) 62vw, 100vw"
+              width={1080}
+              height={1080}
               alt={active ? slide.alt : ""}
               aria-hidden={!active}
               fetchPriority={i === 0 ? "high" : "low"}
               loading={i === 0 ? "eager" : "lazy"}
               decoding="async"
-              className={`absolute inset-0 size-full object-cover object-[70%_center] [filter:saturate(1.08)_contrast(1.05)] transition-opacity duration-[1400ms] ease-in-out ${
+              className={`absolute inset-0 size-full object-cover object-center [filter:saturate(1.08)_contrast(1.05)] transition-opacity duration-[1400ms] ease-in-out ${
                 active ? "opacity-100 motion-safe:animate-[gallery-kenburns_7s_ease-out_both]" : "opacity-0"
               }`}
             />
           );
         })}
       </div>
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.9))] desk:bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.92)_30%,rgba(5,5,5,0.45)_58%,rgba(5,5,5,0.1)_80%)]" />
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.9))] desk:bg-[linear-gradient(90deg,#050505_0%,#050505_38%,rgba(5,5,5,0.55)_52%,rgba(5,5,5,0.05)_72%)]" />
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 hidden h-32 bg-[linear-gradient(180deg,transparent,rgba(5,5,5,0.75))] desk:block" />
       <div aria-hidden="true" className="absolute inset-0 -z-10 hidden bg-[radial-gradient(ellipse_40%_70%_at_78%_55%,rgba(224,48,30,0.18),transparent_70%)] desk:block" />
 
       <div className="mx-auto flex max-w-[1400px] flex-col justify-center px-4 py-10 md:px-6 md:py-14 desk:min-h-[460px] desk:px-8 desk:py-16 wide:px-12">

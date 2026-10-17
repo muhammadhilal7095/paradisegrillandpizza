@@ -8,6 +8,8 @@ import { formatPrice, formatShortPrice } from "../data/menu";
 export interface OrderTotals {
   subtotal: number;
   deliveryFee: number;
+  /** Charged on every order. */
+  serviceFee: number;
   total: number;
   /** Pence still needed before delivery can be chosen (0 when it can). */
   deliveryShortfall: number;
@@ -18,7 +20,8 @@ export function orderTotals(subtotal: number, fulfilment: Fulfilment): OrderTota
   const deliveryShortfall = Math.max(0, delivery.minimumOrder - subtotal);
   const free = delivery.freeFrom !== null && subtotal >= delivery.freeFrom;
   const deliveryFee = fulfilment === "delivery" && !free ? delivery.fee : 0;
-  return { subtotal, deliveryFee, total: subtotal + deliveryFee, deliveryShortfall };
+  const serviceFee = subtotal > 0 ? ORDERING.serviceFee : 0;
+  return { subtotal, deliveryFee, serviceFee, total: subtotal + deliveryFee + serviceFee, deliveryShortfall };
 }
 
 export const availableFulfilments = (): Fulfilment[] =>
@@ -80,6 +83,7 @@ export function buildOrderMessage(items: CartItem[], totals: OrderTotals, detail
   }
   lines.push("", `Subtotal: ${formatPrice(totals.subtotal)}`);
   if (details?.fulfilment === "delivery") lines.push(`Delivery: ${totals.deliveryFee ? formatPrice(totals.deliveryFee) : "Free"}`);
+  if (totals.serviceFee) lines.push(`Service fee: ${formatPrice(totals.serviceFee)}`);
   lines.push(`Total: ${formatPrice(totals.total)}`);
 
   if (details) {

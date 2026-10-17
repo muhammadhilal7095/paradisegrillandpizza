@@ -1,8 +1,9 @@
 {
-  "_comment": "Shared by the website (src/config/ordering.ts) and the payment server (server/payments.js) so both work out the same total. Amounts in pence. SAMPLE values: set the restaurant's real fees.",
+  "_comment": "Shared by the website (src/config/ordering.ts) and the payment server (server/payments.js) so both work out the same total. Amounts in pence. Service fee £0.99 on every order. Delivery £2.99, free on orders of £30 or more (confirmed by the restaurant); the minimum order is still a sample value.",
   "collectionEnabled": true,
   "deliveryEnabled": true,
-  "deliveryFee": 250,
+  "serviceFee": 99,
+  "deliveryFee": 299,
   "minimumDeliveryOrder": 1200,
-  "freeDeliveryFrom": 2500
+  "freeDeliveryFrom": 3000
 }

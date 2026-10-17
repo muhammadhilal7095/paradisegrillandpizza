@@ -32,19 +32,17 @@ export function RestaurantInfoSection() {
         {/* Feature photo */}
         <div className="relative">
           <div className="group relative overflow-hidden rounded-3xl shadow-[0_30px_60px_-30px_rgba(17,17,17,0.55)]">
-            <picture>
-              {/* Tall crop beside the text on laptops; a wider crop when stacked on phones and tablets. */}
-              <source media="(min-width: 1024px)" srcSet="/images/hero/order-1080.webp" />
-              <img
-                src="/images/hero/order-wide.webp"
-                alt="Person opening a freshly delivered pizza box at home"
-                width={1200}
-                height={900}
-                loading="lazy"
-                decoding="async"
-                className="aspect-[4/3] w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.04] md:aspect-[16/11] lg:aspect-[4/5]"
-              />
-            </picture>
+            <img
+              src="/images/menu/popcorn-chicken-bucket-meal-1080.webp"
+              srcSet="/images/menu/popcorn-chicken-bucket-meal-540.webp 540w, /images/menu/popcorn-chicken-bucket-meal-1080.webp 1080w"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              alt="Paradise Grill & Pizzas takeaway meal: a bucket of crispy popcorn chicken with fries and an iced cola"
+              width={1080}
+              height={1080}
+              loading="lazy"
+              decoding="async"
+              className="aspect-[4/3] w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.04] md:aspect-[16/11] lg:aspect-square"
+            />
             <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0)_55%,rgba(5,5,5,0.7)_100%)]" />
             <p className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-black/55 px-3.5 py-2 text-[13px] font-semibold text-white backdrop-blur-md md:bottom-6 md:left-6">
               <Bike size={15} strokeWidth={2.2} aria-hidden="true" className="text-brand" />

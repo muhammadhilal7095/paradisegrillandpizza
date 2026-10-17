@@ -18,8 +18,8 @@ export const CONTACT = {
   website: "https://paradisegap.co.uk",
 };
 
-/** False until the restaurant confirms the opening hours below (a "to be confirmed" note shows until then). */
-export const OPENING_HOURS_VERIFIED = false;
+/** Confirmed by the restaurant: open every day 11:00 AM – 11:00 PM. */
+export const OPENING_HOURS_VERIFIED = true;
 
 export interface OpeningHours {
   days: string;
@@ -30,9 +30,7 @@ export interface OpeningHours {
 }
 
 export const OPENING_HOURS: readonly OpeningHours[] = [
-  { days: "Monday – Thursday", open: "12:00", close: "23:00" },
-  { days: "Friday – Saturday", open: "12:00", close: "00:00" },
-  { days: "Sunday", open: "13:00", close: "23:00" },
+  { days: "Monday – Sunday", open: "11:00", close: "23:00" },
 ];
 
 /**
