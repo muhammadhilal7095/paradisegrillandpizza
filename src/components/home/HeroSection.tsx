@@ -85,26 +85,26 @@ export function HeroSection() {
   const phone = CONTACT.phones[0];
   return (
     <section aria-labelledby="hero-title" className="relative isolate overflow-hidden bg-deep text-white">
-      {/* Photo: full-bleed behind the copy on larger screens (its left side is already dark), a banner above it on phones. */}
-      <div className="relative aspect-[16/9] desk:absolute desk:inset-0 desk:aspect-auto">
+      {/* Photo. Phones/tablets: across the top, fading into the dark behind the copy. Laptop+: full-bleed, copy on the dark left side. */}
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-[78vw] max-h-[620px] overflow-hidden md:h-[60vw] lg:inset-y-0 lg:right-0 lg:left-[40%] lg:h-auto lg:max-h-none desk:left-0">
         <img
           src="/images/hero/home-feast-1672.webp"
           srcSet="/images/hero/home-feast-960.webp 960w, /images/hero/home-feast-1672.webp 1672w"
           sizes="100vw"
           width={1672}
           height={941}
-          alt="Paradise Grill and Pizza feast: pizza, crispy chicken burger, fried chicken, fries and a cold drink"
+          alt=""
           fetchPriority="high"
           decoding="async"
-          className="size-full object-cover object-right motion-safe:animate-[hero-zoom_14s_ease-out_both]"
+          className="size-full object-cover object-[72%_center] motion-safe:animate-[hero-zoom_14s_ease-out_both] md:object-[80%_center] lg:object-right"
         />
-        {/* Phones: fade into the copy below. Larger screens: keep the copy side dark. */}
-        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0)_60%,#050505_100%)] desk:bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.85)_30%,rgba(5,5,5,0)_55%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.15)_0%,rgba(5,5,5,0)_30%,rgba(5,5,5,0.55)_62%,#050505_96%)] lg:bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.5)_15%,rgba(5,5,5,0)_35%)] desk:bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.9)_30%,rgba(5,5,5,0.2)_55%,rgba(5,5,5,0)_70%)]" />
+        <div className="absolute inset-x-0 bottom-0 hidden h-24 bg-[linear-gradient(180deg,transparent,#050505)] lg:block" />
       </div>
-      <div className="relative mx-auto flex max-w-[1400px] items-center px-4 pt-2 pb-12 md:px-6 md:pb-16 desk:min-h-[620px] desk:px-8 desk:py-20 wide:px-12">
+      <div className="relative mx-auto flex max-w-[1400px] items-center px-4 pt-[58vw] pb-12 md:px-6 md:pt-[44vw] md:pb-16 lg:min-h-[600px] lg:py-20 desk:min-h-[640px] desk:px-8 wide:px-12">
         <div className="max-w-[540px]">
           <StatusChip />
-          <h1 id="hero-title" className="mt-5 font-display text-[40px] leading-[1.02] font-extrabold tracking-[-1.2px] md:text-[52px] desk:text-[62px] desk:tracking-[-1.8px]">
+          <h1 id="hero-title" className="mt-5 font-display text-[42px] leading-[1.02] font-extrabold tracking-[-1.2px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] md:text-[56px] desk:text-[64px] desk:tracking-[-1.8px]">
             <span className="block">Crave It.</span>
             <span className="block">Love It.</span>
             <span className="block text-brand">Order It.</span>
