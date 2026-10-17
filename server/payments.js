@@ -204,7 +204,8 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
 
   /** @param {import("node:http").IncomingMessage} req */
   function origin(req) {
-    if (siteUrl) return siteUrl.replace(/\/+$/, "");
+    // "paradisegap.co.uk" without a scheme would make Stripe reject the return URLs.
+    if (siteUrl.trim()) return `${/^https?:\/\//i.test(siteUrl.trim()) ? "" : "https://"}${siteUrl.trim().replace(/\/+$/, "")}`;
     const host = req.headers["x-forwarded-host"] ?? req.headers.host ?? "localhost";
     const proto = req.headers["x-forwarded-proto"] ?? (/^(localhost|127\.)/.test(String(host)) ? "http" : "https");
     return `${proto}://${host}`;
