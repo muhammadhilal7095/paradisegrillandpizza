@@ -23,6 +23,13 @@
   --breakpoint-wide: 90rem; /* 1440px */
 }
 
+@keyframes wa-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
 @keyframes hero-zoom {
   from {
     transform: scale(1.06);
