@@ -49,12 +49,14 @@ export function createPosClient({ baseUrl = "", email = "", password = "" }) {
   async function get(pathAndQuery, fallbackAuth, retry = true) {
     /** @type {Record<string, string>} */
     const headers = { Accept: "application/json" };
-    if (hasAccount) headers.Authorization = `Bearer ${await getToken()}`;
+    // A failed login (e.g. wrong POS_MENU_PASSWORD) falls back to the visitor's login or the public API.
+    const accountToken = hasAccount ? await getToken().catch(() => null) : null;
+    if (accountToken) headers.Authorization = `Bearer ${accountToken}`;
     else if (fallbackAuth) headers.Authorization = fallbackAuth;
     const res = await fetch(`${base}${pathAndQuery}`, { headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
     if (hasAccount && retry && (res.status === 401 || res.status === 403)) {
       // Token expired or was revoked: log in again once.
-      await getToken(true);
+      await getToken(true).catch(() => null);
       return get(pathAndQuery, fallbackAuth, false);
     }
     return { status: res.status, body: await res.text() };
