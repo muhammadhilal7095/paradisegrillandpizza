@@ -3,7 +3,7 @@
  * Production server: serves the built site (dist/) and the menu proxy (/menu-api).
  *
  *   npm run build
- *   npm start            (PORT defaults to 3000)
+ *   npm start            (runs server.js; PORT defaults to 3000)
  *
  * Needs the same server-only env vars as development: POS_API_BASE_URL, POS_MENU_EMAIL,
  * POS_MENU_PASSWORD, STRIPE_SECRET_KEY and SITE_URL (e.g. https://www.paradisegrill.co.uk). Set them in your host's environment settings (or a .env file next to
@@ -11,7 +11,7 @@
  */
 
 import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
-import { createServer } from "node:http";
+import express from "express";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createMenuProxy } from "./menuProxy.js";
@@ -56,7 +56,8 @@ const TYPES = {
   ".md": "text/markdown; charset=utf-8",
 };
 
-const server = createServer(async (req, res) => {
+/** @type {(req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => unknown} */
+const handle = (req, res) => {
   const pathname = decodeURIComponent(new URL(req.url ?? "/", "http://local").pathname);
   if (pathname.startsWith("/menu-api")) return menuProxy(req, res);
   if (pathname.startsWith("/pay-api/")) return payments(req, res);
@@ -70,7 +71,12 @@ const server = createServer(async (req, res) => {
   res.setHeader("Content-Type", TYPES[/** @type {keyof typeof TYPES} */ (ext)] ?? "application/octet-stream");
   res.setHeader("Cache-Control", pathname.startsWith("/assets/") ? "public, max-age=31536000, immutable" : "no-cache");
   createReadStream(target).pipe(res);
-});
+};
+
+// Express runs the app so hosts that detect Node.js apps by framework (e.g. Hostinger) start this server.
+const app = express();
+app.disable("x-powered-by");
+app.use((req, res) => void handle(req, res));
 
 const port = Number(process.env.PORT) || 3000;
-server.listen(port, () => console.log(`Paradise Grill and Pizza running on http://localhost:${port}`));
+app.listen(port, () => console.log(`Paradise Grill and Pizza running on http://localhost:${port}`));
