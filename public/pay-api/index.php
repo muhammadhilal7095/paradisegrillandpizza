@@ -6,6 +6,7 @@
  *   GET  /pay-api/status            → { enabled }
  *   POST /pay-api/checkout          → { url }  (redirect the customer there)
  *   GET  /pay-api/session?id=cs_…   → { paid, … } for the confirmation page
+ *   POST /pay-api/webhook           ← Stripe's "payment finished" message
  *
  * The root .htaccess sends those addresses here. The secret key comes from config.php, which
  * scripts/write-pay-config.mjs writes into dist/ at build time from the host's environment variables;
@@ -18,6 +19,8 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
+
+define('PAY_API', true);
 
 const MAX_LINES = 50;
 const MAX_QTY = 50;
@@ -197,6 +200,9 @@ function price_deal($d, $selections)
     $products = array();
     foreach (is_array($d['products'] ?? null) ? $d['products'] : array() as $p) $products[str($p['id'] ?? '')] = $p;
     $labels = array();
+    // Lines and picks in the portal's format, stored on the payment and sent to the POS once paid.
+    $posItems = array();
+    $posSelections = array();
     foreach (is_array($d['items'] ?? null) ? $d['items'] : array() as $slot) {
         $slotId = str($slot['id'] ?? '');
         $choice = null;
@@ -232,8 +238,13 @@ function price_deal($d, $selections)
         if ($addons && !$addon) return null;
         $qty = (int) ($slot['quantity'] ?? 1) > 1 ? ((int) $slot['quantity']) . ' x ' : '';
         $labels[] = $qty . str($p['name'] ?? '') . ($variant ? ' ' . preg_replace('/\s+/', ' ', str($variant['name'] ?? '')) : '') . ($addon ? ' - ' . str($addon['name'] ?? '') : '');
+        $slotQty = max(1, (int) ($slot['quantity'] ?? 1));
+        $variantId = $variant['id'] ?? ($choice['variant_id'] ?? null);
+        $productId = $choice['product_id'] ?? ($p['id'] ?? null);
+        $posItems[] = array('p' => $productId, 'q' => $slotQty, 'v' => $variantId, 'a' => $addon ? array(array($addon['id'] ?? null, str($addon['name'] ?? ''), (float) ($addon['price'] ?? 0))) : array());
+        $posSelections[] = array('i' => $slot['id'] ?? null, 'p' => $productId, 'v' => $variantId, 'q' => $slotQty);
     }
-    return array('name' => str($d['title'] ?? ''), 'unit' => $price, 'labels' => $labels, 'image' => https_image($d['banner_url'] ?? ''));
+    return array('name' => str($d['title'] ?? ''), 'unit' => $price, 'labels' => $labels, 'image' => https_image($d['banner_url'] ?? ''), 'posDeal' => array('d' => $d['id'] ?? null, 'i' => $posItems, 's' => $posSelections));
 }
 
 /** One cart line from POS data: discounted current_price, chosen (or default) variant, add-ons. */
@@ -246,6 +257,8 @@ function price_line($p, $selections)
     $current = to_pence($p['current_price'] ?? null);
     $unit = ($current !== null && $current < $base && ($p['has_active_discount'] ?? null) !== false) ? $current : $base;
     $labels = array();
+    $variantId = null;
+    $posAddons = array();
 
     $variants = array_values(array_filter(is_array($p['variants'] ?? null) ? $p['variants'] : array(), function ($v) {
         return str($v['name'] ?? '') !== '' && on($v['is_available'] ?? null);
@@ -272,9 +285,11 @@ function price_line($p, $selections)
         }
         $unit += to_pence($chosen['price_adjustment'] ?? null) ?? 0;
         $labels[] = str($chosen['name'] ?? '');
+        $variantId = $chosen['id'] ?? null;
     } elseif (count($variants) === 1) {
         // Only one size: its price is part of the item's price.
         $unit += to_pence($variants[0]['price_adjustment'] ?? null) ?? 0;
+        $variantId = $variants[0]['id'] ?? null;
     }
     $addons = array_values(array_filter(is_array($p['addons'] ?? null) ? $p['addons'] : array(), function ($a) {
         return str($a['name'] ?? '') !== '' && on($a['is_available'] ?? null);
@@ -285,8 +300,9 @@ function price_line($p, $selections)
         if (!in_array($aid, $picked, true)) continue;
         $unit += to_pence($a['price'] ?? null) ?? 0;
         $labels[] = str($a['name'] ?? '');
+        $posAddons[] = array($a['id'] ?? null, str($a['name'] ?? ''), (float) ($a['price'] ?? 0));
     }
-    return array('name' => $name, 'unit' => $unit, 'labels' => $labels, 'image' => https_image($p['image_url'] ?? ''));
+    return array('name' => $name, 'unit' => $unit, 'labels' => $labels, 'image' => https_image($p['image_url'] ?? ''), 'posLine' => array('p' => $p['id'] ?? null, 'v' => $variantId, 'a' => $posAddons));
 }
 
 function site_origin()
@@ -304,38 +320,48 @@ function line_label($l)
     return $l['name'] . ($l['labels'] ? ' (' . implode(', ', $l['labels']) . ')' : '');
 }
 
-/** Sends the paid order to the restaurant's WhatsApp (CallMeBot), once per payment. */
-function notify_paid_order($s)
+/** The order's POS details as Stripe metadata values (each is limited to 500 characters). */
+function pos_metadata($lines)
 {
-    global $config;
-    $phone = preg_replace('/\D/', '', (string) ($config['whatsapp_phone'] ?? ''));
-    $key = trim((string) ($config['whatsapp_apikey'] ?? ''));
-    $m = is_array($s['metadata'] ?? null) ? $s['metadata'] : array();
-    if ($phone === '' || $key === '' || ($m['whatsapp_notified'] ?? '') === '1') return;
-    $ref = strtoupper(substr(str($s['payment_intent'] ?? ''), -8)) ?: strtoupper(substr(str($s['id'] ?? ''), -8));
-    $lines = array('NEW PAID WEBSITE ORDER', 'Ref: ' . $ref, 'Type: ' . (($m['fulfilment'] ?? '') === 'delivery' ? 'DELIVERY' : 'COLLECTION'), '');
-    foreach ($s['line_items']['data'] ?? array() as $li) $lines[] = ($li['quantity'] ?? 1) . ' x ' . str($li['description'] ?? '') . ' - ' . money((int) ($li['amount_total'] ?? 0));
-    array_push($lines, '', 'TOTAL PAID: ' . money((int) ($s['amount_total'] ?? 0)) . ' (card)', '', 'Name: ' . (($m['customer_name'] ?? '') ?: '-'), 'Phone: ' . (($m['customer_phone'] ?? '') ?: '-'));
-    if (!empty($m['customer_email'])) $lines[] = 'Email: ' . $m['customer_email'];
-    if (($m['fulfilment'] ?? '') === 'delivery') $lines[] = 'Address: ' . (($m['address'] ?? '') ?: '-');
-    if (!empty($m['notes'])) $lines[] = 'Notes: ' . $m['notes'];
-    try {
-        $url = 'https://api.callmebot.com/whatsapp.php?phone=' . rawurlencode('+' . $phone) . '&text=' . rawurlencode(implode("\n", $lines)) . '&apikey=' . rawurlencode($key);
-        list($status, $body) = http('GET', $url, array(), null, 15);
-        if ($status >= 200 && $status < 300 && !preg_match('/error|invalid|not.*(allowed|valid)/i', $body)) {
-            stripe('/checkout/sessions/' . $s['id'], 'POST', array('metadata' => array('whatsapp_notified' => '1')));
+    $spec = array('r' => array(), 'd' => array());
+    foreach ($lines as $l) {
+        if (!empty($l['posDeal'])) {
+            for ($n = 0; $n < $l['qty']; $n++) $spec['d'][] = $l['posDeal'];
         } else {
-            error_log('[whatsapp-notify] not sent: ' . $status);
+            $spec['r'][] = array_merge($l['posLine'], array('q' => $l['qty']));
         }
-    } catch (Exception $e) {
-        error_log('[whatsapp-notify] ' . $e->getMessage());
     }
+    $chunks = str_split(json_encode($spec, JSON_UNESCAPED_SLASHES), 480);
+    $out = array();
+    if (count($chunks) > 30) return $out; // Too big to store: the alert then says to enter it by hand.
+    foreach ($chunks as $i => $chunk) $out['pos_' . $i] = $chunk;
+    return $out;
+}
+
+/** Checks a Stripe webhook's signature (t=…,v1=…), allowing five minutes of clock difference. */
+function valid_stripe_signature($raw, $header, $secret)
+{
+    if ($secret === '' || $header === '') return false;
+    $t = '';
+    $given = array();
+    foreach (explode(',', $header) as $part) {
+        $kv = explode('=', $part, 2);
+        if (count($kv) !== 2) continue;
+        if ($kv[0] === 't') $t = $kv[1];
+        if ($kv[0] === 'v1') $given[] = $kv[1];
+    }
+    if ($t === '' || abs(time() - (int) $t) > 300) return false;
+    $expected = hash_hmac('sha256', $t . '.' . $raw, $secret);
+    foreach ($given as $g) {
+        if (hash_equals($expected, $g)) return true;
+    }
+    return false;
 }
 
 // ---------- Routing ----------
 
 $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$route = preg_match('#/pay-api/(status|checkout|session)/?$#', $path, $mm) ? $mm[1] : '';
+$route = preg_match('#/pay-api/(status|checkout|session|webhook)/?$#', $path, $mm) ? $mm[1] : '';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 try {
@@ -431,13 +457,27 @@ try {
             'customer_email' => preg_match('/^[^\s@]+@[^\s@]+\.[^\s@]+$/', $email) ? $email : null,
             'success_url' => $site . '/checkout/success?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => $site . '/checkout?payment=cancelled',
-            'metadata' => $metadata,
+            'metadata' => array_merge($metadata, pos_metadata($lines)),
             'payment_intent_data' => array(
                 'description' => clip('Website order (' . $fulfilment . ') for ' . $name . ': ' . $summary, 1000),
                 'metadata' => $metadata,
             ),
         ));
         send(200, array('url' => $session['url'] ?? ''));
+    }
+
+    // ---- Stripe's own "payment finished" message, so the order arrives even if the customer closes the page ----
+    if ($route === 'webhook' && $method === 'POST') {
+        $raw = (string) file_get_contents('php://input');
+        if (!valid_stripe_signature($raw, (string) ($_SERVER['HTTP_STRIPE_SIGNATURE'] ?? ''), trim((string) ($config['webhook_secret'] ?? '')))) send(400, array('message' => 'Bad signature.'));
+        $event = json_decode($raw, true);
+        $object = is_array($event['data']['object'] ?? null) ? $event['data']['object'] : array();
+        $paidEvent = in_array($event['type'] ?? '', array('checkout.session.completed', 'checkout.session.async_payment_succeeded'), true);
+        if ($paidEvent && ($object['payment_status'] ?? '') === 'paid') {
+            require_once __DIR__ . '/fulfil.php';
+            if (!fulfil_session(str($object['id'] ?? ''))) send(500, array('message' => 'Order not added to the POS yet.')); // Stripe tries again later.
+        }
+        send(200, array('received' => true));
     }
 
     // ---- Payment result, for the confirmation page ----
@@ -447,7 +487,14 @@ try {
         $s = stripe('/checkout/sessions/' . $id . '?expand%5B%5D=line_items', 'GET');
         $m = is_array($s['metadata'] ?? null) ? $s['metadata'] : array();
         $paid = ($s['payment_status'] ?? '') === 'paid';
-        if ($paid) notify_paid_order($s);
+        if ($paid) {
+            try {
+                require_once __DIR__ . '/fulfil.php';
+                fulfil_session($id);
+            } catch (Throwable $e) {
+                error_log('[fulfil] ' . substr($e->getMessage(), 0, 160));
+            }
+        }
         $items = array();
         foreach ($s['line_items']['data'] ?? array() as $li) {
             $items[] = array('name' => str($li['description'] ?? ''), 'quantity' => $li['quantity'] ?? 1, 'amount' => $li['amount_total'] ?? 0);
@@ -466,7 +513,7 @@ try {
     }
 
     send(404, array('message' => 'Not found'));
-} catch (Exception $e) {
+} catch (Throwable $e) {
     if ($e->getCode() === 503) send(503, array('message' => "The menu couldn't be checked, so the payment wasn't started. Please try again shortly."));
     error_log('[payments] ' . $e->getMessage());
     send(502, array('message' => "We couldn't start the payment. You haven't been charged. Please try again."));

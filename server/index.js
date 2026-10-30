@@ -40,6 +40,8 @@ const payments = createPayments({
   stripeKey: process.env.STRIPE_SECRET_KEY,
   siteUrl: process.env.SITE_URL,
   pos,
+  order: { email: process.env.POS_ORDER_EMAIL, password: process.env.POS_ORDER_PASSWORD },
+  webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   whatsapp: { phone: process.env.WHATSAPP_NOTIFY_PHONE || "447486643846", apiKey: process.env.WHATSAPP_NOTIFY_APIKEY, baseUrl: process.env.WHATSAPP_NOTIFY_BASE },
 });
 

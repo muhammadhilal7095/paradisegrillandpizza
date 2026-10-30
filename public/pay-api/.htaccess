@@ -1,5 +1,5 @@
 # The payment API's settings (written at build time, holds the Stripe secret key) must never be downloaded.
-<Files "config.php">
+<FilesMatch "^(config|fulfil)\.php$">
   <IfModule mod_authz_core.c>
     Require all denied
   </IfModule>
@@ -7,4 +7,4 @@
     Order allow,deny
     Deny from all
   </IfModule>
-</Files>
+</FilesMatch>

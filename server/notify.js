@@ -22,7 +22,7 @@ export function createWhatsAppNotifier({ phone = "", apiKey = "", baseUrl = "" }
   /** @param {string} text @returns {Promise<boolean>} true when the service accepted the message */
   async function send(text) {
     if (!enabled) return false;
-    const url = `${base}?phone=${encodeURIComponent(`+${to}`)}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(key)}`;
+    const url = `${base}?phone=${to}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(key)}`;
     try {
       const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
       const body = await res.text();

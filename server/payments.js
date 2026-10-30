@@ -12,7 +12,9 @@
  * The order details are stored as metadata on the Stripe payment, so they appear in the Stripe Dashboard.
  */
 
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { createFulfilment, posMetadata } from "./fulfil.js";
 import { createWhatsAppNotifier } from "./notify.js";
 import { createPosClient } from "./posClient.js";
 
@@ -48,53 +50,30 @@ function formEncode(/** @type {Raw} */ obj, prefix = "", out = new URLSearchPara
 }
 
 /**
- * @param {{ stripeKey?: string; siteUrl?: string; pos: { baseUrl?: string; email?: string; password?: string }; whatsapp?: { phone?: string; apiKey?: string; baseUrl?: string } }} config
+ * Checks a Stripe webhook's signature (t=…,v1=…), allowing five minutes of clock difference.
+ * @param {string} raw @param {unknown} header @param {string} secret
+ */
+function verifyStripeSignature(raw, header, secret) {
+  if (!secret || typeof header !== "string") return false;
+  const parts = header.split(",").map((x) => x.split("="));
+  const t = parts.find(([k]) => k === "t")?.[1] ?? "";
+  if (!t || Math.abs(Date.now() / 1000 - Number(t)) > 300) return false;
+  const expected = Buffer.from(createHmac("sha256", secret).update(`${t}.${raw}`).digest("hex"));
+  return parts.some(([k, v]) => {
+    const given = Buffer.from(v ?? "");
+    return k === "v1" && given.length === expected.length && timingSafeEqual(given, expected);
+  });
+}
+
+/**
+ * @param {{ stripeKey?: string; siteUrl?: string; pos: { baseUrl?: string; email?: string; password?: string }; order?: { email?: string; password?: string }; webhookSecret?: string; whatsapp?: { phone?: string; apiKey?: string; baseUrl?: string } }} config
  * @returns {(req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse, next?: () => void) => Promise<void>}
  */
-export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, whatsapp = {} }) {
+export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, order = {}, webhookSecret = "", whatsapp = {} }) {
   const key = stripeKey.trim();
   const pos = createPosClient(posConfig);
   const enabled = Boolean(key && pos.configured);
   const notifier = createWhatsAppNotifier(whatsapp);
-  /** Sessions whose alert is being sent right now (stops a double send if the page loads twice). */
-  const sending = new Set();
-
-  /**
-   * Sends the paid order to the restaurant's WhatsApp, once per payment. The "sent" mark is stored
-   * on the Stripe session itself, so it survives server restarts.
-   * @param {Raw} s Stripe Checkout Session (with line_items)
-   */
-  async function notifyPaidOrder(s) {
-    const m = s.metadata ?? {};
-    if (!notifier.enabled || m.whatsapp_notified === "1" || sending.has(s.id)) return;
-    sending.add(s.id);
-    try {
-      const ref = str(s.payment_intent).slice(-8).toUpperCase() || str(s.id).slice(-8).toUpperCase();
-      const lines = [
-        "NEW PAID WEBSITE ORDER",
-        `Ref: ${ref}`,
-        `Type: ${m.fulfilment === "delivery" ? "DELIVERY" : "COLLECTION"}`,
-        "",
-        ...(s.line_items?.data ?? []).map((/** @type {Raw} */ li) => `${li.quantity} x ${str(li.description)} - ${money(li.amount_total)}`),
-        "",
-        `TOTAL PAID: ${money(s.amount_total)} (card)`,
-        "",
-        `Name: ${m.customer_name || "-"}`,
-        `Phone: ${m.customer_phone || "-"}`,
-      ];
-      if (m.customer_email) lines.push(`Email: ${m.customer_email}`);
-      if (m.fulfilment === "delivery") lines.push(`Address: ${m.address || "-"}`);
-      if (m.notes) lines.push(`Notes: ${m.notes}`);
-      if (await notifier.send(lines.join("\n"))) {
-        await stripe(`/checkout/sessions/${s.id}`, "POST", formEncode({ metadata: { whatsapp_notified: "1" } })).catch((error) =>
-          console.error("[payments] couldn't mark WhatsApp as sent:", error instanceof Error ? error.message : error),
-        );
-      }
-    } finally {
-      sending.delete(s.id);
-    }
-  }
-
   /** @param {string} path @param {"GET" | "POST"} method @param {URLSearchParams} [body] */
   async function stripe(path, method, body) {
     const res = await fetch(`${STRIPE_API}${path}`, {
@@ -107,6 +86,15 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
     if (!res.ok) throw new Error(`Stripe ${res.status}: ${data.error?.message ?? "request failed"}`);
     return data;
   }
+
+  const fulfilment = createFulfilment({
+    stripe,
+    formEncode,
+    posBase: (posConfig.baseUrl ?? "").trim().replace(/\/+$/, ""),
+    email: (order.email || posConfig.email || "").trim(),
+    password: order.password || posConfig.password || "",
+    notifier,
+  });
 
   /** Every product the POS lists, keyed by POS id. */
   async function loadProducts(/** @type {string | undefined} */ visitorAuth) {
@@ -152,6 +140,9 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
     if ((start && start > today) || (end && end < today)) return null;
     const products = new Map((Array.isArray(d.products) ? d.products : []).map((/** @type {Raw} */ p) => [str(p.id), p]));
     const labels = [];
+    /** Lines and picks in the portal's format, stored on the payment and sent to the POS once paid. */
+    const posItems = [];
+    const posSelections = [];
     for (const slot of Array.isArray(d.items) ? d.items : []) {
       const choice = (slot.choices ?? []).find((/** @type {Raw} */ c) => str(c.id) === selections[str(slot.id)]?.[0]);
       if (!choice) return null;
@@ -164,8 +155,18 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
       if (addons.length && !addon) return null;
       const qty = Number(slot.quantity) > 1 ? `${Number(slot.quantity)} x ` : "";
       labels.push(`${qty}${str(p.name)}${variant ? ` ${str(variant.name).replace(/\s+/g, " ")}` : ""}${addon ? ` - ${str(addon.name)}` : ""}`);
+      const slotQty = Math.max(1, Number(slot.quantity) || 1);
+      const variantId = variant?.id ?? choice.variant_id ?? null;
+      posItems.push({ p: choice.product_id ?? p.id, q: slotQty, v: variantId, a: addon ? [[addon.id, str(addon.name), Number(addon.price) || 0]] : [] });
+      posSelections.push({ i: slot.id, p: choice.product_id ?? p.id, v: variantId, q: slotQty });
     }
-    return { name: str(d.title), unit: price, labels, image: /^https:\/\//.test(str(d.banner_url)) ? str(d.banner_url) : undefined };
+    return {
+      name: str(d.title),
+      unit: price,
+      labels,
+      image: /^https:\/\//.test(str(d.banner_url)) ? str(d.banner_url) : undefined,
+      posDeal: { d: d.id, i: posItems, s: posSelections },
+    };
   }
 
   /**
@@ -181,6 +182,9 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
     const current = toPence(p.current_price);
     let unit = current !== null && current < base && p.has_active_discount !== false ? current : base;
     const labels = [];
+    let variantId = null;
+    /** @type {[unknown, string, number][]} */
+    const posAddons = [];
 
     const variants = (Array.isArray(p.variants) ? p.variants : []).filter((/** @type {Raw} */ v) => str(v.name) && on(v.is_available));
     if (variants.length > 1) {
@@ -189,17 +193,26 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
       const chosen = variants.find((/** @type {Raw} */ v, /** @type {number} */ i) => (str(v.id) || `v${i}`) === chosenId) ?? variants[0];
       unit += toPence(chosen.price_adjustment) ?? 0;
       labels.push(str(chosen.name));
+      variantId = chosen.id ?? null;
     } else if (variants.length === 1) {
       // Only one size: its price is part of the item's price (the site shows it that way too).
       unit += toPence(variants[0].price_adjustment) ?? 0;
+      variantId = variants[0].id ?? null;
     }
     const addons = (Array.isArray(p.addons) ? p.addons : []).filter((/** @type {Raw} */ a) => str(a.name) && on(a.is_available));
     addons.forEach((/** @type {Raw} */ a, /** @type {number} */ i) => {
       if (!(selections.addons ?? []).includes(str(a.id) || `a${i}`)) return;
       unit += toPence(a.price) ?? 0;
       labels.push(str(a.name));
+      posAddons.push([a.id, str(a.name), Number(a.price) || 0]);
     });
-    return { name, unit, labels, image: /^https:\/\//.test(str(p.image_url)) ? str(p.image_url) : undefined };
+    return {
+      name,
+      unit,
+      labels,
+      image: /^https:\/\//.test(str(p.image_url)) ? str(p.image_url) : undefined,
+      posLine: { p: p.id, v: variantId, a: posAddons },
+    };
   }
 
   /** @param {import("node:http").IncomingMessage} req */
@@ -212,13 +225,18 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
   }
 
   /** @param {import("node:http").IncomingMessage} req */
-  async function readJson(req) {
+  async function readRaw(req, limit = 50_000) {
     let raw = "";
     for await (const chunk of req) {
       raw += chunk;
-      if (raw.length > 50_000) throw Object.assign(new Error("too large"), { code: 413 });
+      if (raw.length > limit) throw Object.assign(new Error("too large"), { code: 413 });
     }
-    return JSON.parse(raw || "{}");
+    return raw;
+  }
+
+  /** @param {import("node:http").IncomingMessage} req */
+  async function readJson(req) {
+    return JSON.parse((await readRaw(req)) || "{}");
   }
 
   return async function payments(req, res, next) {
@@ -318,7 +336,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
             customer_email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : undefined,
             success_url: `${site}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${site}/checkout?payment=cancelled`,
-            metadata,
+            metadata: { ...metadata, ...posMetadata(lines) },
             payment_intent_data: {
               description: clip(`Website order (${fulfilment}) for ${name}: ${summary}`, 1000),
               metadata,
@@ -328,13 +346,26 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, w
         return send(200, { url: session.url });
       }
 
+      // ---- Stripe's own "payment finished" message, so the order arrives even if the customer closes the page ----
+      if (route === "/webhook" && req.method === "POST") {
+        const raw = await readRaw(req);
+        if (!verifyStripeSignature(raw, req.headers["stripe-signature"], webhookSecret)) return send(400, { message: "Bad signature." });
+        const event = JSON.parse(raw);
+        const paidEvent = ["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type);
+        if (paidEvent && event.data?.object?.payment_status === "paid") {
+          const done = await fulfilment.fulfil(event.data.object.id);
+          if (!done) return send(500, { message: "Order not added to the POS yet." }); // Stripe tries again later.
+        }
+        return send(200, { received: true });
+      }
+
       // ---- Payment result, for the confirmation page ----
       if (route === "/session" && req.method === "GET") {
         const id = url.searchParams.get("id") ?? "";
         if (!/^cs_(live|test)_[A-Za-z0-9]+$/.test(id)) return send(400, { message: "Invalid payment reference." });
         const s = await stripe(`/checkout/sessions/${id}?expand[]=line_items`, "GET");
         const m = s.metadata ?? {};
-        if (s.payment_status === "paid") await notifyPaidOrder(s);
+        if (s.payment_status === "paid") await fulfilment.fulfil(id);
         return send(200, {
           paid: s.payment_status === "paid",
           status: s.status,
