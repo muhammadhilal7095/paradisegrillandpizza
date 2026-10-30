@@ -8,6 +8,8 @@
  * gets its own order. PHP twin for static hosting: public/pay-api/fulfil.php. Keep the two in step.
  */
 
+import { randomBytes } from "node:crypto";
+
 const MAX_CHUNKS = 30;
 const CHUNK = 480;
 const money = (/** @type {number} */ p) => `£${(p / 100).toFixed(2)}`;
@@ -59,7 +61,8 @@ export function buildOrders(spec, m) {
   return groups.map(({ items, deal }, i) => {
     const allItems = [...items, ...(deal ? deal.i.map(toPosItem) : [])];
     const part = groups.length > 1 ? ` Part ${i + 1} of ${groups.length}.` : "";
-    const note = `WEBSITE ORDER - PAID BY CARD.${part}${m.notes ? ` Customer note: ${m.notes}` : ""}`;
+    const paying = m.payment === "cash" ? `CASH ON DELIVERY - NOT PAID. COLLECT ${m.cash_total} FOR THE WHOLE ORDER.` : "PAID BY CARD.";
+    const note = `WEBSITE ORDER - ${paying}${part}${m.notes ? ` Customer note: ${m.notes}` : ""}`;
     /** @type {Record<string, any>} */
     const body = {
       order_type: m.fulfilment === "delivery" ? "delivery" : "takeaway",
@@ -139,28 +142,70 @@ export function createFulfilment({ stripe, formEncode, posBase, email, password,
   }
 
   /** @param {Record<string, any>} s @param {Awaited<ReturnType<typeof sendToPos>>} result */
-  async function alert(s, result) {
+  function alertText(s, result) {
     const m = s.metadata ?? {};
-    if (!notifier.enabled || m.whatsapp_notified === "1") return;
+    const cash = m.payment === "cash";
     const ref = String(s.payment_intent ?? "").slice(-8).toUpperCase() || String(s.id).slice(-8).toUpperCase();
     const lines = [
-      "NEW PAID WEBSITE ORDER",
+      cash ? "NEW WEBSITE ORDER - CASH ON DELIVERY" : "NEW PAID WEBSITE ORDER",
       `Ref: ${ref}`,
       `Type: ${m.fulfilment === "delivery" ? "DELIVERY" : "COLLECTION"}`,
       result.ok ? `Dashboard: ADDED (order ${result.ids.join(", ")})` : "Dashboard: NOT ADDED - PLEASE ENTER THIS ORDER BY HAND",
       "",
       ...(s.line_items?.data ?? []).map((/** @type {Record<string, any>} */ li) => `${li.quantity} x ${String(li.description ?? "")} - ${money(li.amount_total)}`),
       "",
-      `TOTAL PAID: ${money(s.amount_total)} (card)`,
+      cash ? `COLLECT IN CASH: ${money(s.amount_total)}` : `TOTAL PAID: ${money(s.amount_total)} (card)`,
       "",
       `Name: ${m.customer_name || "-"}`,
       `Phone: ${m.customer_phone || "-"}`,
     ];
-    if (result.ok && result.dashboardTotal && result.dashboardTotal !== s.amount_total) lines.splice(4, 0, `Dashboard total: ${money(result.dashboardTotal)} (card paid ${money(s.amount_total)}, which includes fees)`);
+    if (result.ok && result.dashboardTotal && result.dashboardTotal !== s.amount_total) lines.splice(4, 0, `Dashboard total: ${money(result.dashboardTotal)} (${cash ? "customer pays" : "card paid"} ${money(s.amount_total)}, which includes fees)`);
     if (m.customer_email) lines.push(`Email: ${m.customer_email}`);
     if (m.fulfilment === "delivery") lines.push(`Address: ${m.address || "-"}`);
     if (m.notes) lines.push(`Notes: ${m.notes}`);
-    if (await notifier.send(lines.join("\n"))) await mark(s.id, { whatsapp_notified: "1" }).catch((error) => console.error("[whatsapp-notify]", short(error)));
+    return lines.join("\n");
+  }
+
+  /** @param {Record<string, any>} s @param {Awaited<ReturnType<typeof sendToPos>>} result */
+  async function alert(s, result) {
+    if (!notifier.enabled || s.metadata?.whatsapp_notified === "1") return;
+    if (await notifier.send(alertText(s, result))) await mark(s.id, { whatsapp_notified: "1" }).catch((error) => console.error("[whatsapp-notify]", short(error)));
+  }
+
+  /** Cash orders placed in the last two minutes, so a double tap can't make two deliveries. @type {Map<string, { at: number; job: Promise<{ ok: boolean; reference: string }> }>} */
+  const recentCash = new Map();
+
+  /** @param {{ metadata: Record<string, string>; spec: Record<string, string>; total: number; lineItems: Array<Record<string, any>> }} order */
+  async function runCash({ metadata, spec, total, lineItems }) {
+    const m = { ...metadata, cash_total: money(total) };
+    /** @type {{ ok: boolean; ids: string[]; error?: string; dashboardTotal?: number }} */
+    let result = { ok: false, ids: [] };
+    try {
+      if (!email || !password) throw new Error("POS order login isn't set up");
+      const parsed = readSpec(spec);
+      if (!parsed) throw new Error("order too large to send");
+      const { token } = await pos("/auth/login", "POST", { email, password });
+      if (!token) throw new Error("POS login returned no token");
+      let dashboardTotal = 0;
+      for (const body of buildOrders(parsed, m)) {
+        const created = await pos("/orders", "POST", body, String(token));
+        result.ids.push(String(created.order?.id ?? "?"));
+        dashboardTotal += Math.round(Number(created.order?.grand_total ?? 0) * 100);
+      }
+      result = { ...result, ok: true, dashboardTotal };
+    } catch (error) {
+      console.error("[pos-order]", short(error));
+    }
+    const reference = result.ids[0] ?? randomBytes(4).toString("hex").toUpperCase();
+    const session = {
+      id: reference,
+      amount_total: total,
+      metadata: m,
+      line_items: { data: lineItems.map((l) => ({ quantity: l.quantity, description: l.price_data.product_data.name, amount_total: l.quantity * l.price_data.unit_amount })) },
+    };
+    const sent = notifier.enabled ? await notifier.send(alertText(session, result)).catch(() => false) : false;
+    // The restaurant must have heard about it one way or the other, or the customer is told it failed.
+    return { ok: result.ok || result.ids.length > 0 || sent, reference };
   }
 
   /** @param {string} id */
@@ -173,6 +218,21 @@ export function createFulfilment({ stripe, formEncode, posBase, email, password,
   }
 
   return {
+    /**
+     * Places a cash on delivery order. No payment is involved, so the same order repeated within two minutes is ignored.
+     * @param {string} key @param {Parameters<typeof runCash>[0]} order
+     */
+    placeCash(key, order) {
+      const now = Date.now();
+      for (const [k, v] of recentCash) if (now - v.at > 120_000) recentCash.delete(k);
+      const seen = recentCash.get(key);
+      if (seen) return seen.job;
+      const job = runCash(order);
+      recentCash.set(key, { at: now, job });
+      job.then((r) => r.ok || recentCash.delete(key));
+      return job;
+    },
+
     /**
      * @param {string} id Stripe Checkout Session id
      * @returns {Promise<boolean>} true when the POS has the order

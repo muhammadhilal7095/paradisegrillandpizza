@@ -59,6 +59,29 @@ export async function startCardPayment(items: CartItem[], details: CheckoutDetai
   }
 }
 
+/** Places a cash on delivery order (no card, no Stripe). The server prices it and returns the amount to have ready. */
+export async function placeCashOrder(items: CartItem[], details: CheckoutDetails): Promise<{ reference: string; total: number } | { error: string }> {
+  try {
+    const res = await fetch("/pay-api/cash-order", {
+      method: "POST",
+      headers: json,
+      body: JSON.stringify({
+        items: items.map((i) => ({ productId: i.productId, selections: i.selections ?? {}, quantity: i.quantity })),
+        customer: { name: details.name.trim(), phone: details.phone.trim(), email: details.email.trim() },
+        fulfilment: details.fulfilment,
+        address: details.address.trim(),
+        postcode: details.postcode.trim(),
+        notes: details.notes.trim(),
+      }),
+    });
+    const body = (await res.json().catch(() => ({}))) as { reference?: string; total?: number; message?: string };
+    if (res.ok && body.reference) return { reference: body.reference, total: body.total ?? 0 };
+    return { error: body.message || "We couldn't place your order. Nothing has been charged. Please call us or try again." };
+  } catch {
+    return { error: "We couldn't reach the ordering service. Check your connection and try again." };
+  }
+}
+
 /** The outcome of a Stripe Checkout session, checked on the server. */
 export async function getPaymentResult(sessionId: string): Promise<PaymentResult | null> {
   try {

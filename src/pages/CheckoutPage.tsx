@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Bike, CircleAlert, CircleCheck, CreditCard, KeyRound, LoaderCircle, Lock, Mail, MapPin, Phone, ShoppingBag, ShoppingCart, UserRound } from "lucide-react";
+import { ArrowRight, Banknote, Bike, CircleAlert, CircleCheck, CreditCard, KeyRound, LoaderCircle, Lock, Mail, MapPin, Phone, ShoppingBag, ShoppingCart, UserRound } from "lucide-react";
 import { AuthField } from "../components/auth/AuthField";
 import { FormAlert } from "../components/auth/FormAlert";
 import { OrderSummary } from "../components/cart/OrderSummary";
@@ -26,7 +26,7 @@ import {
   type CheckoutDetails,
   type CheckoutErrors,
 } from "../lib/order";
-import { cardPaymentsEnabled, startCardPayment } from "../lib/payments";
+import { cardPaymentsEnabled, placeCashOrder, startCardPayment } from "../lib/payments";
 
 /** sessionStorage key: what happened to the account, shown again after returning from Stripe. */
 export const ACCOUNT_NOTE_KEY = "paradise-account-note";
@@ -37,7 +37,7 @@ export type Account = "existing" | "created" | "created-no-password" | "email-ta
 type Status =
   | { kind: "idle" }
   | { kind: "submitting" }
-  | { kind: "placed"; reference?: string; account: Account }
+  | { kind: "placed"; reference?: string; account: Account; cashTotal?: number }
   | { kind: "whatsapp"; url: string; account: Account };
 
 const FIELD_ORDER: (keyof CheckoutDetails)[] = ["name", "phone", "email", "password", "fulfilment", "address", "postcode", "notes"];
@@ -178,6 +178,23 @@ export function CheckoutPage() {
     setStatus({ kind: "idle" });
   };
 
+  /** Cash on delivery: create the account (guests), then place the order straight away. */
+  const handleCash = async () => {
+    setSubmitError("");
+    if (!check()) return;
+    setStatus({ kind: "submitting" });
+    const account = await ensureAccount();
+    const result = await placeCashOrder(items, details);
+    if ("reference" in result) {
+      clear();
+      setStatus({ kind: "placed", reference: result.reference, account, cashTotal: result.total });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setSubmitError(result.error);
+      setStatus({ kind: "idle" });
+    }
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     // Card payment (Stripe) is always offered; handleCardPayment re-checks the payment server first.
@@ -213,9 +230,15 @@ export function CheckoutPage() {
                   Order reference: <span className="font-display">{status.reference}</span>
                 </p>
               )}
-              <p>
-                The restaurant's ordering system accepted your order. We'll call {details.phone.trim()} if there are any questions.
-              </p>
+              {status.cashTotal ? (
+                <p>
+                  Please have <strong className="text-ink">{formatPrice(status.cashTotal)} in cash</strong> ready for the driver. We'll call {details.phone.trim()} if there are any questions.
+                </p>
+              ) : (
+                <p>
+                  The restaurant's ordering system accepted your order. We'll call {details.phone.trim()} if there are any questions.
+                </p>
+              )}
               <AccountNote account={status.account} email={details.email.trim()} />
             </>
           }
@@ -548,6 +571,12 @@ export function CheckoutPage() {
                 ) : (
                   <>Place order · {formatPrice(totals.total)}</>
                 )}
+              </button>
+            )}
+            {cardPay && details.fulfilment === "delivery" && (
+              <button type="button" onClick={handleCash} disabled={submitting} className={buttonClasses("outlineDark", "md", "mt-2 w-full disabled:opacity-70")}>
+                {submitting ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <Banknote size={18} strokeWidth={2} aria-hidden="true" />}
+                {submitting ? "Placing your order…" : `Cash on delivery · ${formatPrice(totals.total)}`}
               </button>
             )}
             {whatsappConfigured && (

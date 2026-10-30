@@ -4,10 +4,10 @@
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
-  # Card payments: the PHP payment API (pay-api/index.php) answers /pay-api/status, /checkout, /session and /webhook.
+  # Card payments: the PHP payment API (pay-api/index.php) answers /pay-api/status, /checkout, /session, /cash-order and /webhook.
   # Its settings file holds the Stripe secret key and is never served.
   RewriteRule ^pay-api/(config|fulfil)\.php$ - [F,L]
-  RewriteRule ^pay-api/(status|checkout|session|webhook)/?$ pay-api/index.php [L,QSA]
+  RewriteRule ^pay-api/(status|checkout|session|webhook|cash-order)/?$ pay-api/index.php [L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]

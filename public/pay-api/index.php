@@ -6,6 +6,7 @@
  *   GET  /pay-api/status            → { enabled }
  *   POST /pay-api/checkout          → { url }  (redirect the customer there)
  *   GET  /pay-api/session?id=cs_…   → { paid, … } for the confirmation page
+ *   POST /pay-api/cash-order        → { reference, total }  (cash on delivery: no Stripe, goes straight to the POS and WhatsApp)
  *   POST /pay-api/webhook           ← Stripe's "payment finished" message
  *
  * The root .htaccess sends those addresses here. The secret key comes from config.php, which
@@ -361,7 +362,7 @@ function valid_stripe_signature($raw, $header, $secret)
 // ---------- Routing ----------
 
 $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$route = preg_match('#/pay-api/(status|checkout|session|webhook)/?$#', $path, $mm) ? $mm[1] : '';
+$route = preg_match('#/pay-api/(status|checkout|session|webhook|cash-order)/?$#', $path, $mm) ? $mm[1] : '';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 try {
@@ -369,7 +370,7 @@ try {
     if (!$enabled) send(503, array('message' => "Online payment isn't set up yet."));
 
     // ---- Start a payment ----
-    if ($route === 'checkout' && $method === 'POST') {
+    if (($route === 'checkout' || $route === 'cash-order') && $method === 'POST') {
         $raw = (string) file_get_contents('php://input');
         if (strlen($raw) > 50000) send(413, array('message' => 'Order too large.'));
         $body = json_decode($raw !== '' ? $raw : '{}', true);
@@ -447,6 +448,15 @@ try {
         }
         if ($serviceFee) $lineItems[] = array('quantity' => 1, 'price_data' => array('currency' => 'gbp', 'unit_amount' => $serviceFee, 'product_data' => array('name' => 'Service fee')));
         if ($deliveryFee) $lineItems[] = array('quantity' => 1, 'price_data' => array('currency' => 'gbp', 'unit_amount' => $deliveryFee, 'product_data' => array('name' => 'Delivery')));
+
+        if ($route === 'cash-order') {
+            if ($fulfilment !== 'delivery') send(400, array('message' => 'Cash payment is only available for delivery.'));
+            require_once __DIR__ . '/fulfil.php';
+            $total = $subtotal + $deliveryFee + $serviceFee;
+            $placed = place_cash_order(md5(json_encode(array($phone, $address, $items))), array_merge($metadata, array('payment' => 'cash')), pos_metadata($lines), $total, $lineItems);
+            if (!$placed['ok']) send(502, array('message' => "We couldn't place your order. Nothing has been charged. Please call us or try again."));
+            send(200, array('reference' => $placed['reference'], 'total' => $total));
+        }
 
         $site = site_origin();
         $session = stripe('/checkout/sessions', 'POST', array(

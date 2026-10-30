@@ -6,13 +6,14 @@
  *   GET  /pay-api/status            → { enabled }
  *   POST /pay-api/checkout          → { url }  (redirect the customer there)
  *   GET  /pay-api/session?id=cs_…   → { paid, … } for the confirmation page
+ *   POST /pay-api/cash-order        → { reference, total }  (cash on delivery: no Stripe, goes straight to the POS and WhatsApp)
  *
  * Prices are NEVER taken from the browser: every item is re-priced from the POS (price, discount,
  * variant and add-on prices) and the delivery fee comes from src/config/delivery.json.
  * The order details are stored as metadata on the Stripe payment, so they appear in the Stripe Dashboard.
  */
 
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createFulfilment, posMetadata } from "./fulfil.js";
 import { createWhatsAppNotifier } from "./notify.js";
@@ -87,7 +88,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, o
     return data;
   }
 
-  const fulfilment = createFulfilment({
+  const orderDesk = createFulfilment({
     stripe,
     formEncode,
     posBase: (posConfig.baseUrl ?? "").trim().replace(/\/+$/, ""),
@@ -256,7 +257,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, o
       if (!enabled) return send(503, { message: "Online payment isn't set up yet." });
 
       // ---- Start a payment ----
-      if (route === "/checkout" && req.method === "POST") {
+      if ((route === "/checkout" || route === "/cash-order") && req.method === "POST") {
         const body = await readJson(req);
         const items = Array.isArray(body.items) ? body.items.slice(0, MAX_LINES) : [];
         const c = body.customer ?? {};
@@ -324,6 +325,19 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, o
         if (serviceFee) lineItems.push({ quantity: 1, price_data: { currency: "gbp", unit_amount: serviceFee, product_data: { name: "Service fee", images: undefined } } });
         if (deliveryFee) lineItems.push({ quantity: 1, price_data: { currency: "gbp", unit_amount: deliveryFee, product_data: { name: "Delivery", images: undefined } } });
 
+        if (route === "/cash-order") {
+          if (fulfilment !== "delivery") return send(400, { message: "Cash payment is only available for delivery." });
+          const repeatKey = createHash("sha256").update(JSON.stringify([phone, address, items])).digest("hex");
+          const placed = await orderDesk.placeCash(repeatKey, {
+            metadata: { ...metadata, payment: "cash" },
+            spec: posMetadata(lines),
+            total: subtotal + deliveryFee + serviceFee,
+            lineItems,
+          });
+          if (!placed.ok) return send(502, { message: "We couldn't place your order. Nothing has been charged. Please call us or try again." });
+          return send(200, { reference: placed.reference, total: subtotal + deliveryFee + serviceFee });
+        }
+
         const site = origin(req);
         const session = await stripe(
           "/checkout/sessions",
@@ -353,7 +367,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, o
         const event = JSON.parse(raw);
         const paidEvent = ["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type);
         if (paidEvent && event.data?.object?.payment_status === "paid") {
-          const done = await fulfilment.fulfil(event.data.object.id);
+          const done = await orderDesk.fulfil(event.data.object.id);
           if (!done) return send(500, { message: "Order not added to the POS yet." }); // Stripe tries again later.
         }
         return send(200, { received: true });
@@ -365,7 +379,7 @@ export function createPayments({ stripeKey = "", siteUrl = "", pos: posConfig, o
         if (!/^cs_(live|test)_[A-Za-z0-9]+$/.test(id)) return send(400, { message: "Invalid payment reference." });
         const s = await stripe(`/checkout/sessions/${id}?expand[]=line_items`, "GET");
         const m = s.metadata ?? {};
-        if (s.payment_status === "paid") await fulfilment.fulfil(id);
+        if (s.payment_status === "paid") await orderDesk.fulfil(id);
         return send(200, {
           paid: s.payment_status === "paid",
           status: s.status,
