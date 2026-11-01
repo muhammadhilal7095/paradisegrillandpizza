@@ -12,6 +12,54 @@ if (!defined('PAY_API')) {
     exit;
 }
 
+/** Keeps the latest failure for the setup check. POS messages only; no customer details or secrets. */
+function remember_failure($kind, $message)
+{
+    @file_put_contents(sys_get_temp_dir() . '/paradise-pay-last-' . $kind . '.json', json_encode(array('at' => gmdate('c'), 'message' => substr((string) $message, 0, 200))));
+}
+
+/** What's configured and whether the POS accepts the login. Makes no order and sends no message; cached for a minute. */
+function pay_diagnostics()
+{
+    global $config;
+    $cache = sys_get_temp_dir() . '/paradise-pay-diag.json';
+    if (is_file($cache) && time() - (int) filemtime($cache) < 60) {
+        $seen = json_decode((string) file_get_contents($cache), true);
+        if (is_array($seen)) return $seen;
+    }
+    $email = trim((string) ($config['order_email'] ?? ''));
+    $password = (string) ($config['order_password'] ?? '');
+    $key = trim((string) ($config['whatsapp_apikey'] ?? ''));
+    $phone = preg_replace('/\D/', '', (string) ($config['whatsapp_phone'] ?? ''));
+    $out = array(
+        'order_login_set' => $email !== '' && $password !== '',
+        'whatsapp_key_set' => $key !== '',
+        'whatsapp_key_is_the_phone_number' => $key !== '' && preg_replace('/\D/', '', $key) === $phone,
+        'webhook_secret_set' => trim((string) ($config['webhook_secret'] ?? '')) !== '',
+        'pos_login' => 'not tried',
+        'pos_orders_access' => 'not tried',
+    );
+    if ($out['order_login_set']) {
+        try {
+            $login = pos_order_call('/auth/login', 'POST', array('email' => $email, 'password' => $password));
+            $token = str($login['token'] ?? '');
+            $out['pos_login'] = $token !== '' ? 'ok' : 'no token returned';
+            if ($token !== '') {
+                pos_order_call('/orders?per_page=1', 'GET', null, $token);
+                $out['pos_orders_access'] = 'ok';
+            }
+        } catch (Throwable $e) {
+            $out[$out['pos_login'] === 'ok' ? 'pos_orders_access' : 'pos_login'] = substr($e->getMessage(), 0, 200);
+        }
+    }
+    foreach (array('pos', 'whatsapp') as $kind) {
+        $file = sys_get_temp_dir() . '/paradise-pay-last-' . $kind . '.json';
+        $out['last_' . $kind . '_failure'] = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+    }
+    @file_put_contents($cache, json_encode($out));
+    return $out;
+}
+
 function pos_order_call($path, $method, $body = null, $token = '')
 {
     global $posBase;
@@ -126,6 +174,7 @@ function send_to_pos($s)
         return array('ok' => true, 'ids' => $ids, 'total' => $total);
     } catch (Throwable $e) {
         error_log('[pos-order] ' . substr($e->getMessage(), 0, 160));
+        remember_failure('pos', $e->getMessage());
         return array('ok' => false, 'ids' => $ids, 'total' => 0);
     }
 }
@@ -168,6 +217,7 @@ function send_whatsapp($text)
     list($status, $body) = http('GET', $url, array(), null, 15);
     if ($status >= 200 && $status < 300 && !preg_match('/error|invalid|not.*(allowed|valid)/i', $body)) return true;
     error_log('[whatsapp-notify] not sent: ' . $status);
+    remember_failure('whatsapp', 'CallMeBot ' . $status . ': ' . trim(preg_replace('/\s+/', ' ', strip_tags(str_replace($key, '***', $body)))));
     return false;
 }
 
@@ -215,6 +265,7 @@ function place_cash_order($repeatKey, $metadata, $specChunks, $total, $lineItems
             $result['ok'] = true;
         } catch (Throwable $e) {
             error_log('[pos-order] ' . substr($e->getMessage(), 0, 160));
+            remember_failure('pos', $e->getMessage());
         }
 
         $reference = $result['ids'][0] ?? strtoupper(bin2hex(random_bytes(4)));

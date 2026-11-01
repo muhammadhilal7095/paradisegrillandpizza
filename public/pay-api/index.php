@@ -362,11 +362,16 @@ function valid_stripe_signature($raw, $header, $secret)
 // ---------- Routing ----------
 
 $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$route = preg_match('#/pay-api/(status|checkout|session|webhook|cash-order)/?$#', $path, $mm) ? $mm[1] : '';
+$route = preg_match('#/pay-api/(status|checkout|session|webhook|cash-order|diag)/?$#', $path, $mm) ? $mm[1] : '';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 try {
     if ($route === 'status' && $method === 'GET') send(200, array('enabled' => $enabled));
+    // Temporary setup check: says what's configured and why orders last failed, never a key or password.
+    if ($route === 'diag' && $method === 'GET') {
+        require_once __DIR__ . '/fulfil.php';
+        send(200, pay_diagnostics());
+    }
     if (!$enabled) send(503, array('message' => "Online payment isn't set up yet."));
 
     // ---- Start a payment ----
