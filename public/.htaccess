@@ -4,6 +4,8 @@
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
+  # The menu proxy only exists on the Node server. Answering 404 here makes the site read the public POS menu directly.
+  RewriteRule ^menu-api(/|$) - [R=404,L]
   # Card payments: the PHP payment API (pay-api/index.php) answers /pay-api/status, /checkout, /session and /webhook.
   # Its settings file holds the Stripe secret key and is never served.
   RewriteRule ^pay-api/(config|fulfil)\.php$ - [F,L]

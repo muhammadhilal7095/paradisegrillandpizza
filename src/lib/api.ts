@@ -1,8 +1,8 @@
 /**
  * Single API client for the Paradise Gap mobile auth API.
  *
- * - Base URL comes from VITE_API_BASE_URL (never hardcoded). Example: put
- *   VITE_API_BASE_URL=https://example.com/api in .env.local (git-ignored).
+ * - Base URL is the restaurant's POS. VITE_API_BASE_URL overrides it if set, so the public menu
+ *   still loads when a host's build settings leave that variable out.
  * - Protected calls get `Authorization: Bearer <token>` automatically.
  * - Errors become an ApiError with a `kind` the UI can switch on:
  *   validation (422, with per-field messages), forbidden (403, account disabled),
@@ -10,7 +10,7 @@
  * - Only the token is persisted. Passwords are sent once and never stored.
  */
 
-const BASE_URL = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "").trim().replace(/\/+$/, "");
+const BASE_URL = (((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "").trim() || "https://pos.paradisegap.co.uk/api").replace(/\/+$/, "");
 const TOKEN_KEY = "burgerbite-auth-token";
 const TIMEOUT_MS = 20000;
 
