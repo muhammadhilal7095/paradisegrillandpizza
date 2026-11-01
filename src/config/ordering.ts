@@ -1,13 +1,13 @@
 /**
- * Ordering settings: collection/delivery, fees and the WhatsApp number.
+ * Ordering settings: collection/delivery, fees and the WhatsApp contact number.
  *
  * Fees and minimums live in delivery.json (shared with the payment server) and are SAMPLE values. Replace them with the restaurant's real
  * figures, then set ORDERING_SETTINGS_VERIFIED to true (until then checkout shows a
  * short "sample fees" note so nobody relies on them).
  *
  * Card payments go through Stripe Checkout (server/payments.js; STRIPE_SECRET_KEY on the server).
- * The site says "paid" only after the server confirms the payment with Stripe. WhatsApp orders are
- * confirmed by the restaurant replying, and VITE_ORDER_ENDPOINT orders only once that endpoint returns success.
+ * The site says "paid" only after the server confirms the payment with Stripe, and VITE_ORDER_ENDPOINT
+ * orders only once that endpoint returns success.
  */
 
 import DELIVERY from "./delivery.json";
@@ -33,12 +33,7 @@ export const ORDERING = {
 
 export type Fulfilment = "collection" | "delivery";
 
-/**
- * WhatsApp number in international format, digits only (e.g. 447700900123).
- * Set VITE_WHATSAPP_NUMBER in .env.local. While it's empty the WhatsApp button
- * explains that WhatsApp ordering isn't set up yet instead of opening a chat.
- */
-/** The restaurant's WhatsApp number (+44 7486 643846). VITE_WHATSAPP_NUMBER overrides it if set. */
+/** The restaurant's WhatsApp number for customer questions (+44 7486 643846). VITE_WHATSAPP_NUMBER overrides it if set. */
 export const WHATSAPP_NUMBER = ((import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined) || "447486643846").replace(/\D/g, "");
 /** Shown to customers. */
 export const WHATSAPP_DISPLAY = "+44 7486 643846";
@@ -46,6 +41,6 @@ export const WHATSAPP_DISPLAY = "+44 7486 643846";
 /**
  * Optional online order endpoint (your own API / POS). It receives a POST with the order as JSON
  * and must answer 2xx with { reference?: string } once the order is really accepted.
- * Leave empty to offer WhatsApp ordering only.
+ * Leave empty to use card payment and cash on delivery through the payment server.
  */
 export const ORDER_ENDPOINT = ((import.meta.env.VITE_ORDER_ENDPOINT as string | undefined) ?? "").trim();

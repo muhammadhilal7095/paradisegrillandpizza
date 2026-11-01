@@ -1,28 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CircleAlert, CircleCheck, LoaderCircle } from "lucide-react";
-import { WhatsAppIcon } from "../components/cart/WhatsAppIcon";
 import { buttonClasses } from "../components/ui/button";
 import { PageTitleBar } from "../components/ui/PageTitleBar";
-import { WHATSAPP_NUMBER } from "../config/ordering";
-import { BRAND } from "../config/site";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../data/menu";
-import { whatsappConfigured } from "../lib/order";
 import { getPaymentResult, type PaymentResult } from "../lib/payments";
 import { ACCOUNT_NOTE_KEY, AccountNote, Outcome, type Account } from "./CheckoutPage";
-
-/** WhatsApp message for an order that has already been paid by card. */
-function paidOrderMessage(r: PaymentResult) {
-  const lines = [`Hello ${BRAND.name}, I've just PAID for an order online.`, `Payment reference: ${r.reference}`, ""];
-  for (const item of r.items) lines.push(`${item.quantity} × ${item.name} – ${formatPrice(item.amount)}`);
-  lines.push("", `Total paid: ${formatPrice(r.total)}`, `Order type: ${r.fulfilment === "delivery" ? "Delivery" : "Collection"}`);
-  if (r.customer.name) lines.push(`Name: ${r.customer.name}`);
-  if (r.customer.phone) lines.push(`Phone: ${r.customer.phone}`);
-  if (r.address) lines.push(`Address: ${r.address}`);
-  if (r.notes) lines.push(`Notes: ${r.notes}`);
-  return lines.join("\n");
-}
 
 /**
  * Where Stripe sends the customer back. Only says "paid" after the server has confirmed the
@@ -87,8 +71,6 @@ export function CheckoutSuccessPage() {
     );
   }
 
-  const whatsappHref = whatsappConfigured ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(paidOrderMessage(result))}` : null;
-
   return (
     <main>
       <PageTitleBar title="Order confirmed" />
@@ -118,19 +100,11 @@ export function CheckoutSuccessPage() {
               {result.fulfilment === "delivery" ? "We'll deliver to " + (result.address || "your address") + "." : "We'll have it ready for collection."}{" "}
               We'll call {result.customer.phone || "you"} if there are any questions.
             </p>
-            {whatsappHref && <p>To get your order to the kitchen even faster, send it to us on WhatsApp too.</p>}
             {account && <AccountNote account={account.account} email={account.email} />}
           </>
         }
       >
-        {whatsappHref && (
-          <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "md")}>
-            <WhatsAppIcon className="size-[18px]" />
-            Send order to the restaurant
-            <span className="sr-only"> (opens WhatsApp in a new tab)</span>
-          </a>
-        )}
-        <Link to="/" className={buttonClasses(whatsappHref ? "outlineDark" : "primary", "md")}>
+        <Link to="/" className={buttonClasses("primary", "md")}>
           Back to home
         </Link>
       </Outcome>

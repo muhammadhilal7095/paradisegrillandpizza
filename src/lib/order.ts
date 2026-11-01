@@ -1,5 +1,4 @@
-import { BRAND } from "../config/site";
-import { ORDER_ENDPOINT, ORDERING, WHATSAPP_NUMBER, type Fulfilment } from "../config/ordering";
+import { ORDER_ENDPOINT, ORDERING, type Fulfilment } from "../config/ordering";
 import type { CartItem } from "../context/CartContext";
 import { formatPrice, formatShortPrice } from "../data/menu";
 
@@ -69,34 +68,6 @@ export function validateCheckout(d: CheckoutDetails, subtotal: number, { guest =
   if (d.notes.length > 500) errors.notes = "Please keep notes under 500 characters.";
   return errors;
 }
-
-// ---------- WhatsApp ----------
-
-export const whatsappConfigured = WHATSAPP_NUMBER.length >= 10;
-
-/** Plain-text order summary for WhatsApp. */
-export function buildOrderMessage(items: CartItem[], totals: OrderTotals, details?: CheckoutDetails) {
-  const lines = [`Hello ${BRAND.name}, I'd like to place an order:`, ""];
-  for (const item of items) {
-    lines.push(`${item.quantity} × ${item.name} – ${formatPrice(item.price * item.quantity)}`);
-    if (item.options?.length) lines.push(`   (${item.options.join(", ")})`);
-  }
-  lines.push("", `Subtotal: ${formatPrice(totals.subtotal)}`);
-  if (details?.fulfilment === "delivery") lines.push(`Delivery: ${totals.deliveryFee ? formatPrice(totals.deliveryFee) : "Free"}`);
-  if (totals.serviceFee) lines.push(`Service fee: ${formatPrice(totals.serviceFee)}`);
-  lines.push(`Total: ${formatPrice(totals.total)}`);
-
-  if (details) {
-    lines.push("", `Order type: ${ORDERING[details.fulfilment].label}`, `Name: ${details.name.trim()}`, `Phone: ${details.phone.trim()}`);
-    if (details.email.trim()) lines.push(`Email: ${details.email.trim()}`);
-    if (details.fulfilment === "delivery") lines.push(`Address: ${details.address.trim()}, ${details.postcode.trim().toUpperCase()}`);
-    if (details.notes.trim()) lines.push(`Notes: ${details.notes.trim()}`);
-  }
-  lines.push("", "Please confirm my order and the total. Thank you!");
-  return lines.join("\n");
-}
-
-export const whatsappUrl = (message: string) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
 // ---------- Online order endpoint (optional) ----------
 

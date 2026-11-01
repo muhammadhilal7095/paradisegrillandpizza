@@ -68,7 +68,7 @@ export const PRIVACY_POLICY: PolicyDocument = {
       bullets: [
         "Stripe, to process card payments securely;",
         "our restaurant ordering and point-of-sale system, to manage orders and accounts;",
-        "WhatsApp (Meta), if you choose to send or receive order messages by WhatsApp;",
+        "WhatsApp (Meta), if you choose to message us on WhatsApp, and to send us alerts about new orders;",
         "our website hosting provider, and Google Fonts, which provides the website's fonts;",
         "our delivery staff, who receive your name, address and phone number to deliver your order;",
         "authorities such as HMRC or the police, where the law requires it.",

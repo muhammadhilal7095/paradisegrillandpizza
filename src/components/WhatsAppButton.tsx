@@ -60,7 +60,7 @@ export function WhatsAppButton() {
   if (!WHATSAPP_NUMBER || pathname.startsWith("/checkout")) return null;
 
   const raised = quantity > 0 && pathname.startsWith("/menu");
-  const message = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hello ${BRAND.name}, I'd like to place an order.`)}`;
+  const message = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hello ${BRAND.name}, I have a question.`)}`;
   const chat = `https://wa.me/${WHATSAPP_NUMBER}`;
   const phone = CONTACT.phones[0];
   const status = openStatus();
@@ -94,12 +94,12 @@ export function WhatsAppButton() {
           </div>
 
           <div className="px-5 pt-5 pb-5">
-            <p className="text-[11px] font-bold tracking-[0.18em] text-brand uppercase">Collection &amp; delivery</p>
+            <p className="text-[11px] font-bold tracking-[0.18em] text-brand uppercase">Contact us</p>
             <h2 id={titleId} className="mt-2 font-display text-[24px] leading-[1.15] font-extrabold">
-              Order on WhatsApp or <span className="text-brand">Call Now</span>
+              Chat on WhatsApp or <span className="text-brand">Call Now</span>
             </h2>
             <p className="mt-2.5 text-[14px] leading-relaxed text-white/70">
-              Send us your order or any question. We'll confirm the total and start cooking straight away.
+              Got a question about the menu, allergies or your order? We're happy to help.
             </p>
 
             <a
@@ -150,7 +150,7 @@ export function WhatsAppButton() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        aria-label={open ? "Close WhatsApp options" : "Order or chat on WhatsApp"}
+        aria-label={open ? "Close WhatsApp options" : "Chat with us on WhatsApp"}
         className="group relative flex items-center gap-2 rounded-full bg-[#25D366] p-3.5 text-white shadow-[0_12px_30px_-8px_rgba(18,140,75,0.7)] transition-transform duration-200 hover:scale-105"
       >
         {!open && <span aria-hidden="true" className="absolute inset-0 -z-10 animate-ping rounded-full bg-[#25D366] opacity-30 motion-reduce:hidden" />}

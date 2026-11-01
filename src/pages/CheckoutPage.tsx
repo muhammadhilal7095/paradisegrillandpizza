@@ -4,7 +4,6 @@ import { ArrowRight, Banknote, Bike, CircleAlert, CircleCheck, CreditCard, KeyRo
 import { AuthField } from "../components/auth/AuthField";
 import { FormAlert } from "../components/auth/FormAlert";
 import { OrderSummary } from "../components/cart/OrderSummary";
-import { WhatsAppIcon } from "../components/cart/WhatsAppIcon";
 import { buttonClasses } from "../components/ui/button";
 import { PageTitleBar } from "../components/ui/PageTitleBar";
 import { CONTACT } from "../config/contact";
@@ -16,13 +15,10 @@ import { ApiError } from "../lib/api";
 import { formatPrice, formatShortPrice, menuImage } from "../data/menu";
 import {
   availableFulfilments,
-  buildOrderMessage,
   onlineOrderingConfigured,
   orderTotals,
   submitOrder,
   validateCheckout,
-  whatsappConfigured,
-  whatsappUrl,
   type CheckoutDetails,
   type CheckoutErrors,
 } from "../lib/order";
@@ -37,8 +33,8 @@ export type Account = "existing" | "created" | "created-no-password" | "email-ta
 type Status =
   | { kind: "idle" }
   | { kind: "submitting" }
-  | { kind: "placed"; reference?: string; account: Account; cashTotal?: number }
-  | { kind: "whatsapp"; url: string; account: Account };
+  | { kind: "placed"; reference?: string; account: Account; cashTotal?: number };
+
 
 const FIELD_ORDER: (keyof CheckoutDetails)[] = ["name", "phone", "email", "password", "fulfilment", "address", "postcode", "notes"];
 
@@ -130,22 +126,6 @@ export function CheckoutPage() {
     return chosen ? "created" : "created-no-password";
   };
 
-  const handleWhatsApp = async () => {
-    setSubmitError("");
-    if (!check()) return;
-    // A tab opened right in the click is allowed by pop-up blockers; it's pointed at WhatsApp once the account step is done.
-    const tab = window.open("", "_blank");
-    setStatus({ kind: "submitting" });
-    const account = await ensureAccount();
-    const url = whatsappUrl(buildOrderMessage(items, totals, details));
-    if (tab && !tab.closed) {
-      tab.opener = null;
-      tab.location.href = url;
-    }
-    setStatus({ kind: "whatsapp", url, account });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   /** Card payment: create the account (guests), then hand over to Stripe's secure payment page. */
   const handleCardPayment = async () => {
     setSubmitError("");
@@ -154,11 +134,7 @@ export function CheckoutPage() {
       const on = await cardPaymentsEnabled();
       setCardPay(on);
       if (!on) {
-        setSubmitError(
-          whatsappConfigured
-            ? "Card payment isn't available right now, sorry. Please send your order on WhatsApp instead and pay when you collect or on delivery."
-            : `Card payment isn't available right now, sorry. Please call us on ${CONTACT.phones[0]} to place your order.`,
-        );
+        setSubmitError(`Card payment isn't available right now, sorry. Please call us on ${CONTACT.phones[0]} to place your order.`);
         return;
       }
     }
@@ -246,48 +222,6 @@ export function CheckoutPage() {
           <Link to="/" className={buttonClasses("primary", "md")}>
             Back to home
           </Link>
-        </Outcome>
-      </main>
-    );
-  }
-
-  if (status.kind === "whatsapp") {
-    return (
-      <main>
-        <PageTitleBar title="Send your order" trail={[{ label: "Cart", to: "/cart" }]} />
-        <Outcome
-          icon={<WhatsAppIcon className="size-8" />}
-          title="Finish your order in WhatsApp"
-          body={
-            <>
-              <p>
-                WhatsApp should now be open with your order typed out. <strong className="text-ink">Press send in WhatsApp</strong> to send it to us.
-              </p>
-              <p>
-                Your order is <strong className="text-ink">not confirmed</strong> until the restaurant replies to confirm it and the total.
-              </p>
-              <AccountNote account={status.account} email={details.email.trim()} />
-            </>
-          }
-        >
-          <a href={status.url} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "md")}>
-            <WhatsAppIcon className="size-[18px]" />
-            Open WhatsApp again
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
-          <button type="button" onClick={() => setStatus({ kind: "idle" })} className={buttonClasses("outlineDark", "md")}>
-            Edit my details
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              clear();
-              setStatus({ kind: "idle" });
-            }}
-            className="inline-flex min-h-11 items-center px-3 text-[14px] font-semibold text-brand-dark underline-offset-4 hover:underline"
-          >
-            I've sent it, clear my cart
-          </button>
         </Outcome>
       </main>
     );
@@ -579,18 +513,6 @@ export function CheckoutPage() {
                 {submitting ? "Placing your order…" : `Cash on delivery · ${formatPrice(totals.total)}`}
               </button>
             )}
-            {whatsappConfigured && (
-              <button
-                type="button"
-                onClick={handleWhatsApp}
-                disabled={submitting}
-                className={buttonClasses("outlineDark", "md", "mt-2 w-full disabled:opacity-70")}
-              >
-                {submitting ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <WhatsAppIcon className="size-[18px]" />}
-                {submitting ? "Preparing your order…" : "Or order on WhatsApp (pay later)"}
-              </button>
-            )}
-
             <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-muted">
               <Lock size={13} strokeWidth={2.2} aria-hidden="true" className="mt-0.5 shrink-0" />
               Card payments (Visa, Mastercard, Amex, Apple Pay, Google Pay) are processed securely by Stripe. We never see or store your card

@@ -2,13 +2,12 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ShoppingCart } from "lucide-react";
 import { CartLine } from "../components/cart/CartLine";
 import { OrderSummary } from "../components/cart/OrderSummary";
-import { WhatsAppIcon } from "../components/cart/WhatsAppIcon";
 import { buttonClasses } from "../components/ui/button";
 import { PageTitleBar } from "../components/ui/PageTitleBar";
 import { ORDER_PATH } from "../config/site";
 import { useCart } from "../context/CartContext";
 import { useMenu } from "../context/menuStore";
-import { buildOrderMessage, orderTotals, whatsappConfigured, whatsappUrl } from "../lib/order";
+import { orderTotals } from "../lib/order";
 
 const container = "mx-auto max-w-[1200px] px-4 md:px-6 desk:px-8";
 
@@ -19,7 +18,7 @@ export function CartPage() {
 
   return (
     <main>
-      <PageTitleBar title="Your Cart" description="Check your order, then head to checkout or send it to us on WhatsApp." />
+      <PageTitleBar title="Your Cart" description="Check your order, then head to checkout." />
 
       {items.length === 0 ? (
         <div className={`${container} py-14 md:py-20`}>
@@ -69,18 +68,6 @@ export function CartPage() {
                 Go to checkout
                 <ArrowRight size={17} strokeWidth={2.2} aria-hidden="true" />
               </Link>
-              {whatsappConfigured && (
-                <a
-                  href={whatsappUrl(buildOrderMessage(items, totals))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonClasses("outlineDark", "md", "mt-2 w-full")}
-                >
-                  <WhatsAppIcon className="size-[18px] text-[#128c4b]" />
-                  Quick order on WhatsApp
-                  <span className="sr-only"> (opens WhatsApp in a new tab)</span>
-                </a>
-              )}
               <p className="mt-3 text-[12px] leading-relaxed text-muted">
                 You'll add your name, phone and collection or delivery details at checkout.
               </p>
