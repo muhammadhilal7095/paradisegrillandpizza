@@ -41,6 +41,6 @@ export const WHATSAPP_DISPLAY = "+44 7486 643846";
 /**
  * Optional online order endpoint (your own API / POS). It receives a POST with the order as JSON
  * and must answer 2xx with { reference?: string } once the order is really accepted.
- * Leave empty to use card payment and cash on delivery through the payment server.
+ * Leave empty to use card payment through the payment server.
  */
 export const ORDER_ENDPOINT = ((import.meta.env.VITE_ORDER_ENDPOINT as string | undefined) ?? "").trim();

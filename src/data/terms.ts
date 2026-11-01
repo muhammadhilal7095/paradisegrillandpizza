@@ -41,7 +41,7 @@ export const TERMS: PolicyDocument = {
       title: "Placing an Order",
       icon: "bag",
       content: [
-        "When you place an order, you are offering to buy the items in your basket. A contract between you and us is formed when we accept your order: for card payments, when your payment is confirmed; for cash on delivery orders, when your order is placed on our website; for phone orders, when we confirm the order with you.",
+        "When you place an order, you are offering to buy the items in your basket. A contract between you and us is formed when we accept your order: for card payments, when your payment is confirmed; for phone orders, when we confirm the order with you.",
         "We may decline an order, for example if an item is unavailable, we are closed, or your address is outside our delivery area. If we do, any payment taken will be refunded in full.",
       ],
     },
@@ -51,7 +51,7 @@ export const TERMS: PolicyDocument = {
       icon: "card",
       content: [
         "All prices are shown in pounds sterling (GBP) and include VAT where it applies. A service fee of £0.99 applies to every order. Delivery charges, the service fee and any minimum order value are all shown at checkout before you pay.",
-        "Online card payments are processed securely by Stripe. Cash on delivery orders are paid to the driver when your order arrives. If a price is shown incorrectly because of an obvious error, we will contact you before accepting the order.",
+        "Online card payments are processed securely by Stripe. If a price is shown incorrectly because of an obvious error, we will contact you before accepting the order.",
       ],
     },
     {

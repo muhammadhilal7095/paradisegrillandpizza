@@ -47,6 +47,15 @@ function pay_diagnostics()
             if ($token !== '') {
                 pos_order_call('/orders?per_page=1', 'GET', null, $token);
                 $out['pos_orders_access'] = 'ok';
+                // Order format check: a product that can't exist, so the POS refuses it and nothing is made or printed.
+                $probe = array('r' => array(array('p' => 999999999, 'q' => 1, 'v' => null, 'a' => array())), 'd' => array());
+                $bodies = build_pos_orders($probe, array('fulfilment' => 'collection', 'customer_name' => 'Format check', 'customer_phone' => '07000000000'));
+                try {
+                    $made = pos_order_call('/orders', 'POST', $bodies[0], $token);
+                    $out['pos_order_format'] = 'UNEXPECTED: POS accepted it, order ' . str($made['order']['id'] ?? '?');
+                } catch (Throwable $e) {
+                    $out['pos_order_format'] = substr($e->getMessage(), 0, 200);
+                }
             }
         } catch (Throwable $e) {
             $out[$out['pos_login'] === 'ok' ? 'pos_orders_access' : 'pos_login'] = substr($e->getMessage(), 0, 200);
@@ -114,8 +123,7 @@ function build_pos_orders($spec, $m)
         $items = $g['items'];
         if ($deal) $items = array_merge($items, array_map('to_pos_item', $deal['i']));
         $part = count($groups) > 1 ? ' Part ' . ($i + 1) . ' of ' . count($groups) . '.' : '';
-        $paying = ($m['payment'] ?? '') === 'cash' ? 'CASH ON DELIVERY - NOT PAID. COLLECT ' . ($m['cash_total'] ?? '') . ' FOR THE WHOLE ORDER.' : 'PAID BY CARD.';
-        if ($items) $items[0]['special_instructions'] = 'WEBSITE ORDER - ' . $paying . $part . (!empty($m['notes']) ? ' Customer note: ' . $m['notes'] : '');
+        if ($items) $items[0]['special_instructions'] = 'WEBSITE ORDER - PAID BY CARD.' . $part . (!empty($m['notes']) ? ' Customer note: ' . $m['notes'] : '');
         $body = array(
             'order_type' => ($m['fulfilment'] ?? '') === 'delivery' ? 'delivery' : 'takeaway',
             'items' => $items,
@@ -185,23 +193,22 @@ function send_to_pos($s)
 function alert_text($s, $result)
 {
     $m = is_array($s['metadata'] ?? null) ? $s['metadata'] : array();
-    $cash = ($m['payment'] ?? '') === 'cash';
     $ref = strtoupper(substr(str($s['payment_intent'] ?? ''), -8)) ?: strtoupper(substr(str($s['id'] ?? ''), -8));
     $lines = array(
-        $cash ? 'NEW WEBSITE ORDER - CASH ON DELIVERY' : 'NEW PAID WEBSITE ORDER',
+        'NEW PAID WEBSITE ORDER',
         'Ref: ' . $ref,
         'Type: ' . (($m['fulfilment'] ?? '') === 'delivery' ? 'DELIVERY' : 'COLLECTION'),
         $result['ok'] ? 'Dashboard: ADDED (order ' . implode(', ', $result['ids']) . ')' : 'Dashboard: NOT ADDED - PLEASE ENTER THIS ORDER BY HAND',
     );
     $paid = (int) ($s['amount_total'] ?? 0);
     if ($result['ok'] && $result['total'] && $result['total'] !== $paid) {
-        $lines[] = 'Dashboard total: ' . money($result['total']) . ' (' . ($cash ? 'customer pays ' : 'card paid ') . money($paid) . ', which includes fees)';
+        $lines[] = 'Dashboard total: ' . money($result['total']) . ' (card paid ' . money($paid) . ', which includes fees)';
     }
     $lines[] = '';
     foreach ($s['line_items']['data'] ?? array() as $li) {
         $lines[] = ($li['quantity'] ?? 1) . ' x ' . str($li['description'] ?? '') . ' - ' . money((int) ($li['amount_total'] ?? 0));
     }
-    array_push($lines, '', $cash ? 'COLLECT IN CASH: ' . money($paid) : 'TOTAL PAID: ' . money($paid) . ' (card)', '', 'Name: ' . (($m['customer_name'] ?? '') ?: '-'), 'Phone: ' . (($m['customer_phone'] ?? '') ?: '-'));
+    array_push($lines, '', 'TOTAL PAID: ' . money($paid) . ' (card)', '', 'Name: ' . (($m['customer_name'] ?? '') ?: '-'), 'Phone: ' . (($m['customer_phone'] ?? '') ?: '-'));
     if (!empty($m['customer_email'])) $lines[] = 'Email: ' . $m['customer_email'];
     if (($m['fulfilment'] ?? '') === 'delivery') $lines[] = 'Address: ' . (($m['address'] ?? '') ?: '-');
     if (!empty($m['notes'])) $lines[] = 'Notes: ' . $m['notes'];
@@ -229,69 +236,6 @@ function alert_whatsapp($s, $result)
 {
     if ((($s['metadata']['whatsapp_notified'] ?? '') === '1')) return;
     if (send_whatsapp(alert_text($s, $result))) mark_session($s['id'], array('whatsapp_notified' => '1'));
-}
-
-/**
- * Places a cash on delivery order: POS order (not marked paid) and WhatsApp alert. No payment is involved,
- * so the same order repeated within two minutes is ignored. It only counts as placed if the restaurant
- * heard about it one way or the other.
- * @return array{ok:bool,reference:string}
- */
-function place_cash_order($repeatKey, $metadata, $specChunks, $total, $lineItems)
-{
-    $file = sys_get_temp_dir() . '/paradise-cash-' . $repeatKey . '.json';
-    $lock = @fopen($file . '.lock', 'c');
-    if ($lock) flock($lock, LOCK_EX);
-    try {
-        if (is_file($file) && time() - (int) filemtime($file) < 120) {
-            $seen = json_decode((string) file_get_contents($file), true);
-            if (is_array($seen) && !empty($seen['ok'])) return $seen;
-        }
-
-        $m = array_merge($metadata, array('cash_total' => money($total)));
-        $result = array('ok' => false, 'ids' => array(), 'total' => 0);
-        try {
-            global $config;
-            $email = trim((string) ($config['order_email'] ?? ''));
-            $password = (string) ($config['order_password'] ?? '');
-            if ($email === '' || $password === '') throw new PayError("POS order login isn't set up");
-            $spec = read_pos_spec($specChunks);
-            if (!$spec) throw new PayError('order too large to send');
-            $login = pos_order_call('/auth/login', 'POST', array('email' => $email, 'password' => $password));
-            $token = str($login['token'] ?? '');
-            if ($token === '') throw new PayError('POS login returned no token');
-            foreach (build_pos_orders($spec, $m) as $body) {
-                $created = pos_order_call('/orders', 'POST', $body, $token);
-                $result['ids'][] = str($created['order']['id'] ?? '') ?: '?';
-                $result['total'] += (int) round(((float) ($created['order']['grand_total'] ?? 0)) * 100);
-            }
-            $result['ok'] = true;
-        } catch (Throwable $e) {
-            error_log('[pos-order] ' . substr($e->getMessage(), 0, 160));
-            remember_failure('pos', $e->getMessage());
-        }
-
-        $reference = $result['ids'][0] ?? strtoupper(bin2hex(random_bytes(4)));
-        $items = array();
-        foreach ($lineItems as $l) {
-            $items[] = array('quantity' => $l['quantity'], 'description' => $l['price_data']['product_data']['name'], 'amount_total' => $l['quantity'] * $l['price_data']['unit_amount']);
-        }
-        $sent = false;
-        try {
-            $sent = send_whatsapp(alert_text(array('id' => $reference, 'amount_total' => $total, 'metadata' => $m, 'line_items' => array('data' => $items)), $result));
-        } catch (Throwable $e) {
-            error_log('[whatsapp-notify] ' . substr($e->getMessage(), 0, 160));
-        }
-
-        $placed = array('ok' => $result['ok'] || count($result['ids']) > 0 || $sent, 'reference' => $reference);
-        if ($placed['ok']) @file_put_contents($file, json_encode($placed));
-        return $placed;
-    } finally {
-        if ($lock) {
-            flock($lock, LOCK_UN);
-            fclose($lock);
-        }
-    }
 }
 
 /**
