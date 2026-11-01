@@ -23,7 +23,7 @@ function pay_diagnostics()
 {
     global $config;
     $cache = sys_get_temp_dir() . '/paradise-pay-diag.json';
-    if (is_file($cache) && time() - (int) filemtime($cache) < 60) {
+    if (is_file($cache) && time() - (int) filemtime($cache) < 60 && strpos((string) file_get_contents($cache), 'Text to send') === false) {
         $seen = json_decode((string) file_get_contents($cache), true);
         if (is_array($seen)) return $seen;
     }
@@ -54,7 +54,9 @@ function pay_diagnostics()
     }
     foreach (array('pos', 'whatsapp') as $kind) {
         $file = sys_get_temp_dir() . '/paradise-pay-last-' . $kind . '.json';
-        $out['last_' . $kind . '_failure'] = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+        $last = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+        if ($kind === 'whatsapp' && is_array($last)) $last['message'] = 'CallMeBot refused the message';
+        $out['last_' . $kind . '_failure'] = $last;
     }
     @file_put_contents($cache, json_encode($out));
     return $out;
@@ -217,7 +219,8 @@ function send_whatsapp($text)
     list($status, $body) = http('GET', $url, array(), null, 15);
     if ($status >= 200 && $status < 300 && !preg_match('/error|invalid|not.*(allowed|valid)/i', $body)) return true;
     error_log('[whatsapp-notify] not sent: ' . $status);
-    remember_failure('whatsapp', 'CallMeBot ' . $status . ': ' . trim(preg_replace('/\s+/', ' ', strip_tags(str_replace($key, '***', $body)))));
+    // Status only: CallMeBot's reply repeats the order text, which must not reach the setup check.
+    remember_failure('whatsapp', 'CallMeBot refused the message (' . $status . ')');
     return false;
 }
 
