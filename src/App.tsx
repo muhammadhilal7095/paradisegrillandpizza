@@ -4,6 +4,7 @@ import { Footer } from "./components/footer/Footer";
 import { SiteHeader } from "./components/header/SiteHeader";
 import { TopBar } from "./components/header/TopBar";
 import { ScrollManager } from "./components/ScrollManager";
+import { CookieBanner } from "./components/CookieBanner";
 import { WhatsAppButton } from "./components/WhatsAppButton";
 import { AboutPage } from "./pages/AboutPage";
 import { AccountPage } from "./pages/auth/AccountPage";
@@ -42,6 +43,7 @@ function Layout() {
       </div>
       <Footer />
       <WhatsAppButton />
+      <CookieBanner />
     </div>
   );
 }

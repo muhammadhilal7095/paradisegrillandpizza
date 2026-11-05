@@ -9,7 +9,7 @@
 import type { PolicyDocument } from "./policy";
 
 export const PRIVACY_POLICY: PolicyDocument = {
-  meta: { status: "published", lastUpdated: "2026-10-16" },
+  meta: { status: "published", lastUpdated: "2026-11-06" },
   summary: [
     "We only collect what we need to take, prepare and deliver your order.",
     "We never sell your data or send marketing without your consent.",
@@ -70,6 +70,7 @@ export const PRIVACY_POLICY: PolicyDocument = {
         "our restaurant ordering and point-of-sale system, to manage orders and accounts;",
         "WhatsApp (Meta), if you choose to message us on WhatsApp, and to send us alerts about new orders;",
         "our website hosting provider, and Google Fonts, which provides the website's fonts;",
+        "Google Ads, only if you accept advertising cookies, to measure how our adverts perform;",
         "our delivery staff, who receive your name, address and phone number to deliver your order;",
         "authorities such as HMRC or the police, where the law requires it.",
       ],
@@ -99,7 +100,9 @@ export const PRIVACY_POLICY: PolicyDocument = {
       title: "Cookies and Storage on Your Device",
       icon: "cookie",
       content: [
-        "We do not use advertising or tracking cookies. Our website stores only what is strictly necessary in your browser's local storage: your basket, so it isn't lost when you come back, and a sign-in token if you log in. Because this storage is strictly necessary, no cookie consent is required, and you can clear it at any time in your browser settings.",
+        "Strictly necessary storage: our website keeps your basket in your browser's local storage, so it isn't lost when you come back, a sign-in token if you log in, and your cookie choice. This needs no consent, and you can clear it at any time in your browser settings.",
+        "Advertising cookies (only if you accept): we use Google Ads to measure whether our adverts lead to orders. If you click Accept on our cookie banner, Google sets cookies and receives details of your visit and, when you order, the order value and payment reference (never your name, contact details or card). If you click Reject, Google's tag is not loaded and no Google cookie is set.",
+        "You can change your choice at any time with the Cookie settings link at the bottom of every page.",
       ],
     },
     {

@@ -2,16 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Google tag (gtag.js): Google Ads conversion tracking. The purchase conversion fires on /checkout/success. -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-5SRJ6TMJ"></script>
+    <!--
+      Google tag (Google Ads conversion tracking), loaded only after the visitor accepts cookies
+      (src/components/CookieBanner.tsx). Until then consent stays "denied" and gtag.js is never fetched,
+      so no Google cookie is set. The purchase conversion fires on /checkout/success.
+    -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
+      gtag("consent", "default", { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied", analytics_storage: "denied" });
       gtag("js", new Date());
       gtag("config", "GTM-5SRJ6TMJ");
       gtag("config", "AW-18556518542");
+      window.paradiseConsent = function (choice) {
+        try {
+          localStorage.setItem("paradise-cookie-consent", choice);
+        } catch (e) {}
+        if (choice !== "granted") return;
+        gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
+        if (document.getElementById("gtag-js")) return;
+        var s = document.createElement("script");
+        s.id = "gtag-js";
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=GTM-5SRJ6TMJ";
+        document.head.appendChild(s);
+      };
+      try {
+        if (localStorage.getItem("paradise-cookie-consent") === "granted") window.paradiseConsent("granted");
+      } catch (e) {}
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FFFFFF" />

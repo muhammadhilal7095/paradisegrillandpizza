@@ -1,3 +1,4 @@
+import { OPEN_COOKIE_SETTINGS } from "../CookieBanner";
 import { Link } from "react-router-dom";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT, CONTACT_DETAILS_VERIFIED, formatTime, OPENING_HOURS, telHref } from "../../config/contact";
@@ -120,7 +121,12 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
           </p>
-          <p>Food photography from Unsplash.</p>
+          <p className="flex flex-wrap items-center justify-center gap-x-4">
+            <button type="button" onClick={() => window.dispatchEvent(new Event(OPEN_COOKIE_SETTINGS))} className="min-h-10 underline-offset-4 hover:text-white hover:underline">
+              Cookie settings
+            </button>
+            <span>Food photography from Unsplash.</span>
+          </p>
         </div>
       </div>
     </footer>
