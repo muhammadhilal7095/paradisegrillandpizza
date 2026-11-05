@@ -32,10 +32,10 @@ export function CheckoutSuccessPage() {
   useEffect(() => {
     if (result === "loading" || !result?.paid || cleared.current) return;
     cleared.current = true;
-    // Google Ads purchase conversion. transaction_id stops a reload from counting the same order twice.
+    // Google Ads purchase conversion ("Purchase (1)"). transaction_id stops a reload from counting the same order twice.
     const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
     gtag?.("event", "conversion", {
-      send_to: "AW-18556518542/wilICL2MnbIdEI6BuJBF",
+      send_to: "AW-18556518542/ZjFFCP2Z8bIdEI6BuJBF",
       value: result.total / 100,
       currency: "GBP",
       transaction_id: result.reference,
