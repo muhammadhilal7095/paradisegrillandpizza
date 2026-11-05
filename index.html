@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <!--
-      Google tag (Google Ads conversion tracking), loaded only after the visitor accepts cookies
-      (src/components/CookieBanner.tsx). Until then consent stays "denied" and gtag.js is never fetched,
+      Google Tag Manager (GTM-5SRJ6TMJ) and the Google Ads tag (AW-18556518542), loaded only after the visitor accepts cookies
+      (src/components/CookieBanner.tsx). Until then consent stays "denied" and no Google script is fetched,
       so no Google cookie is set. The purchase conversion fires on /checkout/success.
     -->
     <script>
@@ -14,7 +14,6 @@
       }
       gtag("consent", "default", { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied", analytics_storage: "denied" });
       gtag("js", new Date());
-      gtag("config", "GTM-5SRJ6TMJ");
       gtag("config", "AW-18556518542");
       window.paradiseConsent = function (choice) {
         try {
@@ -22,12 +21,20 @@
         } catch (e) {}
         if (choice !== "granted") return;
         gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
-        if (document.getElementById("gtag-js")) return;
-        var s = document.createElement("script");
-        s.id = "gtag-js";
-        s.async = true;
-        s.src = "https://www.googletagmanager.com/gtag/js?id=GTM-5SRJ6TMJ";
-        document.head.appendChild(s);
+        if (document.getElementById("gtm-js")) return;
+        // Google Tag Manager container (gtm.js), as in Tag Manager's install snippet.
+        dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+        var gtm = document.createElement("script");
+        gtm.id = "gtm-js";
+        gtm.async = true;
+        gtm.src = "https://www.googletagmanager.com/gtm.js?id=GTM-5SRJ6TMJ";
+        document.head.appendChild(gtm);
+        // Google Ads tag, which sends the purchase conversion from /checkout/success.
+        var ads = document.createElement("script");
+        ads.id = "gtag-js";
+        ads.async = true;
+        ads.src = "https://www.googletagmanager.com/gtag/js?id=AW-18556518542";
+        document.head.appendChild(ads);
       };
       try {
         if (localStorage.getItem("paradise-cookie-consent") === "granted") window.paradiseConsent("granted");
